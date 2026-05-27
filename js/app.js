@@ -111,19 +111,11 @@ function renderResult(result) {
   // 四柱
   renderFourPillars(result);
 
-  // 五行
-  renderWuXing(result);
-
-  // 日主分析
-  renderDayStrength(result);
-
-  // 专业分析
-  renderGeJu(result);
-  renderTiaoHou(result);
-  renderSpecialCombinations(result);
-
   // 神煞
   renderShenSha(result);
+
+  // 格局
+  renderGeJu(result);
 
   // 刑冲合害
   renderXCHH(result);
@@ -172,53 +164,6 @@ function renderFourPillars(result) {
     `;
     container.appendChild(pillar);
   });
-}
-
-function renderWuXing(result) {
-  const wxWeight = result.wuXingWeight;
-  const wxCount = result.wuXing.count;
-  const maxWeight = Math.max(...Object.values(wxWeight), 1);
-  const wxNames = ['木', '火', '土', '金', '水'];
-
-  const container = document.getElementById('wuxing-chart');
-  const missing = wxNames.filter(w => wxCount[w] === 0);
-
-  container.innerHTML = `
-    <div class="wuxing-bars">
-      ${wxNames.map(wx => `
-        <div class="wx-bar-row">
-          <div class="wx-bar-label ${WX_CLASS[wx]}">${wx}</div>
-          <div class="wx-bar-track">
-            <div class="wx-bar-fill" style="width:${(wxWeight[wx] / maxWeight * 100)}%;background:${WX_COLOR[wx]}"></div>
-          </div>
-          <div class="wx-bar-value">${wxCount[wx]}个/${wxWeight[wx]}</div>
-        </div>
-      `).join('')}
-    </div>
-    ${missing.length > 0 ? `<div class="wx-missing">五行缺：${missing.join('、')}</div>` : ''}
-  `;
-}
-
-function renderDayStrength(result) {
-  const ds = result.dayStrength;
-  const GAN_WX = BaziEngine._constants.GAN_WU_XING;
-  const ganWx = GAN_WX[ds.dayGan];
-
-  let badgeClass = 'strength-neutral';
-  if (['身强', '偏强'].includes(ds.strength)) badgeClass = 'strength-strong';
-  else if (['身弱', '偏弱'].includes(ds.strength)) badgeClass = 'strength-weak';
-
-  const container = document.getElementById('day-strength');
-  container.innerHTML = `
-    <div class="strength-info">
-      <div class="strength-daygan ${WX_CLASS[ganWx]}">${ds.dayGan}</div>
-      <div class="strength-label">日主 · ${ganWx}</div>
-      <span class="strength-badge ${badgeClass}">${ds.strength}</span>
-    </div>
-    <div class="strength-details">
-      ${ds.analysis.map(a => `<div class="detail-item">${a}</div>`).join('')}
-    </div>
-  `;
 }
 
 // 神煞分类
@@ -508,77 +453,6 @@ function renderGeJu(result) {
       ${extra ? `<p style="margin-top:8px;">${extra}</p>` : ''}
     </div>
   `;
-}
-
-// ========== 专业分析：调候用神 ==========
-const _WX_BEI_KE = { '木': '金', '火': '水', '土': '木', '金': '火', '水': '土' };
-const _WX_SHENG = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' };
-
-function renderTiaoHou(result) {
-  const tiaoHou = result.tiaoHou;
-  const yongShen = result.yongShen;
-  const container = document.getElementById('tiaohou-content');
-  const GAN_WX = BaziEngine._constants.GAN_WU_XING;
-
-  if (!tiaoHou) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:12px;">此日主无需特殊调候</div>';
-    return;
-  }
-
-  const mainGanList = tiaoHou.mainGan.split('').filter(g => g.trim());
-  const auxGanList = tiaoHou.auxGan ? tiaoHou.auxGan.split('').filter(g => g.trim()) : [];
-
-  const mainHtml = mainGanList.map(g =>
-    `<span class="tiaohou-gan tiaohou-gan-main ${WX_CLASS[GAN_WX[g]]}">${g}（${GAN_WX[g]}）</span>`
-  ).join('');
-
-  const auxHtml = auxGanList.length > 0
-    ? auxGanList.map(g =>
-        `<span class="tiaohou-gan tiaohou-gan-aux ${WX_CLASS[GAN_WX[g]]}">${g}（${GAN_WX[g]}）</span>`
-      ).join('')
-    : '';
-
-  const mainWx = yongShen && yongShen.mainYongShenWx ? yongShen.mainYongShenWx : tiaoHou.mainWx;
-  const jiShen = _WX_BEI_KE[mainWx] || '';
-  const chouShen = _WX_SHENG[mainWx] || '';
-
-  container.innerHTML = `
-    <div class="tiaohou-main">
-      ${mainHtml}
-    </div>
-    ${auxHtml ? `<div style="text-align:center;margin-bottom:10px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">${auxHtml}</div>` : ''}
-    <div class="tiaohou-desc">
-      日主生于${result.fourPillars.month.zhi}月，${tiaoHou.description}
-    </div>
-    <div class="tiaohou-ref">
-      —— 参考《穷通宝鉴》
-    </div>
-    <div class="tiaohou-jishen">
-      主用神：<span style="color:var(--gold-light);">${mainWx}</span>　忌神：${jiShen}（克制用神）　仇神：${chouShen}（泄耗用神）
-    </div>
-  `;
-}
-
-// ========== 专业分析：特殊组合 ==========
-function renderSpecialCombinations(result) {
-  const combos = result.specialCombinations;
-  const container = document.getElementById('combos-content');
-
-  if (!combos || combos.length === 0) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:12px;">无特殊组合</div>';
-    return;
-  }
-
-  const severityClass = { 'good': 'combo-good', 'medium': 'combo-medium', 'high': 'combo-high' };
-  const severityIcon = { 'good': '✓', 'medium': '○', 'high': '⚠' };
-
-  container.innerHTML = combos.map(c => `
-    <div class="combo-tag ${severityClass[c.severity] || 'combo-medium'}">
-      <div class="combo-name">${severityIcon[c.severity]} ${c.name}</div>
-      <div class="combo-desc">${c.description}</div>
-      ${c.solution ? `<div class="combo-solution">→ 化解：${c.solution}</div>` : ''}
-    </div>
-  `).join('');
 }
 
 // ========== 渲染分析报告（内联） ==========

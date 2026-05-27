@@ -1,0 +1,14 @@
+{
+  "name": "bazi-system",
+  "version": "1.0.0",
+  "description": "八字排盘系统 - 自动排盘、分析报告、案例管理",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "keywords": ["bazi", "八字", "命理", "排盘"],
+  "author": "沈志恒",
+  "license": "ISC"
+}

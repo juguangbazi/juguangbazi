@@ -1049,6 +1049,119 @@ const YUE_DE = {
   '亥': '甲', '卯': '甲', '未': '甲'
 };
 
+// 红鸾（以日支查）
+const HONG_LUAN = {
+  '子': '卯', '丑': '寅', '寅': '丑', '卯': '子',
+  '辰': '亥', '巳': '戌', '午': '酉', '未': '申',
+  '申': '未', '酉': '午', '戌': '巳', '亥': '辰'
+};
+
+// 天喜（以日支查）
+const TIAN_XI = {
+  '子': '酉', '丑': '申', '寅': '未', '卯': '午',
+  '辰': '巳', '巳': '辰', '午': '卯', '未': '寅',
+  '申': '丑', '酉': '子', '戌': '亥', '亥': '戌'
+};
+
+// 孤辰（以年支查）
+const GU_CHEN = {
+  '寅': '巳', '卯': '巳', '辰': '巳',
+  '巳': '申', '午': '申', '未': '申',
+  '申': '亥', '酉': '亥', '戌': '亥',
+  '亥': '寅', '子': '寅', '丑': '寅'
+};
+
+// 寡宿（以年支查）
+const GUA_SU = {
+  '寅': '丑', '卯': '丑', '辰': '丑',
+  '巳': '辰', '午': '辰', '未': '辰',
+  '申': '未', '酉': '未', '戌': '未',
+  '亥': '戌', '子': '戌', '丑': '戌'
+};
+
+// 金舆（以日干查）
+const JIN_YU = {
+  '甲': '辰', '乙': '巳', '丙': '未', '丁': '申',
+  '戊': '未', '己': '申', '庚': '戌', '辛': '亥',
+  '壬': '丑', '癸': '寅'
+};
+
+// 学堂（以日干查，长生位）
+const XUE_TANG = {
+  '甲': '亥', '乙': '午', '丙': '寅', '丁': '酉',
+  '戊': '寅', '己': '酉', '庚': '巳', '辛': '子',
+  '壬': '申', '癸': '卯'
+};
+
+// 词馆（以日干查，临官位）
+const CI_GUAN = {
+  '甲': '寅', '乙': '申', '丙': '巳', '丁': '亥',
+  '戊': '巳', '己': '亥', '庚': '申', '辛': '寅',
+  '壬': '亥', '癸': '巳'
+};
+
+// 太极贵人（以日干查）
+const TAI_JI_GUI_REN = {
+  '甲': ['子', '午'], '乙': ['子', '午'],
+  '丙': ['卯', '酉'], '丁': ['卯', '酉'],
+  '戊': ['辰', '戌', '丑', '未'], '己': ['辰', '戌', '丑', '未'],
+  '庚': ['寅', '亥'], '辛': ['寅', '亥'],
+  '壬': ['巳', '申'], '癸': ['巳', '申']
+};
+
+// 福星贵人（以日干查）
+const FU_XING_GUI_REN = {
+  '甲': ['寅', '丑'], '乙': ['丑', '卯'],
+  '丙': ['寅', '巳'], '丁': ['巳', '申'],
+  '戊': ['申', '丑'], '己': ['申', '亥'],
+  '庚': ['巳', '午'], '辛': ['卯', '申'],
+  '壬': ['亥', '子'], '癸': ['亥', '卯']
+};
+
+// 国印贵人（以日干查）
+const GUO_YIN_GUI_REN = {
+  '甲': '戌', '乙': '亥', '丙': '丑', '丁': '寅',
+  '戊': '丑', '己': '寅', '庚': '辰', '辛': '巳',
+  '壬': '未', '癸': '申'
+};
+
+// 天厨贵人（以日干查）
+const TIAN_CHU_GUI_REN = {
+  '甲': '巳', '乙': '午', '丙': '子', '丁': '巳',
+  '戊': '午', '己': '申', '庚': '寅', '辛': '午',
+  '壬': '酉', '癸': '亥'
+};
+
+// 亡神（以年支查）
+const WANG_SHEN = {
+  '寅': '巳', '午': '巳', '戌': '巳',
+  '申': '亥', '子': '亥', '辰': '亥',
+  '巳': '申', '酉': '申', '丑': '申',
+  '亥': '寅', '卯': '寅', '未': '寅'
+};
+
+// 劫煞（以年支查）
+const JIE_SHA = {
+  '寅': '亥', '午': '亥', '戌': '亥',
+  '申': '巳', '子': '巳', '辰': '巳',
+  '巳': '寅', '酉': '寅', '丑': '寅',
+  '亥': '申', '卯': '申', '未': '申'
+};
+
+// 丧门（以年支查）
+const SANG_MEN = {
+  '子': '寅', '丑': '卯', '寅': '辰', '卯': '巳',
+  '辰': '午', '巳': '未', '午': '申', '未': '酉',
+  '申': '戌', '酉': '亥', '戌': '子', '亥': '丑'
+};
+
+// 吊客（以年支查）
+const DIAO_KE = {
+  '子': '辰', '丑': '巳', '寅': '午', '卯': '未',
+  '辰': '申', '巳': '酉', '午': '戌', '未': '亥',
+  '申': '子', '酉': '丑', '戌': '寅', '亥': '卯'
+};
+
 function calcShenSha(fourPillars) {
   const dayGan = fourPillars.day.gan;
   const dayZhi = fourPillars.day.zhi;
@@ -1164,6 +1277,126 @@ function calcShenSha(fourPillars) {
       if (g.gan === ydGan) {
         result.push({ name: '月德贵人', position: g.pos, description: '主贵人扶助，做事顺遂' });
       }
+    }
+  }
+
+  // 红鸾（以日支查）
+  const hlZhi = HONG_LUAN[dayZhi];
+  for (const z of allZhi) {
+    if (z.zhi === hlZhi && z.pos !== '日支') {
+      result.push({ name: '红鸾', position: z.pos, description: '主婚喜、恋爱、添丁之喜' });
+    }
+  }
+
+  // 天喜（以日支查）
+  const txZhi = TIAN_XI[dayZhi];
+  for (const z of allZhi) {
+    if (z.zhi === txZhi && z.pos !== '日支') {
+      result.push({ name: '天喜', position: z.pos, description: '主喜事临门、好事成双' });
+    }
+  }
+
+  // 孤辰（以年支查）
+  const gcZhi = GU_CHEN[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === gcZhi && z.pos !== '年支') {
+      result.push({ name: '孤辰', position: z.pos, description: '主孤独感强，六亲缘薄' });
+    }
+  }
+
+  // 寡宿（以年支查）
+  const gsZhi = GUA_SU[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === gsZhi && z.pos !== '年支') {
+      result.push({ name: '寡宿', position: z.pos, description: '主清心寡欲，独来独往' });
+    }
+  }
+
+  // 金舆（以日干查）
+  const jyZhi = JIN_YU[dayGan];
+  for (const z of allZhi) {
+    if (z.zhi === jyZhi) {
+      result.push({ name: '金舆', position: z.pos, description: '主有车马之福，出行得贵人助' });
+    }
+  }
+
+  // 学堂（以日干查）
+  const xtZhi = XUE_TANG[dayGan];
+  for (const z of allZhi) {
+    if (z.zhi === xtZhi) {
+      result.push({ name: '学堂', position: z.pos, description: '主学业优秀，聪慧过人，利考试' });
+    }
+  }
+
+  // 词馆（以日干查）
+  const cgZhi2 = CI_GUAN[dayGan];
+  for (const z of allZhi) {
+    if (z.zhi === cgZhi2) {
+      result.push({ name: '词馆', position: z.pos, description: '主文采出众，口才好，擅长表达' });
+    }
+  }
+
+  // 太极贵人（以日干查）
+  const tjgrZhi = TAI_JI_GUI_REN[dayGan] || [];
+  for (const z of allZhi) {
+    if (tjgrZhi.includes(z.zhi)) {
+      result.push({ name: '太极贵人', position: z.pos, description: '主聪明好学，喜钻研玄学命理' });
+    }
+  }
+
+  // 福星贵人（以日干查）
+  const fxgrZhi = FU_XING_GUI_REN[dayGan] || [];
+  for (const z of allZhi) {
+    if (fxgrZhi.includes(z.zhi)) {
+      result.push({ name: '福星贵人', position: z.pos, description: '主福气深厚，一生衣食无忧' });
+    }
+  }
+
+  // 国印贵人（以日干查）
+  const gygrZhi = GUO_YIN_GUI_REN[dayGan];
+  for (const z of allZhi) {
+    if (z.zhi === gygrZhi) {
+      result.push({ name: '国印贵人', position: z.pos, description: '主有权柄之象，利公职仕途' });
+    }
+  }
+
+  // 天厨贵人（以日干查）
+  const tccZhi = TIAN_CHU_GUI_REN[dayGan];
+  for (const z of allZhi) {
+    if (z.zhi === tccZhi) {
+      result.push({ name: '天厨贵人', position: z.pos, description: '主口福好，有美食之缘，生活安逸' });
+    }
+  }
+
+  // 亡神（以年支查）
+  const wsZhi = WANG_SHEN[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === wsZhi && z.pos !== '年支') {
+      result.push({ name: '亡神', position: z.pos, description: '主心神不定，易有波折变动' });
+    }
+  }
+
+  // 劫煞（以年支查）
+  const jsZhi = JIE_SHA[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === jsZhi && z.pos !== '年支') {
+      result.push({ name: '劫煞', position: z.pos, description: '主意外之事，提防是非破财' });
+    }
+  }
+
+  // 丧门（以年支查）
+  const smZhi = SANG_MEN[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === smZhi && z.pos !== '年支') {
+      result.push({ name: '丧门', position: z.pos, description: '主孝服之事，注意家人健康' });
+    }
+  }
+
+  // 吊客（以年支查）
+  const dkZhi = DIAO_KE[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === dkZhi && z.pos !== '年支') {
+      result.push({ name: '吊客', position: z.pos, description: '主白事探问，宜多关心长者' });
     }
   }
 
@@ -1505,7 +1738,8 @@ function genOverview(result) {
 
   // 提及重要神煞
   const importantShenSha = result.shenSha.filter(s =>
-    ['天乙贵人', '文昌贵人', '驿马', '禄神', '羊刃'].includes(s.name)
+    ['天乙贵人', '文昌贵人', '驿马', '禄神', '羊刃', '天德贵人', '月德贵人',
+     '太极贵人', '福星贵人', '学堂', '词馆', '红鸾', '天喜', '金舆', '将星'].includes(s.name)
   );
   if (importantShenSha.length > 0) {
     const names = [...new Set(importantShenSha.map(s => s.name))];
@@ -1522,6 +1756,13 @@ function getShenShaOverview(names) {
   if (names.includes('驿马')) parts.push('一生多动多走动');
   if (names.includes('禄神')) parts.push('能靠自身能力立足');
   if (names.includes('羊刃')) parts.push('性格刚强有魄力');
+  if (names.includes('天德贵人') || names.includes('月德贵人')) parts.push('灾祸不侵贵人扶助');
+  if (names.includes('太极贵人')) parts.push('喜钻研有玄学天赋');
+  if (names.includes('福星贵人')) parts.push('福气深厚衣食无忧');
+  if (names.includes('学堂') || names.includes('词馆')) parts.push('学业优秀文采出众');
+  if (names.includes('红鸾') || names.includes('天喜')) parts.push('婚恋顺利喜事临门');
+  if (names.includes('金舆')) parts.push('出行得助有车马之福');
+  if (names.includes('将星')) parts.push('有领导才能和权威');
   return parts.join('，');
 }
 
@@ -1555,6 +1796,18 @@ function genPersonality(result) {
   }
   if (ganShiShen.includes('比肩') || ganShiShen.includes('劫财')) {
     lines.push('命中比劫透出，社交能力强，重情重义，但也要注意把握好合作中的主次关系。');
+  }
+
+  // 根据神煞补充
+  const shenShaNames = result.shenSha.map(s => s.name);
+  if (shenShaNames.includes('学堂') || shenShaNames.includes('词馆')) {
+    lines.push('命带学堂/词馆，天生聪慧，学习能力强，文采出众，适合学术研究和文字工作。');
+  }
+  if (shenShaNames.includes('太极贵人')) {
+    lines.push('命带太极贵人，对哲学、玄学、命理等有天然兴趣和天赋，悟性高。');
+  }
+  if (shenShaNames.includes('福星贵人')) {
+    lines.push('命带福星贵人，天生福气好，一生少有大灾大难，遇事多能化险为夷。');
   }
 
   return { title: '性格特征', content: lines.join('\n') };
@@ -1767,6 +2020,22 @@ function genRelationship(result) {
   if (taohua.length > 0) {
     const thPositions = taohua.map(t => t.position).join('、');
     lines.push(`\n命带桃花（${thPositions}），人缘好、异性缘佳。社交场合容易吸引注意，但婚后需注意保持适当的社交边界。`);
+  }
+
+  // 红鸾天喜
+  const hongluan = result.shenSha.filter(s => s.name === '红鸾');
+  const tianxi = result.shenSha.filter(s => s.name === '天喜');
+  if (hongluan.length > 0 || tianxi.length > 0) {
+    const hlPositions = [...hongluan, ...tianxi].map(t => `${t.name}(${t.position})`).join('、');
+    lines.push(`\n命带${hlPositions}，主婚恋顺利，喜事临门。在感情方面比较容易遇到合适的缘分，婚姻大事相对顺遂。`);
+  }
+
+  // 孤辰寡宿
+  const guchen = result.shenSha.filter(s => s.name === '孤辰');
+  const guasu = result.shenSha.filter(s => s.name === '寡宿');
+  if (guchen.length > 0 || guasu.length > 0) {
+    const goPositions = [...guchen, ...guasu].map(t => `${t.name}(${t.position})`).join('、');
+    lines.push(`\n命带${goPositions}，感情上可能偏晚或偏淡，对独处有天然的需求。建议多主动社交，拓宽交友圈。`);
   }
 
   return { title: '感情婚姻', content: lines.join('\n') };

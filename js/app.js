@@ -203,23 +203,84 @@ function renderDayStrength(result) {
   `;
 }
 
+// 神煞分类
+const SHENSHA_CATEGORIES = {
+  ji: {
+    label: '吉神',
+    icon: '吉',
+    names: ['天乙贵人', '文昌贵人', '禄神', '天德贵人', '月德贵人',
+            '红鸾', '天喜', '金舆', '学堂', '词馆', '太极贵人',
+            '福星贵人', '国印贵人', '天厨贵人', '将星']
+  },
+  xiong: {
+    label: '凶煞',
+    icon: '凶',
+    names: ['羊刃', '孤辰', '寡宿', '亡神', '劫煞', '丧门', '吊客']
+  },
+  neutral: {
+    label: '其他',
+    icon: '',
+    names: ['驿马', '桃花', '华盖']
+  }
+};
+
 function renderShenSha(result) {
   const container = document.getElementById('shen-sha');
   if (result.shenSha.length === 0) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-dim)">无特殊神煞</div>';
+    container.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:12px">无特殊神煞</div>';
     return;
   }
 
-  container.innerHTML = `
-    <div class="shensha-list">
-      ${result.shenSha.map(s => `
-        <div class="shensha-tag" title="${s.description}">
-          <span class="shensha-name">${s.name}</span>
-          <span class="shensha-pos">${s.position}</span>
-        </div>
-      `).join('')}
-    </div>
-  `;
+  // 分组
+  const ji = result.shenSha.filter(s => SHENSHA_CATEGORIES.ji.names.includes(s.name));
+  const xiong = result.shenSha.filter(s => SHENSHA_CATEGORIES.xiong.names.includes(s.name));
+  const neutral = result.shenSha.filter(s => SHENSHA_CATEGORIES.neutral.names.includes(s.name));
+
+  let html = '';
+
+  if (ji.length > 0) {
+    html += `<div class="shensha-group">
+      <div class="shensha-group-title shensha-ji-title">🌟 吉神 (${ji.length})</div>
+      <div class="shensha-list">
+        ${ji.map(s => `
+          <div class="shensha-tag shensha-ji" title="${s.description}">
+            <span class="shensha-name">${s.name}</span>
+            <span class="shensha-pos">${s.position}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  }
+
+  if (xiong.length > 0) {
+    html += `<div class="shensha-group">
+      <div class="shensha-group-title shensha-xiong-title">⚠ 凶煞 (${xiong.length})</div>
+      <div class="shensha-list">
+        ${xiong.map(s => `
+          <div class="shensha-tag shensha-xiong" title="${s.description}">
+            <span class="shensha-name">${s.name}</span>
+            <span class="shensha-pos">${s.position}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  }
+
+  if (neutral.length > 0) {
+    html += `<div class="shensha-group">
+      <div class="shensha-group-title shensha-neutral-title">— 其他 (${neutral.length})</div>
+      <div class="shensha-list">
+        ${neutral.map(s => `
+          <div class="shensha-tag shensha-neutral" title="${s.description}">
+            <span class="shensha-name">${s.name}</span>
+            <span class="shensha-pos">${s.position}</span>
+          </div>
+        `).join('')}
+      </div>
+    </div>`;
+  }
+
+  container.innerHTML = html;
 }
 
 function renderXCHH(result) {

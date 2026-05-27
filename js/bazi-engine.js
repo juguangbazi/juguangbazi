@@ -1918,6 +1918,7 @@ function analyzeSpecialCombinations(fourPillars, shiShen) {
   }
 
   // 5. 食神制杀：食神克制七杀（吉）
+  const hasShiShen2 = ganShiShen.filter(g => g.ss === '食神');
   if (hasShiShen2.length > 0) {
     const hasPianGuan2 = ganShiShen.filter(g => g.ss === '偏官');
     if (hasPianGuan2.length > 0) {

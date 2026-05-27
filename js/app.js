@@ -108,11 +108,8 @@ function renderResult(result) {
   document.getElementById('birth-info-bar').textContent =
     `${bi.year}年${bi.month}月${bi.day}日 ${hourNames[bi.hour] || ''}时 · ${bi.gender}命 · ${fp.year.ganZhi}年${fp.month.ganZhi}月${fp.day.ganZhi}日${fp.hour.ganZhi}时`;
 
-  // 四柱
+  // 四柱（含神煞）
   renderFourPillars(result);
-
-  // 神煞
-  renderShenSha(result);
 
   // 刑冲合害
   renderXCHH(result);
@@ -134,6 +131,23 @@ function renderFourPillars(result) {
   const ZHI_WX = BaziEngine._constants.ZHI_WU_XING;
   const CANG_GAN = BaziEngine._constants.ZHI_CANG_GAN;
 
+  // 将神煞按柱分组
+  const posMap = { '年': 0, '月': 1, '日': 2, '时': 3 };
+  const pillarShenSha = [[], [], [], []];
+  const SHENSHA_JI = new Set(['天乙贵人','文昌贵人','禄神','天德贵人','月德贵人',
+    '红鸾','天喜','金舆','学堂','词馆','太极贵人','福星贵人','国印贵人','天厨贵人','将星']);
+  const SHENSHA_XIONG = new Set(['羊刃','孤辰','寡宿','亡神','劫煞','丧门','吊客']);
+
+  (result.shenSha || []).forEach(s => {
+    const m = s.position.match(/^([年月日时])/);
+    if (m && posMap[m[1]] !== undefined) {
+      let cat = 'neutral';
+      if (SHENSHA_JI.has(s.name)) cat = 'ji';
+      else if (SHENSHA_XIONG.has(s.name)) cat = 'xiong';
+      pillarShenSha[posMap[m[1]]].push({ name: s.name, cat });
+    }
+  });
+
   const container = document.getElementById('four-pillars');
   container.innerHTML = '';
 
@@ -143,6 +157,7 @@ function renderFourPillars(result) {
     const shiShenGan = pos === 'day' ? '日主' : ss[pos].gan;
     const cangGan = CANG_GAN[fp[pos].zhi];
     const cangLabels = ['本', '中', '余'];
+    const ssTags = pillarShenSha[i];
 
     const pillar = document.createElement('div');
     pillar.className = 'pillar';
@@ -158,89 +173,13 @@ function renderFourPillars(result) {
       </div>
       <div class="pillar-nayin">${fp[pos].naYin || ''}</div>
       <div class="pillar-changsheng">${cs[pos]}</div>
+      ${ssTags.length > 0 ? `
+      <div class="pillar-shensha">
+        ${ssTags.map(s => `<span class="pillar-ss-tag ss-${s.cat}">${s.name}</span>`).join('')}
+      </div>` : ''}
     `;
     container.appendChild(pillar);
   });
-}
-
-// 神煞分类
-const SHENSHA_CATEGORIES = {
-  ji: {
-    label: '吉神',
-    icon: '吉',
-    names: ['天乙贵人', '文昌贵人', '禄神', '天德贵人', '月德贵人',
-            '红鸾', '天喜', '金舆', '学堂', '词馆', '太极贵人',
-            '福星贵人', '国印贵人', '天厨贵人', '将星']
-  },
-  xiong: {
-    label: '凶煞',
-    icon: '凶',
-    names: ['羊刃', '孤辰', '寡宿', '亡神', '劫煞', '丧门', '吊客']
-  },
-  neutral: {
-    label: '其他',
-    icon: '',
-    names: ['驿马', '桃花', '华盖']
-  }
-};
-
-function renderShenSha(result) {
-  const container = document.getElementById('shen-sha');
-  if (result.shenSha.length === 0) {
-    container.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:12px">无特殊神煞</div>';
-    return;
-  }
-
-  // 分组
-  const ji = result.shenSha.filter(s => SHENSHA_CATEGORIES.ji.names.includes(s.name));
-  const xiong = result.shenSha.filter(s => SHENSHA_CATEGORIES.xiong.names.includes(s.name));
-  const neutral = result.shenSha.filter(s => SHENSHA_CATEGORIES.neutral.names.includes(s.name));
-
-  let html = '';
-
-  if (ji.length > 0) {
-    html += `<div class="shensha-group">
-      <div class="shensha-group-title shensha-ji-title">🌟 吉神 (${ji.length})</div>
-      <div class="shensha-list">
-        ${ji.map(s => `
-          <div class="shensha-tag shensha-ji" title="${s.description}">
-            <span class="shensha-name">${s.name}</span>
-            <span class="shensha-pos">${s.position}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>`;
-  }
-
-  if (xiong.length > 0) {
-    html += `<div class="shensha-group">
-      <div class="shensha-group-title shensha-xiong-title">⚠ 凶煞 (${xiong.length})</div>
-      <div class="shensha-list">
-        ${xiong.map(s => `
-          <div class="shensha-tag shensha-xiong" title="${s.description}">
-            <span class="shensha-name">${s.name}</span>
-            <span class="shensha-pos">${s.position}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>`;
-  }
-
-  if (neutral.length > 0) {
-    html += `<div class="shensha-group">
-      <div class="shensha-group-title shensha-neutral-title">— 其他 (${neutral.length})</div>
-      <div class="shensha-list">
-        ${neutral.map(s => `
-          <div class="shensha-tag shensha-neutral" title="${s.description}">
-            <span class="shensha-name">${s.name}</span>
-            <span class="shensha-pos">${s.position}</span>
-          </div>
-        `).join('')}
-      </div>
-    </div>`;
-  }
-
-  container.innerHTML = html;
 }
 
 function renderXCHH(result) {

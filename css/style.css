@@ -335,6 +335,43 @@ body {
   color: var(--gold-dim);
 }
 
+.pillar-shensha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 6px;
+  padding-top: 5px;
+  border-top: 1px solid var(--border);
+  justify-content: center;
+}
+
+.pillar-ss-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  line-height: 1.6;
+  white-space: nowrap;
+}
+
+.ss-ji {
+  color: #e8c876;
+  background: rgba(212, 168, 82, 0.12);
+  border: 1px solid rgba(212, 168, 82, 0.25);
+}
+
+.ss-xiong {
+  color: #e25555;
+  background: rgba(233, 69, 69, 0.08);
+  border: 1px solid rgba(233, 69, 69, 0.18);
+}
+
+.ss-neutral {
+  color: var(--text-dim);
+  background: rgba(122, 110, 88, 0.08);
+  border: 1px solid var(--border);
+}
+
 /* 五行颜色 */
 .wx-wood { color: var(--wx-wood); }
 .wx-fire { color: var(--wx-fire); }

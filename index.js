@@ -1,9 +1,12 @@
 import { getFourPillars } from './src/pillars/fourPillars.js';
-import { calcAllShiShen, countWuXing, countWuXingWithCangGan, getChangSheng, judgeDayStrength } from './src/pillars/shiShen.js';
+import { calcAllShiShen, countWuXing, countWuXingWithCangGan, getChangSheng, judgeDayStrength, getShiShen } from './src/pillars/shiShen.js';
 import { calcDaYun } from './src/fate/dayun.js';
 import { calcShenSha, calcXingChongHeHai } from './src/spirits/shensha.js';
-import { GAN_WU_XING, ZHI_WU_XING, ZHI_CANG_GAN } from './src/utils/constants.js';
+import { GAN_WU_XING, ZHI_WU_XING, ZHI_CANG_GAN, WU_XING_SHENG, WU_XING_KE, WU_XING_BEI_SHENG, WU_XING_BEI_KE } from './src/utils/constants.js';
 import { generateReport } from './src/analysis/report.js';
+
+// 调候用神表（穷通宝鉴）
+import { TIAO_HOU, getTiaoHou, determineGeJu, analyzeSpecialCombinations, analyzeYongShen } from './src/analysis/geju.js';
 
 export function paipan(year, month, day, hour, gender) {
   const birthDate = new Date(year, month - 1, day, hour);
@@ -38,6 +41,18 @@ export function paipan(year, month, day, hour, gender) {
   // 8. 日主强弱
   const dayStrength = judgeDayStrength(fourPillars);
 
+  // 9. 调候
+  const tiaoHou = getTiaoHou(fourPillars.day.gan, fourPillars.month.zhi);
+
+  // 10. 格局
+  const geJu = determineGeJu(fourPillars);
+
+  // 11. 特殊组合
+  const specialCombinations = analyzeSpecialCombinations(fourPillars, shiShen);
+
+  // 12. 综合用神
+  const yongShen = analyzeYongShen(fourPillars, dayStrength, shiShen, tiaoHou);
+
   return {
     birthInfo: { year, month, day, hour, gender },
     fourPillars,
@@ -48,7 +63,11 @@ export function paipan(year, month, day, hour, gender) {
     daYun,
     shenSha,
     xingChongHeHai: xchh,
-    dayStrength
+    dayStrength,
+    tiaoHou,
+    geJu,
+    specialCombinations,
+    yongShen
   };
 }
 
@@ -103,6 +122,16 @@ export function formatResult(result) {
   lines.push(`│${padCenter(cs.year, 8)}│${padCenter(cs.month, 8)}│${padCenter(cs.day, 8)}│${padCenter(cs.hour, 8)}│`);
   lines.push('└────────┴────────┴────────┴────────┘');
 
+  // 格局与调候
+  if (result.geJu) {
+    lines.push('');
+    lines.push('【格局】');
+    lines.push(`  ${result.geJu.type}（月令${result.geJu.monthZhi}）`);
+  }
+  if (result.tiaoHou) {
+    lines.push(`  调候：${result.tiaoHou.mainGan} — ${result.tiaoHou.description}`);
+  }
+
   // 五行统计
   lines.push('');
   lines.push('【五行统计】');
@@ -122,6 +151,26 @@ export function formatResult(result) {
   lines.push(`  日主: ${result.dayStrength.dayGan}(${result.dayStrength.dayWx})  判断: ${result.dayStrength.strength} (评分: ${result.dayStrength.score})`);
   for (const a of result.dayStrength.analysis) {
     lines.push(`  · ${a}`);
+  }
+
+  // 用神
+  if (result.yongShen && result.yongShen.priority) {
+    lines.push('');
+    lines.push('【用神分析】');
+    lines.push(`  主用神: ${result.yongShen.mainYongShenWx}`);
+    for (const p of result.yongShen.priority) {
+      lines.push(`  ${p.priority}. ${p.source} → ${p.wx}（${p.desc}）`);
+    }
+  }
+
+  // 特殊组合
+  if (result.specialCombinations && result.specialCombinations.length > 0) {
+    lines.push('');
+    lines.push('【特殊组合】');
+    for (const c of result.specialCombinations) {
+      const icon = c.severity === 'good' ? '✓' : c.severity === 'high' ? '⚠' : '○';
+      lines.push(`  ${icon} ${c.name}: ${c.description}`);
+    }
   }
 
   // 神煞
@@ -192,7 +241,6 @@ export function formatResult(result) {
 // 辅助函数：居中对齐
 function padCenter(str, width) {
   str = String(str);
-  // 计算字符串的显示宽度（中文字符算2）
   const displayWidth = getDisplayWidth(str);
   if (displayWidth >= width) return str;
   const left = Math.floor((width - displayWidth) / 2);

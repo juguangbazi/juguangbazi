@@ -109,25 +109,28 @@ export function generateReport(result) {
   // ===== 一、命主概述 =====
   sections.push(genOverview(result));
 
-  // ===== 二、性格特征 =====
+  // ===== 二、格局与用神 =====
+  sections.push(genGeJuAndYongShen(result));
+
+  // ===== 三、性格特征 =====
   sections.push(genPersonality(result));
 
-  // ===== 三、事业方向 =====
+  // ===== 四、事业方向 =====
   sections.push(genCareer(result));
 
-  // ===== 四、财运分析 =====
+  // ===== 五、财运分析 =====
   sections.push(genWealth(result));
 
-  // ===== 五、感情婚姻 =====
+  // ===== 六、感情婚姻 =====
   sections.push(genRelationship(result));
 
-  // ===== 六、健康提醒 =====
+  // ===== 七、健康提醒 =====
   sections.push(genHealth(result));
 
-  // ===== 七、大运走势 =====
+  // ===== 八、大运走势 =====
   sections.push(genDaYunTrend(result));
 
-  // ===== 八、开运建议 =====
+  // ===== 九、开运建议 =====
   sections.push(genSuggestions(result));
 
   return formatReport(sections, result);
@@ -177,6 +180,74 @@ function getShenShaOverview(names) {
   if (names.includes('禄神')) parts.push('能靠自身能力立足');
   if (names.includes('羊刃')) parts.push('性格刚强有魄力');
   return parts.join('，');
+}
+
+function genGeJuAndYongShen(result) {
+  const dayGan = result.fourPillars.day.gan;
+  const dayWx = GAN_WU_XING[dayGan];
+  const geJu = result.geJu;
+  const yongShen = result.yongShen;
+  const tiaoHou = result.tiaoHou;
+  const combos = result.specialCombinations || [];
+
+  const lines = [];
+
+  if (!geJu) {
+    return { title: '格局与用神分析', content: '格局信息未获取。' };
+  }
+
+  const geJuLabel = geJu.type || '未定';
+  let geJuDesc = `月令${geJu.monthZhi}`;
+  if (geJu.touChu && geJu.touChu.length > 0) {
+    geJuDesc += `，藏干${geJu.cangGan.join('、')}，透出${geJu.touChu.join('、')}，`;
+  } else {
+    geJuDesc += `，藏干${geJu.cangGan.join('、')}，不透天干，`;
+  }
+  geJuDesc += `取【${geJuLabel}】。`;
+
+  if (geJu.isJianLu) {
+    geJuDesc += '建禄格日主得月令禄根，自身力量不弱，喜官杀制、食伤泄。';
+  } else if (geJu.isYueRen) {
+    geJuDesc += '月刃格日主极旺，刃为凶物，喜官杀制刃为用。';
+  } else if (geJu.hidden) {
+    geJuDesc += '因月令不透天干，以本气取格。';
+  }
+  lines.push(geJuDesc);
+
+  if (tiaoHou) {
+    lines.push('');
+    lines.push(`【调候分析】日主${dayGan}生于${result.fourPillars.month.zhi}月，${tiaoHou.description}。`);
+    lines.push(`调候用神取【${tiaoHou.mainGan}】(${tiaoHou.mainWx})——这是命局的第一需要，优先于其他取用。`);
+  }
+
+  if (combos.length > 0) {
+    lines.push('');
+    lines.push('【特殊组合】');
+    for (const c of combos) {
+      const icon = c.severity === 'good' ? '✓' : c.severity === 'high' ? '⚠' : '○';
+      lines.push(`${icon} ${c.name}：${c.description}`);
+      if (c.solution) {
+        lines.push(`  化解：${c.solution}`);
+      }
+    }
+  }
+
+  if (yongShen && yongShen.priority) {
+    lines.push('');
+    lines.push('【用神综合分析】');
+    lines.push(`主用神五行：【${yongShen.mainYongShenWx}】`);
+    for (const p of yongShen.priority) {
+      lines.push(`  ${p.priority}. ${p.source} → 取${p.wx}（${p.desc}）`);
+    }
+  }
+
+  const jiShen = WU_XING_BEI_KE[yongShen.mainYongShenWx] || '';
+  const chouShen = WU_XING_SHENG[yongShen.mainYongShenWx] || '';
+  if (jiShen) {
+    lines.push(`\n忌神：${jiShen}（克制用神）、${chouShen}（泄耗用神）`);
+  }
+
+  return { title: '格局与用神分析', content: lines.join('\n') };
 }
 
 function genPersonality(result) {
@@ -644,28 +715,25 @@ function analyzeLiuNian(dayGan, dayWx, strengthStr, liuNian, daYun) {
 function genSuggestions(result) {
   const dayGan = result.fourPillars.day.gan;
   const dayWx = GAN_WU_XING[dayGan];
-  const strength = result.dayStrength;
-  const wxCount = result.wuXing.count;
+  const yongShen = result.yongShen;
+  const tiaoHou = result.tiaoHou;
 
-  let yongShenWx;
-  if (['身强', '偏强'].includes(strength.strength)) {
-    yongShenWx = WU_XING_KE[dayWx]; // 财星
-  } else if (['身弱', '偏弱'].includes(strength.strength)) {
-    yongShenWx = WU_XING_BEI_SHENG[dayWx]; // 印星
-  } else {
-    // 中和看缺什么补什么
-    const missing = Object.keys(wxCount).filter(k => wxCount[k] === 0);
-    yongShenWx = missing.length > 0 ? missing[0] : WU_XING_SHENG[dayWx];
-  }
+  const yongShenWx = (yongShen && yongShen.mainYongShenWx) || WU_XING_BEI_SHENG[dayWx];
 
   const lines = [];
 
-  lines.push(`根据命局分析，你的喜用五行为【${yongShenWx}】，在生活中可以适当增加${yongShenWx}的元素：`);
+  lines.push(`根据调候、格局、强弱综合判断，你的主用神五行为【${yongShenWx}】：`);
   lines.push('');
   lines.push(`  幸运颜色：${WU_XING_COLOR[yongShenWx]}`);
   lines.push(`  有利方位：${WU_XING_DIRECTION[yongShenWx]}`);
   lines.push(`  幸运数字：${WU_XING_NUMBER[yongShenWx]}`);
   lines.push(`  适合行业：${WU_XING_CAREER[yongShenWx]}`);
+
+  if (tiaoHou && tiaoHou.mainWx !== yongShenWx) {
+    lines.push('');
+    lines.push(`调候提示：日主${dayGan}生于${result.fourPillars.month.zhi}月，需${tiaoHou.mainGan}(${tiaoHou.mainWx})调候，在生活环境中可兼顾此五行。`);
+  }
+
   lines.push('');
   lines.push('提示：以上为基础分析，仅供参考。命理讲究"命运在自己手中"，了解自己的优势和不足，扬长避短，才是命理的真正价值。');
   lines.push('');
@@ -684,9 +752,10 @@ function formatReport(sections, result) {
   lines.push('╚═══════════════════════════════════════════════════╝');
   lines.push('');
 
+  const nums = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
   for (let i = 0; i < sections.length; i++) {
     const s = sections[i];
-    const num = ['一', '二', '三', '四', '五', '六', '七', '八'][i];
+    const num = nums[i] || (i + 1);
     lines.push(`━━━ ${num}、${s.title} ━━━`);
     lines.push('');
     lines.push(s.content);

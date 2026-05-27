@@ -348,10 +348,10 @@ function renderDaYun(result) {
 function renderReport(result) {
   const report = BaziEngine.generateReport(result);
   const container = document.getElementById('report-content');
-  const sections = report.split(/━━━ [一二三四五六七八]、/);
+  const sections = report.split(/━━━ [一二三四五六七八九]、/);
 
   // 提取标题和内容
-  const titleRe = /━━━ ([一二三四五六七八])、(.+?) ━━━/g;
+  const titleRe = /━━━ ([一二三四五六七八九])、(.+?) ━━━/g;
   const titles = [];
   let match;
   while ((match = titleRe.exec(report)) !== null) {

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="聚光八字 - 专业八字排盘与命理分析">
+  <title>聚光八字 - 八字排盘</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===== 首页（输入页） ===== -->
+  <div id="page-input" class="page active">
+    <div class="header">
+      <div class="logo">
+        <div class="taiji">☯</div>
+        <h1>聚光八字</h1>
+        <p class="subtitle">知命识运 · 趋吉避凶</p>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-group">
+        <label>出生日期（阳历）</label>
+        <div class="date-row">
+          <select id="birth-year" class="select-field">
+            <!-- JS填充 -->
+          </select>
+          <select id="birth-month" class="select-field">
+            <!-- JS填充 -->
+          </select>
+          <select id="birth-day" class="select-field">
+            <!-- JS填充 -->
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>出生时辰</label>
+        <select id="birth-hour" class="select-field full">
+          <option value="" disabled selected>请选择时辰</option>
+          <option value="0">子时 (23:00-00:59)</option>
+          <option value="1">丑时 (01:00-02:59)</option>
+          <option value="3">寅时 (03:00-04:59)</option>
+          <option value="5">卯时 (05:00-06:59)</option>
+          <option value="7">辰时 (07:00-08:59)</option>
+          <option value="9">巳时 (09:00-10:59)</option>
+          <option value="11">午时 (11:00-12:59)</option>
+          <option value="13">未时 (13:00-14:59)</option>
+          <option value="15">申时 (15:00-16:59)</option>
+          <option value="17">酉时 (17:00-18:59)</option>
+          <option value="19">戌时 (19:00-20:59)</option>
+          <option value="21">亥时 (21:00-22:59)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>性别</label>
+        <div class="gender-row">
+          <button class="gender-btn active" data-gender="男">
+            <span class="gender-icon">♂</span> 男
+          </button>
+          <button class="gender-btn" data-gender="女">
+            <span class="gender-icon">♀</span> 女
+          </button>
+        </div>
+      </div>
+
+      <button id="btn-paipan" class="btn-primary">开始排盘</button>
+    </div>
+
+    <div class="footer">
+      <p>八字命理，知命不认命</p>
+      <p class="copyright">聚光八字 &copy; 2024</p>
+    </div>
+  </div>
+
+  <!-- ===== 排盘结果页 ===== -->
+  <div id="page-result" class="page">
+    <div class="page-header">
+      <button class="btn-back" onclick="showPage('input')">← 返回</button>
+      <h2>排盘结果</h2>
+      <div class="placeholder"></div>
+    </div>
+
+    <div class="result-content">
+      <!-- 出生信息 -->
+      <div class="info-bar" id="birth-info-bar"></div>
+
+      <!-- 四柱 -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="title-deco">━━</span> 四柱八字 <span class="title-deco">━━</span>
+        </div>
+        <div class="four-pillars" id="four-pillars"></div>
+      </div>
+
+      <!-- 五行统计 -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="title-deco">━━</span> 五行分布 <span class="title-deco">━━</span>
+        </div>
+        <div id="wuxing-chart"></div>
+      </div>
+
+      <!-- 日主分析 -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="title-deco">━━</span> 日主分析 <span class="title-deco">━━</span>
+        </div>
+        <div id="day-strength"></div>
+      </div>
+
+      <!-- 神煞 -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="title-deco">━━</span> 神煞 <span class="title-deco">━━</span>
+        </div>
+        <div id="shen-sha"></div>
+      </div>
+
+      <!-- 刑冲合害 -->
+      <div class="section-card" id="xchh-card" style="display:none">
+        <div class="section-title">
+          <span class="title-deco">━━</span> 刑冲合害 <span class="title-deco">━━</span>
+        </div>
+        <div id="xing-chong"></div>
+      </div>
+
+      <!-- 大运 -->
+      <div class="section-card">
+        <div class="section-title">
+          <span class="title-deco">━━</span> 大运 <span class="title-deco">━━</span>
+        </div>
+        <div id="da-yun"></div>
+      </div>
+
+      <!-- 查看报告按钮 -->
+      <button class="btn-primary btn-report" onclick="showPage('report')">查看详细分析报告 →</button>
+    </div>
+  </div>
+
+  <!-- ===== 分析报告页 ===== -->
+  <div id="page-report" class="page">
+    <div class="page-header">
+      <button class="btn-back" onclick="showPage('result')">← 返回</button>
+      <h2>命理分析报告</h2>
+      <div class="placeholder"></div>
+    </div>
+
+    <div class="report-content" id="report-content">
+      <!-- JS动态生成 -->
+    </div>
+
+    <!-- 转化入口 -->
+    <div class="cta-card">
+      <div class="cta-title">想要更精准的深度解读？</div>
+      <p>以上为系统自动分析，仅供参考。如需结合流年运势做详细分析，欢迎预约老师一对一解读。</p>
+      <div class="cta-contact">
+        <div class="cta-wechat">微信咨询</div>
+        <p class="cta-hint">（联系方式待添加）</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p class="copyright">聚光八字 &copy; 2024</p>
+    </div>
+  </div>
+
+  <script src="js/bazi-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

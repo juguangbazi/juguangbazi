@@ -1790,9 +1790,13 @@ function determineGeJu(fourPillars) {
     }
   } else {
     // 普通格局：以月令透出之十神定格局
-    if (touChu.length > 0) {
-      // 以首透之干定格局
-      const firstTou = touChu[0];
+    // 比肩劫财不入格，需过滤后再取透干
+    const validTouChu = touChu.filter(g => {
+      const s = getShiShen(dayGan, g);
+      return s !== '比肩' && s !== '劫财';
+    });
+    if (validTouChu.length > 0) {
+      const firstTou = validTouChu[0];
       const ss = getShiShen(dayGan, firstTou);
       const geJuMap = {
         '正官': '正官格', '偏官': '七杀格',
@@ -1803,7 +1807,7 @@ function determineGeJu(fourPillars) {
       geJuType = geJuMap[ss] || (ss + '格');
       geJu = { type: geJuType, ss: ss, touGan: firstTou };
     } else {
-      // 月令不透，以月令本气取格
+      // 月令不透（或只透比劫），以月令本气取格
       const benQi = cangGan[0];
       const ss = getShiShen(dayGan, benQi);
       const geJuMap = {

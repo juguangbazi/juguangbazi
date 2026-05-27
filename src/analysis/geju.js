@@ -203,8 +203,13 @@ export function determineGeJu(fourPillars) {
       geJu = { type: geJuType, ss: null, touGan: null };
     }
   } else {
-    if (touChu.length > 0) {
-      const firstTou = touChu[0];
+    // 比肩劫财不入格，需过滤后再取透干
+    const validTouChu = touChu.filter(g => {
+      const s = getShiShen(dayGan, g);
+      return s !== '比肩' && s !== '劫财';
+    });
+    if (validTouChu.length > 0) {
+      const firstTou = validTouChu[0];
       const ss = getShiShen(dayGan, firstTou);
       const geJuMap = {
         '正官': '正官格', '偏官': '七杀格',

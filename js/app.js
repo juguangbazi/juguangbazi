@@ -51,10 +51,23 @@ function initForm() {
   updateDays();
 
   // 性别切换
-  document.querySelectorAll('.gender-btn').forEach(btn => {
+  document.querySelectorAll('.gender-btn[data-gender]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.gender-btn[data-gender]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+    });
+  });
+
+  // 历法切换
+  document.querySelectorAll('[data-calendar]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-calendar]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const isSolar = btn.dataset.calendar === 'solar';
+      const dateLabel = document.getElementById('date-label');
+      if (dateLabel) {
+        dateLabel.textContent = isSolar ? '出生日期（阳历）' : '出生日期（农历）';
+      }
     });
   });
 
@@ -104,6 +117,11 @@ function renderResult(result) {
   // 日主分析
   renderDayStrength(result);
 
+  // 专业分析
+  renderGeJu(result);
+  renderTiaoHou(result);
+  renderSpecialCombinations(result);
+
   // 神煞
   renderShenSha(result);
 
@@ -113,8 +131,8 @@ function renderResult(result) {
   // 大运
   renderDaYun(result);
 
-  // 预渲染报告
-  renderReport(result);
+  // 内联报告
+  renderReportInline(result);
 }
 
 function renderFourPillars(result) {
@@ -344,8 +362,121 @@ function renderDaYun(result) {
   `;
 }
 
-// ========== 渲染分析报告 ==========
-function renderReport(result) {
+// ========== 专业分析：格局判定 ==========
+function renderGeJu(result) {
+  const geJu = result.geJu;
+  const container = document.getElementById('geju-content');
+
+  let rationale = `月令${geJu.monthZhi}，藏干${geJu.cangGan.join('、')}`;
+  if (geJu.touChu && geJu.touChu.length > 0) {
+    rationale += `，透出${geJu.touChu.join('、')}`;
+  } else {
+    rationale += `，不透天干`;
+  }
+  rationale += `，故取<span style="color:var(--gold-light);font-weight:bold;">【${geJu.type}】</span>`;
+
+  if (geJu.hidden) {
+    rationale += '（以月令本气取格）';
+  }
+
+  const geJuExtra = {
+    '建禄格': '日主得月令禄根，自身力量不弱，喜官杀制身、食伤泄秀为用。',
+    '月刃格': '日主极旺，阳刃为凶物，喜官杀制刃，忌冲刃。',
+    '正官格': '以正官立格，官星为贵气所钟，喜印护官、财生官。',
+    '七杀格': '以七杀立格，杀为攻身之物，喜食神制杀或印星化杀。',
+    '正财格': '以正财立格，财为养命之源，喜食伤生财、官星护财。',
+    '偏财格': '以偏财立格，财路宽广，喜食伤生财、官星护财。',
+    '正印格': '以正印立格，印为生身之本，喜官杀生印，忌财星坏印。',
+    '偏印格': '以偏印立格，枭印夺食为忌，喜财星制枭。',
+    '食神格': '以食神立格，食神主才华福气，喜生财，忌偏印来夺。',
+    '伤官格': '以伤官立格，伤官主聪明叛逆，喜印制伤护官，或财星泄伤。'
+  };
+  const extra = geJuExtra[geJu.type] || '';
+
+  container.innerHTML = `
+    <div style="text-align:center;margin-bottom:10px;">
+      <span class="geju-badge">${geJu.type}</span>
+    </div>
+    <div class="geju-rationale">
+      <p>${rationale}</p>
+      ${extra ? `<p style="margin-top:8px;">${extra}</p>` : ''}
+    </div>
+  `;
+}
+
+// ========== 专业分析：调候用神 ==========
+const _WX_BEI_KE = { '木': '金', '火': '水', '土': '木', '金': '火', '水': '土' };
+const _WX_SHENG = { '木': '火', '火': '土', '土': '金', '金': '水', '水': '木' };
+
+function renderTiaoHou(result) {
+  const tiaoHou = result.tiaoHou;
+  const yongShen = result.yongShen;
+  const container = document.getElementById('tiaohou-content');
+  const GAN_WX = BaziEngine._constants.GAN_WU_XING;
+
+  if (!tiaoHou) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:12px;">此日主无需特殊调候</div>';
+    return;
+  }
+
+  const mainGanList = tiaoHou.mainGan.split('').filter(g => g.trim());
+  const auxGanList = tiaoHou.auxGan ? tiaoHou.auxGan.split('').filter(g => g.trim()) : [];
+
+  const mainHtml = mainGanList.map(g =>
+    `<span class="tiaohou-gan tiaohou-gan-main ${WX_CLASS[GAN_WX[g]]}">${g}（${GAN_WX[g]}）</span>`
+  ).join('');
+
+  const auxHtml = auxGanList.length > 0
+    ? auxGanList.map(g =>
+        `<span class="tiaohou-gan tiaohou-gan-aux ${WX_CLASS[GAN_WX[g]]}">${g}（${GAN_WX[g]}）</span>`
+      ).join('')
+    : '';
+
+  const mainWx = yongShen && yongShen.mainYongShenWx ? yongShen.mainYongShenWx : tiaoHou.mainWx;
+  const jiShen = _WX_BEI_KE[mainWx] || '';
+  const chouShen = _WX_SHENG[mainWx] || '';
+
+  container.innerHTML = `
+    <div class="tiaohou-main">
+      ${mainHtml}
+    </div>
+    ${auxHtml ? `<div style="text-align:center;margin-bottom:10px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">${auxHtml}</div>` : ''}
+    <div class="tiaohou-desc">
+      日主生于${result.fourPillars.month.zhi}月，${tiaoHou.description}
+    </div>
+    <div class="tiaohou-ref">
+      —— 参考《穷通宝鉴》
+    </div>
+    <div class="tiaohou-jishen">
+      主用神：<span style="color:var(--gold-light);">${mainWx}</span>　忌神：${jiShen}（克制用神）　仇神：${chouShen}（泄耗用神）
+    </div>
+  `;
+}
+
+// ========== 专业分析：特殊组合 ==========
+function renderSpecialCombinations(result) {
+  const combos = result.specialCombinations;
+  const container = document.getElementById('combos-content');
+
+  if (!combos || combos.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:12px;">无特殊组合</div>';
+    return;
+  }
+
+  const severityClass = { 'good': 'combo-good', 'medium': 'combo-medium', 'high': 'combo-high' };
+  const severityIcon = { 'good': '✓', 'medium': '○', 'high': '⚠' };
+
+  container.innerHTML = combos.map(c => `
+    <div class="combo-tag ${severityClass[c.severity] || 'combo-medium'}">
+      <div class="combo-name">${severityIcon[c.severity]} ${c.name}</div>
+      <div class="combo-desc">${c.description}</div>
+      ${c.solution ? `<div class="combo-solution">→ 化解：${c.solution}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ========== 渲染分析报告（内联） ==========
+function renderReportInline(result) {
   const report = BaziEngine.generateReport(result);
   const container = document.getElementById('report-content');
   const sections = report.split(/━━━ [一二三四五六七八九]、/);

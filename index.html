@@ -9,19 +9,36 @@
 </head>
 <body>
 
-  <!-- ===== 首页（输入页） ===== -->
+  <!-- ===== 输入页 ===== -->
   <div id="page-input" class="page active">
     <div class="header">
-      <div class="logo">
-        <div class="taiji">☯</div>
-        <h1>聚光八字</h1>
-        <p class="subtitle">知命识运 · 趋吉避凶</p>
-      </div>
+      <h1 class="header-title">八字排盘分析</h1>
+      <p class="header-desc">输入出生信息，解读命理玄机</p>
     </div>
 
     <div class="form-card">
       <div class="form-group">
-        <label>出生日期（阳历）</label>
+        <label>性别</label>
+        <div class="gender-row">
+          <button class="gender-btn active" data-gender="男">
+            <span class="gender-icon">♂</span> 男
+          </button>
+          <button class="gender-btn" data-gender="女">
+            <span class="gender-icon">♀</span> 女
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>历法</label>
+        <div class="toggle-row">
+          <button class="gender-btn active" data-calendar="solar">公历</button>
+          <button class="gender-btn" data-calendar="lunar">农历</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label id="date-label">出生日期（阳历）</label>
         <div class="date-row">
           <select id="birth-year" class="select-field">
             <!-- JS填充 -->
@@ -52,18 +69,6 @@
           <option value="19">戌时 (19:00-20:59)</option>
           <option value="21">亥时 (21:00-22:59)</option>
         </select>
-      </div>
-
-      <div class="form-group">
-        <label>性别</label>
-        <div class="gender-row">
-          <button class="gender-btn active" data-gender="男">
-            <span class="gender-icon">♂</span> 男
-          </button>
-          <button class="gender-btn" data-gender="女">
-            <span class="gender-icon">♀</span> 女
-          </button>
-        </div>
       </div>
 
       <button id="btn-paipan" class="btn-primary">开始排盘</button>
@@ -111,6 +116,35 @@
         <div id="day-strength"></div>
       </div>
 
+      <!-- 专业分析分割线 -->
+      <div class="analysis-divider">
+        <span>专业分析</span>
+      </div>
+
+      <!-- 格局判定 -->
+      <div class="section-card" id="geju-card">
+        <div class="section-title">
+          <span class="title-deco">━━</span> 格局判定 <span class="title-deco">━━</span>
+        </div>
+        <div id="geju-content"></div>
+      </div>
+
+      <!-- 调候用神 -->
+      <div class="section-card" id="tiaohou-card">
+        <div class="section-title">
+          <span class="title-deco">━━</span> 调候用神 <span class="title-deco">━━</span>
+        </div>
+        <div id="tiaohou-content"></div>
+      </div>
+
+      <!-- 特殊组合 -->
+      <div class="section-card" id="combos-card">
+        <div class="section-title">
+          <span class="title-deco">━━</span> 特殊组合 <span class="title-deco">━━</span>
+        </div>
+        <div id="combos-content"></div>
+      </div>
+
       <!-- 神煞 -->
       <div class="section-card">
         <div class="section-title">
@@ -135,35 +169,30 @@
         <div id="da-yun"></div>
       </div>
 
-      <!-- 查看报告按钮 -->
-      <button class="btn-primary btn-report" onclick="showPage('report')">查看详细分析报告 →</button>
-    </div>
-  </div>
-
-  <!-- ===== 分析报告页 ===== -->
-  <div id="page-report" class="page">
-    <div class="page-header">
-      <button class="btn-back" onclick="showPage('result')">← 返回</button>
-      <h2>命理分析报告</h2>
-      <div class="placeholder"></div>
-    </div>
-
-    <div class="report-content" id="report-content">
-      <!-- JS动态生成 -->
-    </div>
-
-    <!-- 转化入口 -->
-    <div class="cta-card">
-      <div class="cta-title">想要更精准的深度解读？</div>
-      <p>以上为系统自动分析，仅供参考。如需结合流年运势做详细分析，欢迎预约老师一对一解读。</p>
-      <div class="cta-contact">
-        <div class="cta-wechat">微信咨询</div>
-        <p class="cta-hint">（联系方式待添加）</p>
+      <!-- 详细分析报告分割线 -->
+      <div class="section-divider">
+        <span>详细分析报告</span>
       </div>
-    </div>
 
-    <div class="footer">
-      <p class="copyright">聚光八字 &copy; 2024</p>
+      <!-- 报告手风琴 -->
+      <div class="report-content" id="report-content">
+        <!-- JS动态生成 -->
+      </div>
+
+      <!-- 转化入口 -->
+      <div class="cta-card">
+        <div class="cta-title">想要更精准的深度解读？</div>
+        <p>以上为系统自动分析，仅供参考。如需结合流年运势做详细分析，欢迎预约老师一对一解读。</p>
+        <div class="cta-contact">
+          <div class="cta-wechat">微信咨询</div>
+          <p class="cta-hint">（联系方式待添加）</p>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>八字命理，知命不认命</p>
+        <p class="copyright">聚光八字 &copy; 2024</p>
+      </div>
     </div>
   </div>
 

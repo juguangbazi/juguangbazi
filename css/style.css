@@ -60,33 +60,21 @@ body {
 /* ========== 首页 ========== */
 .header {
   text-align: center;
-  padding: 30px 20px 20px;
+  padding: 36px 20px 24px;
   background: linear-gradient(180deg, #2a1f10 0%, #1e1508 100%);
 }
 
-.logo .taiji {
-  font-size: 40px;
-  line-height: 1;
-  margin-bottom: 6px;
-  animation: spin 20s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.logo h1 {
+.header-title {
   font-size: 26px;
   color: var(--gold);
-  letter-spacing: 6px;
-  margin-bottom: 4px;
+  letter-spacing: 8px;
+  margin-bottom: 6px;
   text-shadow: 0 0 20px rgba(212, 168, 82, 0.3);
 }
 
-.logo .subtitle {
+.header-desc {
   color: var(--text-secondary);
-  font-size: 12px;
+  font-size: 13px;
   letter-spacing: 4px;
 }
 
@@ -149,6 +137,11 @@ body {
   gap: 12px;
 }
 
+.toggle-row {
+  display: flex;
+  gap: 12px;
+}
+
 .gender-btn {
   flex: 1;
   padding: 9px;
@@ -191,11 +184,6 @@ body {
 .btn-primary:active {
   transform: scale(0.98);
   opacity: 0.9;
-}
-
-.btn-report {
-  margin: 12px 12px;
-  width: calc(100% - 24px);
 }
 
 /* ========== 页面头部 ========== */
@@ -767,4 +755,165 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 2px;
+}
+
+/* ========== 专业分析分割线 ========== */
+.analysis-divider {
+  text-align: center;
+  margin: 18px 12px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.analysis-divider::before,
+.analysis-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.analysis-divider span {
+  color: var(--gold);
+  font-size: 13px;
+  letter-spacing: 4px;
+  white-space: nowrap;
+}
+
+/* ========== 格局判定 ========== */
+.geju-badge {
+  display: inline-block;
+  padding: 6px 18px;
+  background: rgba(212, 168, 82, 0.12);
+  border: 1px solid var(--gold-dim);
+  border-radius: 4px;
+  color: var(--gold-light);
+  font-size: 16px;
+  letter-spacing: 4px;
+  font-weight: bold;
+}
+
+.geju-rationale {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+/* ========== 调候用神 ========== */
+.tiaohou-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.tiaohou-gan {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.tiaohou-gan-main {
+  background: rgba(212, 168, 82, 0.12);
+  border: 1px solid var(--gold-dim);
+}
+
+.tiaohou-gan-aux {
+  background: rgba(122, 110, 88, 0.1);
+  border: 1px solid var(--border);
+  font-size: 16px;
+}
+
+.tiaohou-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+
+.tiaohou-ref {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  font-style: italic;
+  margin-bottom: 10px;
+}
+
+.tiaohou-jishen {
+  padding: 8px 12px;
+  background: rgba(201, 64, 64, 0.08);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--red-light);
+  text-align: center;
+}
+
+/* ========== 特殊组合 ========== */
+.combo-tag {
+  display: block;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.combo-tag:last-child {
+  margin-bottom: 0;
+}
+
+.combo-good {
+  background: rgba(76, 175, 80, 0.08);
+  border-left: 3px solid var(--wx-wood);
+}
+
+.combo-medium {
+  background: rgba(255, 152, 0, 0.08);
+  border-left: 3px solid #FFA726;
+}
+
+.combo-high {
+  background: rgba(244, 67, 54, 0.08);
+  border-left: 3px solid var(--red-light);
+}
+
+.combo-name {
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 3px;
+}
+
+.combo-good .combo-name { color: var(--wx-wood); }
+.combo-medium .combo-name { color: #FFA726; }
+.combo-high .combo-name { color: var(--red-light); }
+
+.combo-desc {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.combo-solution {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ========== 报告分割线 ========== */
+.section-divider {
+  text-align: center;
+  margin: 20px 12px 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+
+.section-divider span {
+  color: var(--gold);
+  font-size: 14px;
+  letter-spacing: 4px;
 }

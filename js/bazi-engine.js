@@ -3142,6 +3142,7 @@ function getDisplayWidth(str) {
 return {
   paipan: paipan,
   generateReport: generateReport,
+  analyzeLiuNian: analyzeLiuNian,
   _constants: {
     GAN_WU_XING: GAN_WU_XING,
     ZHI_WU_XING: ZHI_WU_XING,

@@ -617,6 +617,142 @@ body {
   font-weight: bold;
 }
 
+.dayun-item {
+  cursor: pointer;
+}
+
+.dayun-item.selected {
+  border-color: var(--gold-light);
+  background: linear-gradient(180deg, rgba(212, 168, 82, 0.2) 0%, rgba(212, 168, 82, 0.08) 100%);
+  box-shadow: 0 0 12px rgba(212, 168, 82, 0.12);
+}
+
+/* ========== 流年选择 ========== */
+.liunian-block {
+  margin-top: 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+.liunian-info {
+  text-align: center;
+  font-size: 12px;
+  color: var(--gold-light);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.liunian-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.liunian-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.liunian-btn {
+  flex: 1;
+  max-width: 64px;
+  padding: 5px 3px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.liunian-btn:active {
+  transform: scale(0.95);
+}
+
+.liunian-yr {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.liunian-gz {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.liunian-current {
+  border-color: var(--gold-dim);
+  background: rgba(212, 168, 82, 0.1);
+}
+
+.liunian-active {
+  border-color: var(--gold) !important;
+  background: rgba(212, 168, 82, 0.18) !important;
+  box-shadow: 0 0 8px rgba(212, 168, 82, 0.2);
+}
+
+.liunian-detail {
+  margin-top: 8px;
+}
+
+.liunian-detail-card {
+  padding: 10px 12px;
+  background: rgba(42, 31, 16, 0.5);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.liunian-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  color: var(--gold-light);
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 2px;
+}
+
+.liunian-detail-gz {
+  font-size: 16px;
+  letter-spacing: 2px;
+  display: flex;
+  gap: 4px;
+}
+
+.liunian-detail-nayin {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: normal;
+}
+
+.liunian-detail-body {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.liunian-detail-cang {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-dim);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
 /* ========== 报告页 ========== */
 .report-content {
   padding: 10px;

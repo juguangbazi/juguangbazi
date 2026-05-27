@@ -330,25 +330,38 @@ function renderXCHH(result) {
   `;
 }
 
+let _selectedDaYunIdx = null;
+
 function renderDaYun(result) {
   const dy = result.daYun;
   const currentYear = new Date().getFullYear();
   const GAN_WX = BaziEngine._constants.GAN_WU_XING;
   const ZHI_WX = BaziEngine._constants.ZHI_WU_XING;
 
+  // 默认选中当前所在大运
+  if (_selectedDaYunIdx === null) {
+    _selectedDaYunIdx = dy.daYunList.findIndex(d => currentYear >= d.startYear && currentYear <= d.endYear);
+    if (_selectedDaYunIdx < 0) _selectedDaYunIdx = 0;
+  }
+
   const container = document.getElementById('da-yun');
   container.innerHTML = `
     <div class="dayun-info">
       ${dy.direction} · 起运${dy.qiYunAge}岁（${dy.qiYunYear}年）
+      <span style="font-size:11px;color:var(--text-dim);"> （点击大运查看流年）</span>
     </div>
     <div class="dayun-scroll">
       <div class="dayun-table">
-        ${dy.daYunList.map(d => {
+        ${dy.daYunList.map((d, i) => {
           const isCurrent = currentYear >= d.startYear && currentYear <= d.endYear;
+          const isSelected = i === _selectedDaYunIdx;
           const ganWx = GAN_WX[d.gan];
           const zhiWx = ZHI_WX[d.zhi];
+          let cls = '';
+          if (isCurrent) cls += ' current';
+          if (isSelected) cls += ' selected';
           return `
-            <div class="dayun-item ${isCurrent ? 'current' : ''}">
+            <div class="dayun-item${cls}" onclick="selectDaYun(${i})">
               <div class="dayun-gan ${WX_CLASS[ganWx]}">${d.gan}</div>
               <div class="dayun-zhi ${WX_CLASS[zhiWx]}">${d.zhi}</div>
               <div class="dayun-age">${d.startAge}-${d.endAge}岁</div>
@@ -358,6 +371,99 @@ function renderDaYun(result) {
           `;
         }).join('')}
       </div>
+    </div>
+    <div id="liunian-area"></div>
+  `;
+
+  // 渲染选中大运的流年
+  renderLiuNianSelector(dy.daYunList[_selectedDaYunIdx], currentYear);
+}
+
+function selectDaYun(idx) {
+  _selectedDaYunIdx = idx;
+  renderDaYun(currentResult);
+}
+
+function renderLiuNianSelector(daYunPeriod, currentYear) {
+  const area = document.getElementById('liunian-area');
+  if (!area || !daYunPeriod) return;
+
+  const GAN_WX = BaziEngine._constants.GAN_WU_XING;
+  const years = daYunPeriod.liuNian;
+
+  // 分组显示流年按钮：每5年一组
+  const startYear = years[0].year;
+  const endYear = years[years.length - 1].year;
+  const groups = [];
+  for (let y = startYear; y <= endYear; y += 5) {
+    groups.push(years.filter(ln => ln.year >= y && ln.year < y + 5));
+  }
+
+  area.innerHTML = `
+    <div class="liunian-block">
+      <div class="liunian-info">${daYunPeriod.ganZhi}运 · 流年选择</div>
+      <div class="liunian-groups">
+        ${groups.map(group => `
+          <div class="liunian-row">
+            ${group.map(ln => {
+              const isCurrentYr = ln.year === currentYear;
+              const ganWx = GAN_WX[ln.gan];
+              return `
+                <button class="liunian-btn ${isCurrentYr ? 'liunian-current' : ''}" onclick="selectLiuNian(${ln.year})">
+                  <span class="liunian-yr">${ln.year}</span>
+                  <span class="liunian-gz ${WX_CLASS[ganWx]}">${ln.ganZhi}</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        `).join('')}
+      </div>
+      <div id="liunian-detail" class="liunian-detail"></div>
+    </div>
+  `;
+}
+
+function selectLiuNian(year) {
+  const dy = currentResult.daYun;
+  const sel = dy.daYunList[_selectedDaYunIdx];
+  if (!sel) return;
+
+  const ln = sel.liuNian.find(l => l.year === year);
+  if (!ln) return;
+
+  // 高亮当前选中的流年按钮
+  document.querySelectorAll('.liunian-btn').forEach(b => b.classList.remove('liunian-active'));
+  const target = document.querySelector(`.liunian-btn[onclick="selectLiuNian(${year})"]`);
+  if (target) target.classList.add('liunian-active');
+
+  // 生成分析
+  const fp = currentResult.fourPillars;
+  const ds = currentResult.dayStrength;
+  const analysis = BaziEngine.analyzeLiuNian(fp.day.gan, BaziEngine._constants.GAN_WU_XING[fp.day.gan], ds.strength, ln, sel);
+  const GAN_WX = BaziEngine._constants.GAN_WU_XING;
+  const ZHI_WX = BaziEngine._constants.ZHI_WU_XING;
+  const ZHI_CANG_GAN = BaziEngine._constants.ZHI_CANG_GAN;
+
+  const detail = document.getElementById('liunian-detail');
+  detail.innerHTML = `
+    <div class="liunian-detail-card">
+      <div class="liunian-detail-header">
+        <span>${ln.year}年</span>
+        <span class="liunian-detail-gz">
+          <span class="${WX_CLASS[GAN_WX[ln.gan]]}">${ln.gan}</span>
+          <span class="${WX_CLASS[ZHI_WX[ln.zhi]]}">${ln.zhi}</span>
+        </span>
+        <span class="liunian-detail-nayin">${ln.naYin || ''}</span>
+      </div>
+      <div class="liunian-detail-body">
+        <p>${analysis}</p>
+      </div>
+      ${ln.zhi ? `
+      <div class="liunian-detail-cang">
+        <span style="color:var(--text-dim);">地支藏干：</span>
+        ${(ZHI_CANG_GAN[ln.zhi] || []).map(g => `<span class="${WX_CLASS[GAN_WX[g]]}">${g}(${GAN_WX[g]})</span>`).join(' · ')}
+      </div>
+      ` : ''}
     </div>
   `;
 }

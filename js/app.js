@@ -114,9 +114,6 @@ function renderResult(result) {
   // 神煞
   renderShenSha(result);
 
-  // 格局
-  renderGeJu(result);
-
   // 刑冲合害
   renderXCHH(result);
 
@@ -409,48 +406,6 @@ function selectLiuNian(year) {
         ${(ZHI_CANG_GAN[ln.zhi] || []).map(g => `<span class="${WX_CLASS[GAN_WX[g]]}">${g}(${GAN_WX[g]})</span>`).join(' · ')}
       </div>
       ` : ''}
-    </div>
-  `;
-}
-
-// ========== 专业分析：格局判定 ==========
-function renderGeJu(result) {
-  const geJu = result.geJu;
-  const container = document.getElementById('geju-content');
-
-  let rationale = `月令${geJu.monthZhi}，藏干${geJu.cangGan.join('、')}`;
-  if (geJu.touChu && geJu.touChu.length > 0) {
-    rationale += `，透出${geJu.touChu.join('、')}`;
-  } else {
-    rationale += `，不透天干`;
-  }
-  rationale += `，故取<span style="color:var(--gold-light);font-weight:bold;">【${geJu.type}】</span>`;
-
-  if (geJu.hidden) {
-    rationale += '（以月令本气取格）';
-  }
-
-  const geJuExtra = {
-    '建禄格': '日主得月令禄根，自身力量不弱，喜官杀制身、食伤泄秀为用。',
-    '月刃格': '日主极旺，阳刃为凶物，喜官杀制刃，忌冲刃。',
-    '正官格': '以正官立格，官星为贵气所钟，喜印护官、财生官。',
-    '七杀格': '以七杀立格，杀为攻身之物，喜食神制杀或印星化杀。',
-    '正财格': '以正财立格，财为养命之源，喜食伤生财、官星护财。',
-    '偏财格': '以偏财立格，财路宽广，喜食伤生财、官星护财。',
-    '正印格': '以正印立格，印为生身之本，喜官杀生印，忌财星坏印。',
-    '偏印格': '以偏印立格，枭印夺食为忌，喜财星制枭。',
-    '食神格': '以食神立格，食神主才华福气，喜生财，忌偏印来夺。',
-    '伤官格': '以伤官立格，伤官主聪明叛逆，喜印制伤护官，或财星泄伤。'
-  };
-  const extra = geJuExtra[geJu.type] || '';
-
-  container.innerHTML = `
-    <div style="text-align:center;margin-bottom:10px;">
-      <span class="geju-badge">${geJu.type}</span>
-    </div>
-    <div class="geju-rationale">
-      <p>${rationale}</p>
-      ${extra ? `<p style="margin-top:8px;">${extra}</p>` : ''}
     </div>
   `;
 }

@@ -1922,8 +1922,8 @@ body {
   table-layout: fixed;
 }
 
-.chart-table thead th {
-  background: #f5f2ed;
+.chart-table thead th, .chart-table th {
+  background: transparent !important;
   color: var(--gold);
   padding: 10px 0;
   font-size: 14px;
@@ -2446,7 +2446,7 @@ body {
 }
 
 .xipan-dy-table thead th {
-  background: #f5f2ed;
+  background: transparent;
   color: var(--gold);
   padding: 4px 2px;
   font-size: 10px;

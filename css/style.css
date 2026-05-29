@@ -88,7 +88,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 10px 16px;
   background: #1a1a2e;
   position: sticky;
   top: 0;
@@ -113,10 +113,10 @@ body {
 
 /* 提示行 */
 .input-hint {
-  background: #555;
-  color: #ffffff;
+  background: transparent;
+  color: var(--text-dim);
   text-align: center;
-  padding: 8px 16px;
+  padding: 2px 16px 4px;
   font-size: 13px;
   letter-spacing: 1px;
 }
@@ -132,10 +132,10 @@ body {
 .input-row {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
+  padding: 10px 16px;
   border-bottom: 1px solid #f0ece4;
-  min-height: 48px;
-  gap: 16px;
+  min-height: 44px;
+  gap: 14px;
   flex-shrink: 0;
 }
 
@@ -156,7 +156,9 @@ body {
 .name-fields {
   display: flex;
   gap: 8px;
-  flex: 1;
+  flex: 0.6;
+  margin-left: -3em;
+  margin-right: 2em;
 }
 
 .name-input {
@@ -186,6 +188,7 @@ body {
   border-radius: 6px;
   overflow: hidden;
   border: 1px solid #d5cfc4;
+  margin-left: -3em;
 }
 
 .seg-btn {
@@ -1737,11 +1740,11 @@ body {
 .basic-info-row {
   display: flex;
   align-items: center;
-  padding: 13px 16px;
+  padding: 5px 16px;
   border-bottom: 1px solid #f0ece4;
   background: #ffffff;
-  min-height: 44px;
-  gap: 16px;
+  min-height: 30px;
+  gap: 10px;
 }
 
 .basic-info-row.row-gray {
@@ -1925,11 +1928,13 @@ body {
 .chart-table thead th, .chart-table th {
   background: transparent !important;
   color: var(--gold);
-  padding: 10px 0;
-  font-size: 14px;
+  padding: 0;
+  font-size: 12px;
   letter-spacing: 3px;
   border-bottom: 1px solid #f0ece4;
   font-weight: normal;
+  vertical-align: top;
+  line-height: 1;
 }
 
 .chart-table thead th:first-child {
@@ -1943,14 +1948,14 @@ body {
 }
 
 .chart-table tbody td {
-  padding: 8px 2px;
+  padding: 1px 2px;
   text-align: center;
   border-bottom: 1px solid #f0ece4;
   color: var(--text-primary);
   font-size: 13px;
-  line-height: 1.7;
+  line-height: 1.3;
   vertical-align: middle;
-  background: #ffffff;
+  background: transparent;
 }
 
 .chart-table tbody tr.row-alt td {
@@ -1979,15 +1984,17 @@ body {
 
 /* 天干 */
 .chart-gan {
-  font-size: 18px;
+  font-size: 30px;
   font-weight: bold;
-  letter-spacing: 1px;
+  letter-spacing: 0;
+  line-height: 1.1;
 }
 
 /* 地支 */
 .chart-zhi {
-  font-size: 17px;
+  font-size: 30px;
   font-weight: bold;
+  line-height: 1.1;
 }
 
 /* 藏干 */
@@ -2023,7 +2030,8 @@ body {
 
 /* 星运自坐 */
 .chart-ziZuo {
-  font-size: 12px;
+  font-size: 18px;
+  font-weight: bold;
   color: var(--text-secondary);
 }
 
@@ -2235,12 +2243,13 @@ body {
 .xipan-table thead th {
   background: transparent;
   color: var(--gold);
-  padding: 4px 2px 7px;
-  font-size: 13px;
+  padding: 0;
+  font-size: 12px;
   font-weight: normal;
   letter-spacing: 2px;
   border-bottom: 1px solid #f0ece4;
   vertical-align: top;
+  line-height: 1;
 }
 
 .xipan-header-row th:first-child {
@@ -2287,6 +2296,11 @@ body {
   position: relative;
 }
 
+.xipan-table tbody tr:nth-child(2) td,
+.xipan-table tbody tr:nth-child(3) td {
+  background: #e8dcc8;
+}
+
 .xipan-ss-tag {
   position: absolute;
   top: 1px;
@@ -2309,14 +2323,14 @@ body {
 
 .xipan-gan {
   display: inline-block;
-  font-size: 16px;
+  font-size: 26px;
   font-weight: bold;
 }
 
 /* 地支行 */
 .xipan-zhi {
   display: inline-block;
-  font-size: 16px;
+  font-size: 26px;
   font-weight: bold;
 }
 

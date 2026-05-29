@@ -16,8 +16,8 @@
   --border-light: #ebe3d4;
   --wx-wood: #4CAF50;
   --wx-fire: #F44336;
-  --wx-earth: #b8972e;
-  --wx-metal: #c0a860;
+  --wx-earth: #7b5e3b;
+  --wx-metal: #d4a852;
   --wx-water: #2196F3;
   --radius: 12px;
   --radius-sm: 8px;
@@ -1923,12 +1923,12 @@ body {
 }
 
 .chart-table thead th {
-  background: #1a1a2e;
-  color: #d4a852;
+  background: #f5f2ed;
+  color: var(--gold);
   padding: 10px 0;
   font-size: 14px;
   letter-spacing: 3px;
-  border: none;
+  border-bottom: 1px solid #f0ece4;
   font-weight: normal;
 }
 
@@ -1945,7 +1945,7 @@ body {
 .chart-table tbody td {
   padding: 8px 2px;
   text-align: center;
-  border: none;
+  border-bottom: 1px solid #f0ece4;
   color: var(--text-primary);
   font-size: 13px;
   line-height: 1.7;
@@ -2077,10 +2077,9 @@ body {
 
 .chart-hint-section {
   background: #ffffff;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-bottom: 1px solid #f0ece4;
   padding: 12px 14px;
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
 
 .chart-hint-title {
@@ -2234,13 +2233,14 @@ body {
 }
 
 .xipan-table thead th {
-  background: #1a1a2e;
-  color: #d4a852;
-  padding: 7px 2px;
+  background: transparent;
+  color: var(--gold);
+  padding: 4px 2px 7px;
   font-size: 13px;
   font-weight: normal;
   letter-spacing: 2px;
-  border: none;
+  border-bottom: 1px solid #f0ece4;
+  vertical-align: top;
 }
 
 .xipan-header-row th:first-child {
@@ -2256,7 +2256,7 @@ body {
 .xipan-table td {
   padding: 5px 2px;
   text-align: center;
-  border: none;
+  border-bottom: 1px solid #f0ece4;
   color: var(--text-primary);
   vertical-align: middle;
   line-height: 1.5;
@@ -2446,13 +2446,13 @@ body {
 }
 
 .xipan-dy-table thead th {
-  background: var(--bg-secondary);
+  background: #f5f2ed;
   color: var(--gold);
   padding: 4px 2px;
   font-size: 10px;
   font-weight: normal;
   letter-spacing: 0;
-  border: none;
+  border-bottom: 1px solid #f0ece4;
   line-height: 1.3;
   white-space: nowrap;
 }
@@ -2469,6 +2469,7 @@ body {
   text-align: center;
   padding: 5px 2px;
   background: #ffffff;
+  border-bottom: 1px solid #f0ece4;
   font-weight: bold;
   font-size: 13px;
   letter-spacing: 0;
@@ -2635,9 +2636,8 @@ body {
 
 /* ========== 提示 ========== */
 .tip-section {
-  margin: 8px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  margin: 0;
+  border-bottom: 1px solid #f0ece4;
   background: #ffffff;
   overflow: hidden;
 }
@@ -2648,7 +2648,7 @@ body {
   align-items: center;
   padding: 12px 14px;
   cursor: pointer;
-  background: var(--bg-secondary);
+  background: #f5f2ed;
 }
 
 .tip-section-title {
@@ -2685,11 +2685,9 @@ body {
 }
 
 .tip-contact {
-  margin: 16px 10px;
   padding: 16px;
-  background: linear-gradient(135deg, rgba(184,151,46,0.08), rgba(184,151,46,0.02));
-  border: 1px solid var(--gold-dim);
-  border-radius: var(--radius-sm);
+  background: #f5f2ed;
+  border-bottom: 1px solid #f0ece4;
   text-align: center;
 }
 

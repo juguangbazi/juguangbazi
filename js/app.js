@@ -7,7 +7,7 @@ function showPage(name) {
 
 // ========== 五行颜色映射 ==========
 var WX_CLASS = { '木': 'wx-wood', '火': 'wx-fire', '土': 'wx-earth', '金': 'wx-metal', '水': 'wx-water' };
-var WX_COLOR = { '木': '#4CAF50', '火': '#F44336', '土': '#d4a852', '金': '#E0E0E0', '水': '#2196F3' };
+var WX_COLOR = { '木': '#4CAF50', '火': '#F44336', '土': '#7b5e3b', '金': '#d4a852', '水': '#2196F3' };
 
 // ========== 滴天髓十天干论述 ==========
 var DI_TIAN_SUI = {

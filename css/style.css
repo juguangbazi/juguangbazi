@@ -28,6 +28,9 @@
   padding: 0;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: pan-y;
 }
 
 body {
@@ -36,8 +39,22 @@ body {
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   line-height: 1.5;
   font-size: 14px;
+}
+
+.page {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  height: 100vh;
+  height: 100dvh;
 }
 
 /* ========== 页面切换 ========== */
@@ -2373,6 +2390,7 @@ body {
   -webkit-overflow-scrolling: touch;
   padding: 0 4px;
   margin: 0 2px;
+  max-width: 100vw;
 }
 
 .xipan-scroll-inner {

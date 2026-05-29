@@ -2689,17 +2689,25 @@ body {
   margin-bottom: 8px;
 }
 
-.tip-contact-wx {
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--red);
-  letter-spacing: 1px;
+.tip-qrcode {
+  max-width: 120px;
+  width: 100%;
+  display: block;
+  margin: 0 auto 8px;
+  border-radius: 8px;
 }
 
 .tip-contact-note {
   font-size: 11px;
   color: var(--text-dim);
   margin-top: 4px;
+}
+
+.footer-qrcode {
+  max-width: 60px;
+  display: block;
+  margin: 4px auto;
+  border-radius: 4px;
 }
 
 .footer-contact {

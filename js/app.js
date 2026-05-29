@@ -1875,7 +1875,7 @@ function renderTabTips(result) {
   html += '<div class="tip-contact">' +
     '<div class="tip-contact-title">深度命理解讀</div>' +
     '<div class="tip-contact-text">如需一對一詳細解讀八字命盤，請添加微信諮詢</div>' +
-    '<div class="tip-contact-wx">微信：13986187789</div>' +
+    '<img src="qrcode.jpeg" class="tip-qrcode" alt="微信二维码">' +
     '<div class="tip-contact-note">（添加時請備註「命理解讀」）</div>' +
     '</div>';
 

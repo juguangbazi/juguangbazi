@@ -11,72 +11,287 @@
 
   <!-- ===== 输入页 ===== -->
   <div id="page-input" class="page active">
-    <div class="header">
-      <h1 class="header-title">八字排盘分析</h1>
-      <p class="header-desc">输入出生信息，解读命理玄机</p>
+    <!-- 顶部导航栏 -->
+    <div class="input-nav">
+      <span class="nav-left" id="nav-save">保存記錄</span>
+      <span class="nav-title">輸入資料</span>
+      <span class="nav-right" id="nav-calc">計算命盤</span>
     </div>
 
-    <div class="form-card">
-      <div class="form-group">
-        <label>性别</label>
-        <div class="gender-row">
-          <button class="gender-btn active" data-gender="男">
-            <span class="gender-icon">♂</span> 男
-          </button>
-          <button class="gender-btn" data-gender="女">
-            <span class="gender-icon">♀</span> 女
-          </button>
+    <!-- 提示行 -->
+    <div class="input-hint">請輸入命主姓名和出生日期</div>
+
+    <!-- 表单区 -->
+    <div class="input-form">
+
+      <!-- ① 姓名 -->
+      <div class="input-row">
+        <span class="input-label">姓名</span>
+        <div class="name-fields">
+          <input type="text" id="surname" class="name-input" placeholder="(姓)" maxlength="5">
+          <input type="text" id="givenname" class="name-input" placeholder="(名)" maxlength="10">
         </div>
       </div>
 
-      <div class="form-group">
-        <label>历法</label>
-        <div class="toggle-row">
-          <button class="gender-btn active" data-calendar="solar">公历</button>
-          <button class="gender-btn" data-calendar="lunar">农历</button>
+      <!-- ② 性别 -->
+      <div class="input-row row-gray">
+        <span class="input-label">性別</span>
+        <div class="gender-segment">
+          <button class="seg-btn active" data-gender="男">男</button>
+          <button class="seg-btn" data-gender="女">女</button>
         </div>
       </div>
 
-      <div class="form-group">
-        <label id="date-label">出生日期（阳历）</label>
-        <div class="date-row">
-          <select id="birth-year" class="select-field">
-            <!-- JS填充 -->
-          </select>
-          <select id="birth-month" class="select-field">
-            <!-- JS填充 -->
-          </select>
-          <select id="birth-day" class="select-field">
-            <!-- JS填充 -->
-          </select>
+      <!-- ③ 出生时间 -->
+      <div class="input-row">
+        <span class="input-label">出生時間</span>
+        <div class="time-actions">
+          <button class="link-btn" id="btn-reset-time">重置</button>
+          <button class="link-btn" id="btn-open-picker">輸入時間</button>
         </div>
       </div>
 
-      <div class="form-group">
-        <label>出生时辰</label>
-        <select id="birth-hour" class="select-field full">
-          <option value="" disabled selected>请选择时辰</option>
-          <option value="0">子时 (23:00-00:59)</option>
-          <option value="1">丑时 (01:00-02:59)</option>
-          <option value="3">寅时 (03:00-04:59)</option>
-          <option value="5">卯时 (05:00-06:59)</option>
-          <option value="7">辰时 (07:00-08:59)</option>
-          <option value="9">巳时 (09:00-10:59)</option>
-          <option value="11">午时 (11:00-12:59)</option>
-          <option value="13">未时 (13:00-14:59)</option>
-          <option value="15">申时 (15:00-16:59)</option>
-          <option value="17">酉时 (17:00-18:59)</option>
-          <option value="19">戌时 (19:00-20:59)</option>
-          <option value="21">亥时 (21:00-22:59)</option>
-        </select>
+      <!-- ④ 西曆 -->
+      <div class="input-row row-gray">
+        <span class="input-label">西曆</span>
+        <span class="input-value" id="solar-display">1990年12月10日 13時</span>
       </div>
 
-      <button id="btn-paipan" class="btn-primary">开始排盘</button>
+      <!-- ⑤ 農曆 -->
+      <div class="input-row">
+        <span class="input-label">農曆</span>
+        <span class="input-value" id="lunar-display">一九九〇年 十月廿四日 未時</span>
+      </div>
+
+      <!-- ⑥ 備註 -->
+      <div class="input-row row-gray row-notes">
+        <span class="input-label">備註</span>
+        <textarea id="birth-note" class="note-area" placeholder="備註（選填）" maxlength="200"></textarea>
+      </div>
+
     </div>
 
-    <div class="footer">
-      <p>八字命理，知命不认命</p>
-      <p class="copyright">聚光八字 &copy; 2024</p>
+    <!-- 功能选项行（底部） -->
+    <div class="row-func">
+      <span class="func-item">數據</span>
+      <span class="func-divider">|</span>
+      <span class="func-item">使用說明</span>
+      <span class="func-divider">|</span>
+      <span class="func-item">設置</span>
+      <span class="func-divider">|</span>
+      <span class="func-item">關於</span>
+    </div>
+
+    <!-- ===== 日期时间输入弹窗 ===== -->
+    <div class="picker-overlay" id="time-picker-overlay">
+      <div class="picker-panel picker-full">
+        <!-- 顶部导航 -->
+        <div class="picker-nav">
+          <div class="picker-nav-left">
+            <button class="picker-nav-btn blue" id="picker-confirm">確定</button>
+          </div>
+          <span class="picker-nav-title">輸入時間</span>
+          <div class="picker-nav-right">
+            <button class="picker-nav-btn blue" id="picker-cancel">取消</button>
+          </div>
+        </div>
+
+        <!-- 内容区域（两侧留白） -->
+        <div class="picker-inner">
+
+        <!-- 西历/农历切换 -->
+        <div class="picker-cal-bar">
+          <button class="pcal-btn active" data-pcal="solar">西曆</button>
+          <button class="pcal-btn" data-pcal="lunar">農曆</button>
+        </div>
+
+        <!-- 输入缓冲显示 -->
+        <div class="picker-buffer" id="picker-buffer">—</div>
+
+        <!-- 主体：键盘 + 字段行 行列对齐 -->
+        <div class="picker-body">
+          <!-- 左侧：数字键盘 4行 -->
+          <div class="picker-keypad">
+            <div class="kp-row"><button class="kp-num" data-key="1">1</button><button class="kp-num" data-key="2">2</button><button class="kp-num" data-key="3">3</button></div>
+            <div class="kp-row"><button class="kp-num" data-key="4">4</button><button class="kp-num" data-key="5">5</button><button class="kp-num" data-key="6">6</button></div>
+            <div class="kp-row"><button class="kp-num" data-key="7">7</button><button class="kp-num" data-key="8">8</button><button class="kp-num" data-key="9">9</button></div>
+            <div class="kp-row"><button class="kp-clear" id="kp-clear">清除</button><button class="kp-num" data-key="0">0</button></div>
+          </div>
+
+          <!-- 右侧：字段行 5行 -->
+          <div class="picker-fields">
+            <div class="pline" data-field="year">
+              <span class="pline-btn" data-field="year">年</span>
+              <span class="pline-val" id="pline-year">1990年</span>
+            </div>
+            <div class="pline" data-field="month">
+              <span class="pline-btn" data-field="month">月</span>
+              <span class="pline-val" id="pline-month">12月</span>
+            </div>
+            <div class="pline" data-field="day">
+              <span class="pline-btn" data-field="day">日</span>
+              <span class="pline-val" id="pline-day">10日</span>
+            </div>
+            <div class="pline" data-field="hour">
+              <span class="pline-btn" data-field="hour">時</span>
+              <span class="pline-val" id="pline-hour">13時</span>
+            </div>
+            <div class="pline" data-field="minute">
+              <span class="pline-btn" data-field="minute">分</span>
+              <span class="pline-val" id="pline-minute">00分</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 提示文字 -->
+        <div class="picker-hint">
+          如輸入1999年，則依次按1999四個藍色數字，然後按藍色的「年」，右邊顯示1999年。當按「年」按鈕的時候，如果是合法的年，則右邊年對應會改變，日月時分同理。
+        </div>
+
+        </div><!-- /picker-inner -->
+
+        <!-- 弹性空间（将底部标签推到下方） -->
+        <div class="picker-spacer"></div>
+
+        <!-- 底部输入模式切换 -->
+        <div class="picker-mode-tabs">
+          <div class="pmode-item active" data-mode="time">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>時間輸入</span>
+          </div>
+          <div class="pmode-item" data-mode="sizhu">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>四柱輸入</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 四柱输入弹窗 ===== -->
+    <div class="picker-overlay" id="sizhu-picker-overlay">
+      <div class="picker-panel picker-full">
+        <!-- 顶部导航 -->
+        <div class="picker-nav">
+          <div class="picker-nav-left">
+            <button class="picker-nav-btn blue" id="sizhu-confirm">確定</button>
+          </div>
+          <span class="picker-nav-title">輸入四柱</span>
+          <div class="picker-nav-right">
+            <button class="picker-nav-btn blue" id="sizhu-cancel">取消</button>
+          </div>
+        </div>
+
+        <!-- 四柱选择区 -->
+        <div class="sizhu-select-area">
+          <!-- 柱标签：年→月→日→時 -->
+          <div class="sizhu-pillar-tabs">
+            <span class="sizhu-ptab active" data-ptab="year">年柱</span>
+            <span class="sizhu-ptab" data-ptab="month">月柱</span>
+            <span class="sizhu-ptab" data-ptab="day">日柱</span>
+            <span class="sizhu-ptab" data-ptab="hour">時柱</span>
+          </div>
+
+          <!-- 滚轮式选择器 -->
+          <div class="sizhu-wheels-container">
+            <!-- 天干行 -->
+            <div class="sizhu-wheel-row">
+              <span class="sizhu-wheel-label">天干</span>
+              <div class="sizhu-wheels">
+                <div class="sz-wheel" id="sz-wheel-year-gan"><div class="sz-wheel-inner"></div></div>
+                <div class="sz-wheel" id="sz-wheel-month-gan"><div class="sz-wheel-inner"></div></div>
+                <div class="sz-wheel" id="sz-wheel-day-gan"><div class="sz-wheel-inner"></div></div>
+                <div class="sz-wheel" id="sz-wheel-hour-gan"><div class="sz-wheel-inner"></div></div>
+              </div>
+            </div>
+            <!-- 地支行 -->
+            <div class="sizhu-wheel-row">
+              <span class="sizhu-wheel-label">地支</span>
+              <div class="sizhu-wheels">
+                <div class="sz-wheel" id="sz-wheel-year-zhi"><div class="sz-wheel-inner"></div></div>
+                <div class="sz-wheel" id="sz-wheel-month-zhi"><div class="sz-wheel-inner"></div></div>
+                <div class="sz-wheel" id="sz-wheel-day-zhi"><div class="sz-wheel-inner"></div></div>
+                <div class="sz-wheel" id="sz-wheel-hour-zhi"><div class="sz-wheel-inner"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 提示文字 -->
+          <div class="sizhu-wheels-hint">〈手指左右撥動可選擇〉</div>
+        </div>
+
+        <!-- 查找功能区 -->
+        <div class="sizhu-search-bar">
+          <span class="sizhu-search-range">範圍:1911–2100年</span>
+          <button class="sizhu-search-btn" id="sizhu-search-btn">查找</button>
+        </div>
+
+        <!-- 查找结果列表 -->
+        <div class="sizhu-results" id="sizhu-results">
+          <div class="sizhu-results-empty">輸入四柱後點擊查找</div>
+        </div>
+
+        <!-- 弹性空间 -->
+        <div class="picker-spacer"></div>
+
+        <!-- 底部输入模式切换 -->
+        <div class="picker-mode-tabs">
+          <div class="pmode-item" data-mode="time">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span>時間輸入</span>
+          </div>
+          <div class="pmode-item active" data-mode="sizhu">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>四柱輸入</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 隐藏的原有select（保持引擎兼容） -->
+    <select id="birth-year" style="display:none"></select>
+    <select id="birth-month" style="display:none"></select>
+    <select id="birth-day" style="display:none"></select>
+    <select id="birth-hour" style="display:none">
+      <option value="" disabled selected>請選擇時辰</option>
+      <option value="0">子時 (23-01)</option>
+      <option value="1">丑時 (01-03)</option>
+      <option value="3">寅時 (03-05)</option>
+      <option value="5">卯時 (05-07)</option>
+      <option value="7">辰時 (07-09)</option>
+      <option value="9">巳時 (09-11)</option>
+      <option value="11">午時 (11-13)</option>
+      <option value="13">未時 (13-15)</option>
+      <option value="15">申時 (15-17)</option>
+      <option value="17">酉時 (17-19)</option>
+      <option value="19">戌時 (19-21)</option>
+      <option value="21">亥時 (21-23)</option>
+    </select>
+  </div>
+
+  <!-- ===== 保存记录列表页 ===== -->
+  <div id="page-records" class="page">
+    <!-- 顶部导航栏 -->
+    <div class="records-nav">
+      <button class="records-nav-btn" id="records-back">&#60;&#60; 返回</button>
+      <div class="records-search-box">
+        <svg class="records-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="records-search-input" id="records-search" placeholder="搜尋姓名或日期">
+      </div>
+      <button class="records-nav-btn" id="records-cancel">取消</button>
+    </div>
+
+    <!-- 记录列表 -->
+    <div class="records-list-wrap" id="records-list-wrap">
+      <div id="records-page-list"></div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="records-bottom-bar" id="records-bottom-bar">
+      <button class="records-bottom-btn primary" id="records-calc">計算命盤</button>
+      <button class="records-bottom-btn danger" id="records-delete">刪除</button>
+    </div>
+    <div class="records-bottom-empty" id="records-bottom-empty" style="display:none;">
+      <span style="color:var(--text-dim);">尚無保存記錄</span>
     </div>
   </div>
 
@@ -84,67 +299,73 @@
   <div id="page-result" class="page">
     <div class="page-header">
       <button class="btn-back" onclick="showPage('input')">← 返回</button>
-      <h2>排盘结果</h2>
+      <h2 id="result-header-title">命盤信息</h2>
       <div class="placeholder"></div>
     </div>
 
-    <div class="result-content">
-      <!-- 出生信息 -->
-      <div class="info-bar" id="birth-info-bar"></div>
+    <nav class="tab-nav" id="tab-nav">
+      <button class="tab-btn active" data-tab="tab-basic">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <span>基本</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-chart">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        <span>命盤</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-detail">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        <span>細盤</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-dayun">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        <span>大運</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-liunian">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span>流年</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-tips">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span>提示</span>
+      </button>
+    </nav>
 
-      <!-- 四柱 + 神煞 -->
-      <div class="section-card">
-        <div class="section-title">
-          <span class="title-deco">━━</span> 四柱八字 <span class="title-deco">━━</span>
-        </div>
-        <div class="four-pillars" id="four-pillars"></div>
-      </div>
+    <!-- ===== Tab 1: 基本 ===== -->
+    <div class="tab-content active" id="tab-basic">
+      <div id="basic-rows"></div>
+    </div>
 
-      <!-- 专业分析分割线 -->
-      <div class="analysis-divider">
-        <span>专业分析</span>
-      </div>
+    <!-- ===== Tab 4: 大運（占位） ===== -->
+    <div class="tab-content" id="tab-dayun">
+      <div class="placeholder-tab">大運詳解 — 敬請期待</div>
+    </div>
 
-      <!-- 刑冲合害 -->
-      <div class="section-card" id="xchh-card" style="display:none">
-        <div class="section-title">
-          <span class="title-deco">━━</span> 刑冲合害 <span class="title-deco">━━</span>
-        </div>
-        <div id="xing-chong"></div>
-      </div>
+    <!-- ===== Tab 5: 流年（占位） ===== -->
+    <div class="tab-content" id="tab-liunian">
+      <div class="placeholder-tab">流年詳解 — 敬請期待</div>
+    </div>
 
-      <!-- 大运 -->
-      <div class="section-card">
-        <div class="section-title">
-          <span class="title-deco">━━</span> 大运 <span class="title-deco">━━</span>
-        </div>
-        <div id="da-yun"></div>
-      </div>
+    <!-- ===== Tab 6: 提示（占位） ===== -->
+    <div class="tab-content" id="tab-tips">
+      <div class="placeholder-tab">提示 — 敬請期待</div>
+    </div>
 
-      <!-- 详细分析报告分割线 -->
-      <div class="section-divider">
-        <span>详细分析报告</span>
-      </div>
+    <!-- ===== Tab 2: 命盘 ===== -->
+    <div class="tab-content" id="tab-chart">
+      <div id="chart-table-wrap"></div>
+    </div>
 
-      <!-- 报告手风琴 -->
-      <div class="report-content" id="report-content">
-        <!-- JS动态生成 -->
-      </div>
+    <!-- ===== Tab 3: 细盘 ===== -->
+    <div class="tab-content" id="tab-detail">
+      <div id="xipan-table"></div>
+      <div id="xipan-dayun-section"></div>
+      <div id="xipan-tips-section"></div>
+    </div>
 
-      <!-- 转化入口 -->
-      <div class="cta-card">
-        <div class="cta-title">想要更精准的深度解读？</div>
-        <p>以上为系统自动分析，仅供参考。如需结合流年运势做详细分析，欢迎预约老师一对一解读。</p>
-        <div class="cta-contact">
-          <div class="cta-wechat">微信咨询</div>
-          <p class="cta-hint">（联系方式待添加）</p>
-        </div>
-      </div>
-
-      <div class="footer">
-        <p>八字命理，知命不认命</p>
-        <p class="copyright">聚光八字 &copy; 2024</p>
-      </div>
+    <div class="result-footer">
+      <p>八字命理，知命不认命</p>
+      <p class="copyright">聚光八字 &copy; 2024</p>
+      <p class="footer-contact">深度解讀諮詢 微信：13986187789</p>
     </div>
   </div>
 

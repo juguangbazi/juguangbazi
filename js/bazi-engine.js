@@ -1,4 +1,4 @@
-const BaziEngine = (function() {
+var BaziEngine = (function() {
 
 // === src/utils/constants.js ===
 // 天干
@@ -2908,8 +2908,353 @@ function formatReport(sections, result) {
 
 
 
+// === src/utils/lunar.js ===
+// 农历转换（用于称骨等需要农历月日的场景）
+// 1900-2100 年农历数据：每年一个整数，低4位=闰月(0=无闰)，bit4-15依次为正月到十二月的大小月(1=30天,0=29天)
+var LUNAR_INFO = [
+  0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+  0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+  0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+  0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+  0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+  0x06ca0,0x0b550,0x15355,0x04d70,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa3,
+  0x0aea0,0x0ab50,0x04b60,0x1aae4,0x0a570,0x14e50,0x05260,0x0f263,0x0d950,0x05b57,
+  0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a3,
+  0x195a0,0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,
+  0x09570,0x092e0,0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,
+  0x092d0,0x0cab5,0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,
+  0x052b0,0x0a930,0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,
+  0x0ea65,0x0d530,0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,
+  0x0d520,0x0dd45,0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,
+  0x06d20,0x0ada0,0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,
+  0x1a6c4,0x0aae0,0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,
+  0x0a6d0,0x055d4,0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,
+  0x0a5b0,0x052b0,0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,
+  0x054e4,0x0d160,0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a4d0,
+  0x0d150,0x0f252,0x0d520
+];
+
+function solarToLunar(year, month, day) {
+  // 计算从1900-01-01到目标日期的天数
+  var solarOffset = 0;
+  for (var y = 1900; y < year; y++) {
+    solarOffset += (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365;
+  }
+  for (var m = 1; m < month; m++) {
+    solarOffset += solarMonthDays(year, m);
+  }
+  solarOffset += day - 1;
+
+  // 农历1900年正月初一 = 公历1900-01-31 (offset=30), 但 LUNAR_INFO 数据实际对齐需调整为 epoch 59
+  var lunarOffset = solarOffset - 59;
+  if (lunarOffset < 0) {
+    return { year: 1899, month: 12, day: 31 + lunarOffset + 1, isLeap: false };
+  }
+
+  var lunarYear = 1900;
+  var yearDays;
+  while (lunarYear <= 2100) {
+    yearDays = lunarYearDays(lunarYear);
+    if (lunarOffset < yearDays) break;
+    lunarOffset -= yearDays;
+    lunarYear++;
+  }
+  if (lunarYear > 2100) lunarYear = 2100;
+
+  var yearInfo = LUNAR_INFO[lunarYear - 1900];
+  var leapMonth = yearInfo & 0xf;
+  var lunarMonth = 1, lunarDay, isLeap = false;
+
+  for (var m = 1; m <= 12; m++) {
+    var mDays = (yearInfo >> (3 + m) & 1) ? 30 : 29;
+    if (lunarOffset < mDays) {
+      lunarMonth = m;
+      lunarDay = lunarOffset + 1;
+      isLeap = false;
+      break;
+    }
+    lunarOffset -= mDays;
+
+    if (leapMonth === m) {
+      var leapDays = (yearInfo >> 16 & 1) ? 30 : 29;
+      if (lunarOffset < leapDays) {
+        lunarMonth = m;
+        lunarDay = lunarOffset + 1;
+        isLeap = true;
+        break;
+      }
+      lunarOffset -= leapDays;
+    }
+  }
+  if (!lunarDay) { lunarMonth = 12; lunarDay = lunarOffset + 1; }
+
+  return { year: lunarYear, month: lunarMonth, day: lunarDay, isLeap: isLeap };
+}
+
+function lunarYearDays(y) {
+  var info = LUNAR_INFO[y - 1900];
+  var days = 0;
+  for (var m = 1; m <= 12; m++) { days += (info >> (3 + m) & 1) ? 30 : 29; }
+  if (info & 0xf) { days += (info >> 16 & 1) ? 30 : 29; }
+  return days;
+}
+
+function solarMonthDays(y, m) {
+  if (m === 2) return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 29 : 28;
+  return [31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+}
 
 
+// === src/misc/mansions.js ===
+var ERSHIBA_XIU = [
+  '角','亢','氐','房','心','尾','箕',
+  '斗','牛','女','虚','危','室','壁',
+  '奎','娄','胃','昴','毕','觜','参',
+  '井','鬼','柳','星','张','翼','轸'
+];
+
+function getDayPillar60Index(dayGan, dayZhi) {
+  var ganIdx = TIAN_GAN.indexOf(dayGan);
+  var zhiIdx = DI_ZHI.indexOf(dayZhi);
+  for (var i = 0; i < 60; i++) {
+    if (i % 10 === ganIdx && i % 12 === zhiIdx) return i;
+  }
+  return 0;
+}
+
+// 计算从1900-01-01到给定日期的总天数偏移
+function getDayOffsetFrom1900(year, month, day) {
+  var offset = 0;
+  for (var y = 1900; y < year; y++) {
+    offset += (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365;
+  }
+  for (var m = 1; m < month; m++) {
+    offset += solarMonthDays(year, m);
+  }
+  offset += day - 1;
+  return offset;
+}
+
+function getRiXiu(totalDayOffset) {
+  return ERSHIBA_XIU[(7 + totalDayOffset) % 28];
+}
+
+
+// === src/misc/palaces.js ===
+function calcTaiYuan(monthGan, monthZhi) {
+  var ganIdx = TIAN_GAN.indexOf(monthGan);
+  var zhiIdx = DI_ZHI.indexOf(monthZhi);
+  var tGan = TIAN_GAN[(ganIdx + 1) % 10];
+  var tZhi = DI_ZHI[(zhiIdx + 3) % 12];
+  return { gan: tGan, zhi: tZhi, ganZhi: tGan + tZhi };
+}
+
+function calcTaiXi(dayGan, dayZhi) {
+  var heGan = dayGan;
+  for (var i = 0; i < TIAN_GAN_HE.length; i++) {
+    if (TIAN_GAN_HE[i][0] === dayGan) { heGan = TIAN_GAN_HE[i][1]; break; }
+    if (TIAN_GAN_HE[i][1] === dayGan) { heGan = TIAN_GAN_HE[i][0]; break; }
+  }
+  var heZhiMap = { '子':'丑','丑':'子','寅':'亥','亥':'寅','卯':'戌','戌':'卯','辰':'酉','酉':'辰','巳':'申','申':'巳','午':'未','未':'午' };
+  var heZhi = heZhiMap[dayZhi] || dayZhi;
+  return { gan: heGan, zhi: heZhi, ganZhi: heGan + heZhi };
+}
+
+function calcMingGong(monthZhi, hourZhi, yearGan) {
+  // 命宫：以子为正月（寅），逆数至生月；再将时支加临其上，顺数至卯
+  var monthIdx = DI_ZHI.indexOf(monthZhi);
+  var hourIdx = DI_ZHI.indexOf(hourZhi);
+  // 子为正月(寅)：寅→子(0), 卯→亥(11), 辰→戌(10)... 逆数
+  var monthBranch = (2 - monthIdx + 12) % 12;
+  // 从时支顺数到卯的步数：子→卯=3步, 丑→卯=2步...
+  var stepsToMao = (3 - hourIdx + 12) % 12;
+  var zhiIdx = (monthBranch + stepsToMao) % 12;
+  var zhi = DI_ZHI[zhiIdx];
+  var gan = getMonthGanFromYear(yearGan, zhi);
+  return { gan: gan, zhi: zhi, ganZhi: gan + zhi };
+}
+
+function calcShenGong(monthZhi, hourZhi, yearGan) {
+  // 身宫：以寅为正月，顺数至生月；再将时支加临其上，逆数至酉
+  var monthIdx = DI_ZHI.indexOf(monthZhi);
+  var hourIdx = DI_ZHI.indexOf(hourZhi);
+  // 寅为正月：寅→寅(2), 卯→卯(3)... 顺数，monthBranch直接对应出生月地支
+  var monthBranch = monthIdx;
+  // 从时支逆数到酉(酉idx=9)的步数
+  var stepsToYou = (hourIdx - 9 + 12) % 12;
+  var zhiIdx = (monthBranch - stepsToYou + 12) % 12;
+  var zhi = DI_ZHI[zhiIdx];
+  var gan = getMonthGanFromYear(yearGan, zhi);
+  return { gan: gan, zhi: zhi, ganZhi: gan + zhi };
+}
+
+function getMonthGanFromYear(yearGan, monthZhi) {
+  var yearGanIdx = TIAN_GAN.indexOf(yearGan);
+  var monthZhiIdx = DI_ZHI.indexOf(monthZhi);
+  var startGan = [2, 4, 6, 8, 0, 2, 4, 6, 8, 0][yearGanIdx];
+  var monthOffset = (monthZhiIdx - 2 + 12) % 12;
+  return TIAN_GAN[(startGan + monthOffset) % 10];
+}
+
+
+// === src/misc/kongwang.js ===
+function getKongWang(gan, zhi) {
+  var ganIdx = TIAN_GAN.indexOf(gan);
+  var zhiIdx = DI_ZHI.indexOf(zhi);
+  var xunStartZhi = (zhiIdx - ganIdx + 12) % 12;
+  var kong1 = DI_ZHI[(xunStartZhi + 10) % 12];
+  var kong2 = DI_ZHI[(xunStartZhi + 11) % 12];
+  return { zhi: [kong1, kong2], desc: kong1 + kong2 + '空' };
+}
+
+
+// === src/misc/chenggu.js ===
+var CG_YEAR = {
+  '甲子':0.7,'乙丑':0.9,'丙寅':0.6,'丁卯':0.7,'戊辰':1.2,'己巳':0.5,'庚午':0.9,'辛未':0.8,'壬申':0.7,'癸酉':0.8,
+  '甲戌':0.5,'乙亥':0.9,'丙子':0.8,'丁丑':0.8,'戊寅':0.8,'己卯':1.9,'庚辰':1.2,'辛巳':0.6,'壬午':0.8,'癸未':0.7,
+  '甲申':0.5,'乙酉':1.5,'丙戌':0.6,'丁亥':1.6,'戊子':1.5,'己丑':0.7,'庚寅':0.9,'辛卯':1.2,'壬辰':1.0,'癸巳':0.7,
+  '甲午':1.5,'乙未':0.6,'丙申':0.5,'丁酉':1.4,'戊戌':1.4,'己亥':0.9,'庚子':0.7,'辛丑':0.7,'壬寅':0.9,'癸卯':1.2,
+  '甲辰':0.8,'乙巳':0.7,'丙午':1.3,'丁未':0.5,'戊申':1.4,'己酉':0.5,'庚戌':0.9,'辛亥':1.7,'壬子':0.5,'癸丑':0.7,
+  '甲寅':1.2,'乙卯':0.8,'丙辰':0.8,'丁巳':0.6,'戊午':1.9,'己未':0.6,'庚申':0.8,'辛酉':1.6,'壬戌':1.0,'癸亥':0.7
+};
+var CG_MONTH = { 1:0.6,2:0.7,3:1.8,4:0.9,5:0.5,6:1.6,7:0.9,8:1.5,9:1.8,10:0.8,11:0.9,12:0.5 };
+var CG_DAY = {
+  1:0.5,2:1.0,3:0.8,4:1.5,5:1.0,6:1.5,7:0.8,8:1.6,9:0.8,10:1.6,
+  11:0.9,12:1.7,13:0.8,14:1.7,15:1.0,16:0.8,17:0.9,18:1.8,19:0.5,20:1.0,
+  21:1.0,22:0.9,23:0.8,24:0.9,25:1.5,26:1.8,27:0.7,28:0.8,29:1.6,30:0.6
+};
+var CG_HOUR = {
+  '子':1.6,'丑':0.6,'寅':0.7,'卯':1.0,'辰':0.9,'巳':1.6,'午':1.0,'未':0.8,'申':0.8,'酉':0.9,'戌':0.6,'亥':0.6
+};
+var CG_SCORES = [
+  [2.1,'短命非业谓大凶，平生灾难事重重，凶祸频临陷逆境，终世困苦事不成。'],
+  [2.2,'身寒骨冷苦伶仃，此命推来行乞人，劳劳碌碌无度日，终年打拱过平生。'],
+  [2.3,'此命推来骨格轻，求谋作事事难成，妻儿兄弟应难许，别处他乡作散人。'],
+  [2.4,'此命推来福禄无，门庭困苦总难荣，六亲骨肉皆无靠，流浪他乡作老翁。'],
+  [2.5,'此命推来祖业微，门庭营度似稀奇，六亲骨肉如冰炭，一世勤劳自把持。'],
+  [2.6,'平生衣禄苦中求，独自营谋事不休，离祖出门宜早计，晚来衣禄自无休。'],
+  [2.7,'一生作事少商量，难靠祖宗作主张，独马单枪空做去，早年晚岁总无长。'],
+  [2.8,'一生行事似飘蓬，祖宗产业在梦中，若不过房改名姓，也当移徒二三通。'],
+  [2.9,'初年运限未曾亨，纵有功名在后成，须过四旬才可立，移居改姓始为良。'],
+  [3.0,'劳劳碌碌苦中求，东奔西走何日休，若使终身勤与俭，老来稍可免忧愁。'],
+  [3.1,'忙忙碌碌苦中求，何日云开见日头，难得祖基家可立，中年衣食渐无忧。'],
+  [3.2,'初年运蹇事难谋，渐有财源如水流，到得中年衣食旺，那时名利一齐收。'],
+  [3.3,'早年做事事难成，百年勤劳枉费心，半世自如流水去，后来运到始得金。'],
+  [3.4,'此命福气果如何，僧道门中衣禄多，离祖出家方为妙，终朝拜佛念弥陀。'],
+  [3.5,'生平福量不周全，祖业根基觉少传，营事生涯宜守旧，时来衣食胜从前。'],
+  [3.6,'不须劳碌过平生，独自成家福不轻，早有福星常照命，任君行去百般成。'],
+  [3.7,'此命般般事不成，弟兄少力自孤行，虽然祖业须微有，来得明时去不明。'],
+  [3.8,'一身骨肉最清高，早入簧门姓氏标，待到年将三十六，蓝衫脱去换红袍。'],
+  [3.9,'此命终身运不通，劳劳作事尽皆空，苦心竭力成家计，到得那时在梦中。'],
+  [4.0,'平生衣禄是绵长，件件心中自主张，前面风霜多受过，后来必定享安康。'],
+  [4.1,'此命推来自不同，为人能干异凡庸，中年还有逍遥福，不比前时运未通。'],
+  [4.2,'得宽怀处且宽怀，何用双眉皱不开，若使中年命运济，那时名利一齐来。'],
+  [4.3,'为人心性最聪明，作事轩昂近贵人，衣禄一生天注定，不须劳碌是丰亨。'],
+  [4.4,'万事由天莫苦求，须知福禄赖人修，当年财帛难如意，晚景欣然便不忧。'],
+  [4.5,'名利推求竟若何，前番辛苦后奔波，命中难养男和女，骨肉扶持也不多。'],
+  [4.6,'东西南北尽皆通，出姓移居更觉隆，衣禄无穷无数定，中年晚景一般同。'],
+  [4.7,'此命推求旺末年，妻荣子贵自怡然，平生原有滔滔福，可卜财源若水泉。'],
+  [4.8,'初年运道未曾通，几许蹉跎命亦穷，兄弟六亲无依靠，一生事业晚来丰。'],
+  [4.9,'此命推来福不轻，自成自立显门庭，从来富贵人钦敬，使婢差奴过一生。'],
+  [5.0,'为利为名终日劳，中年福禄也多遭，老来自有财星照，不比前番目下高。'],
+  [5.1,'一世荣华事事通，不须劳碌自亨通，弟兄叔侄皆如意，家业成时福禄宏。'],
+  [5.2,'一世亨通事事能，不须劳苦自然宁，宗族有光欣喜甚，家产丰盈自称心。'],
+  [5.3,'此格推来福泽宏，兴家立业在其中，一生衣食安排定，却是人间一福翁。'],
+  [5.4,'此命详审福泽宏，诗书满腹看功成，丰衣足食多安稳，正是人间有福人。'],
+  [5.5,'走马扬鞭争利名，少年做事费筹论，一朝福禄源源至，富贵荣华显六亲。'],
+  [5.6,'此格推来礼义通，一身福禄用无穷，甜酸苦辣皆尝过，滚滚财源盈而丰。'],
+  [5.7,'福禄丰盈万事全，一身荣耀乐天年，名扬威震人争羡，处世逍遥宛遇仙。'],
+  [5.8,'平生衣食自然来，名利双全富贵偕，金榜题名登甲第，紫袍玉带走金阶。'],
+  [5.9,'细推此格秀而清，必定才高学业成，甲第之中应有分，扬鞭走马显威荣。'],
+  [6.0,'一朝金榜快题名，显祖荣宗大器成，衣禄定然无欠缺，田园财帛更丰盈。'],
+  [6.1,'不作朝中金榜客，定为世上大财翁，聪明天赋经书熟，名显高科自是荣。'],
+  [6.2,'此命生来福不穷，读书必定显亲宗，紫衣金带为卿相，富贵荣华孰与同。'],
+  [6.3,'命主为官福禄长，得来富贵实非常，名题金塔传金榜，定中高科天下扬。'],
+  [6.4,'此格威权不可当，紫袍金带坐高堂，荣华富贵谁能及，万古留名姓氏扬。'],
+  [6.5,'细推此命福非轻，富贵荣华孰与争，定国安邦人极品，威声显赫震寰瀛。'],
+  [6.6,'此格人间一福人，堆金积玉满堂春，从来富贵由天定，正笏垂绅谒圣君。'],
+  [6.7,'此命生来福自宏，田园家业最高隆，平生衣禄盈丰足，一路荣华万事通。'],
+  [6.8,'富贵由天莫苦求，万金家计不须谋，如今不比前番事，祖业根基万古留。'],
+  [6.9,'君是人间衣禄星，一身富贵众人钦，总然福禄由天定，安享荣华过一生。'],
+  [7.0,'此命推来福不轻，何须愁虑苦劳心，荣华富贵已天定，正笏垂绅拜紫宸。'],
+  [7.1,'此命推来大不同，公侯卿相在其中，一生自有逍遥福，富贵荣华极登场。']
+];
+
+function calcChengGu(yearGanZhi, lunarMonth, lunarDay, hourZhi) {
+  var yw = CG_YEAR[yearGanZhi] || 0;
+  var mw = CG_MONTH[lunarMonth] || 0;
+  var dw = CG_DAY[lunarDay] || 0;
+  var hw = CG_HOUR[hourZhi] || 0;
+  var total = Math.round((yw + mw + dw + hw) * 10) / 10;
+  var poem = '';
+  for (var i = 0; i < CG_SCORES.length; i++) {
+    if (Math.abs(CG_SCORES[i][0] - total) < 0.05) { poem = CG_SCORES[i][1]; break; }
+  }
+  return { yearWeight: yw, monthWeight: mw, dayWeight: dw, hourWeight: hw, total: total, poem: poem };
+}
+
+
+// === src/fate/liuyue.js ===
+function calcLiuYue(liuNianGan) {
+  var months = [];
+  var yearGanIdx = TIAN_GAN.indexOf(liuNianGan);
+  var startGan = [2, 4, 6, 8, 0, 2, 4, 6, 8, 0][yearGanIdx];
+  var monthNames = ['正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','冬月','腊月'];
+  for (var i = 0; i < 12; i++) {
+    var zhiIdx = (2 + i) % 12;
+    var ganIdx = (startGan + i) % 10;
+    var gan = TIAN_GAN[ganIdx];
+    var zhi = DI_ZHI[zhiIdx];
+    var gz = gan + zhi;
+    months.push({ gan: gan, zhi: zhi, ganZhi: gz, month: i + 1, name: monthNames[i], naYin: NA_YIN[gz] });
+  }
+  return months;
+}
+
+
+// 根据四柱反查公历日期（1911-2100）
+function searchByPillars(targetYearGan, targetYearZhi, targetMonthGan, targetMonthZhi, targetDayGan, targetDayZhi, targetHourGan, targetHourZhi) {
+  var results = [];
+  var HOUR_VALS = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]; // 时辰起始小时
+
+  for (var year = 1911; year <= 2100; year++) {
+    // 快速跳过：用年中6月15日的年柱做筛选（远离立春边界）
+    var midYear = new Date(year, 5, 15, 12, 0, 0);
+    var yp = getYearPillar(midYear);
+    if (yp.gan !== targetYearGan || yp.zhi !== targetYearZhi) continue;
+
+    // 年柱匹配，遍历全年每一天
+    for (var month = 0; month < 12; month++) {
+      var daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (var day = 1; day <= daysInMonth; day++) {
+        for (var hi = 0; hi < HOUR_VALS.length; hi++) {
+          var h = HOUR_VALS[hi];
+          var date = new Date(year, month, day, h, 0, 0);
+          var fp = getFourPillars(date);
+
+          if (fp.month.gan === targetMonthGan && fp.month.zhi === targetMonthZhi &&
+              fp.day.gan === targetDayGan && fp.day.zhi === targetDayZhi &&
+              fp.hour.gan === targetHourGan && fp.hour.zhi === targetHourZhi) {
+            results.push({
+              year: year,
+              month: month + 1,
+              day: day,
+              hour: h,
+              fourPillars: {
+                year: fp.year,
+                month: fp.month,
+                day: fp.day,
+                hour: fp.hour
+              }
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return results;
+}
 
 function paipan(year, month, day, hour, gender) {
   const birthDate = new Date(year, month - 1, day, hour);
@@ -2956,6 +3301,36 @@ function paipan(year, month, day, hour, gender) {
   // 12. 综合用神
   const yongShen = analyzeYongShen(fourPillars, dayStrength, shiShen, tiaoHou);
 
+  // 13. 二十八星宿
+  const dayPillar60Index = getDayPillar60Index(fourPillars.day.gan, fourPillars.day.zhi);
+  const totalDayOffset = getDayOffsetFrom1900(year, month, day);
+  const riXiu = getRiXiu(totalDayOffset);
+
+  // 14. 命宫/胎元/胎息/身宫
+  const hourZhi = fourPillars.hour.zhi;
+  const taiYuan = calcTaiYuan(fourPillars.month.gan, fourPillars.month.zhi);
+  const taiXi = calcTaiXi(fourPillars.day.gan, fourPillars.day.zhi);
+  const mingGong = calcMingGong(fourPillars.month.zhi, hourZhi, fourPillars.year.gan);
+  const shenGong = calcShenGong(fourPillars.month.zhi, hourZhi, fourPillars.year.gan);
+
+  // 15. 空亡
+  const kongWang = getKongWang(fourPillars.day.gan, fourPillars.day.zhi);
+  const yearKongWang = getKongWang(fourPillars.year.gan, fourPillars.year.zhi);
+
+  // 16. 自坐星运（每柱天干坐本柱地支的十二长生）
+  var ziZuo = {};
+  var positions = ['year', 'month', 'day', 'hour'];
+  positions.forEach(function(pos) {
+    ziZuo[pos] = getChangSheng(fourPillars[pos].gan, fourPillars[pos].zhi);
+  });
+
+  // 17. 袁天罡称骨
+  var lunar = solarToLunar(year, month, day);
+  const chengGu = calcChengGu(fourPillars.year.ganZhi, lunar.month, lunar.day, hourZhi);
+
+  // 18. 小运
+  const xiaoYun = calcXiaoYun(fourPillars, gender, birthDate, daYun.qiYunAge);
+
   return {
     birthInfo: { year, month, day, hour, gender },
     fourPillars,
@@ -2970,7 +3345,19 @@ function paipan(year, month, day, hour, gender) {
     tiaoHou,
     geJu,
     specialCombinations,
-    yongShen
+    yongShen,
+    // 新增
+    riXiu: riXiu,
+    taiYuan: taiYuan,
+    taiXi: taiXi,
+    mingGong: mingGong,
+    shenGong: shenGong,
+    kongWang: kongWang,
+    yearKongWang: yearKongWang,
+    ziZuo: ziZuo,
+    chengGu: chengGu,
+    xiaoYun: xiaoYun,
+    lunarDate: lunar
   };
 }
 
@@ -3143,12 +3530,20 @@ return {
   paipan: paipan,
   generateReport: generateReport,
   analyzeLiuNian: analyzeLiuNian,
+  calcLiuYue: calcLiuYue,
+  solarToLunar: solarToLunar,
+  searchByPillars: searchByPillars,
   _constants: {
     GAN_WU_XING: GAN_WU_XING,
     ZHI_WU_XING: ZHI_WU_XING,
     ZHI_CANG_GAN: ZHI_CANG_GAN,
-    GAN_YIN_YANG: GAN_YIN_YANG
-  }
+    GAN_YIN_YANG: GAN_YIN_YANG,
+    TIAN_GAN: TIAN_GAN,
+    DI_ZHI: DI_ZHI,
+    NA_YIN: NA_YIN
+  },
+  getKongWang: getKongWang
 };
 
 })();
+if (typeof window !== 'undefined') { window.BaziEngine = BaziEngine; }

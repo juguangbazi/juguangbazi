@@ -3016,8 +3016,8 @@ function getDayOffsetFrom1900(year, month, day) {
 }
 
 function getRiXiu(totalDayOffset) {
-  // 1900-01-01 = 昴宿(index 17)
-  return ERSHIBA_XIU[(17 + totalDayOffset) % 28];
+  // 1900-01-01 = 张宿(index 24)，经验证1990-12-10=房宿
+  return ERSHIBA_XIU[(24 + totalDayOffset) % 28];
 }
 
 

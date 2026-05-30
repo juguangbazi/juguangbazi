@@ -1260,11 +1260,14 @@ function renderTabChart(result) {
   var yongShenText = '';
   var tiaoHou2 = result.tiaoHou;
   if (tiaoHou2 && tiaoHou2.mainGan) {
-    yongShenText = fp.month.zhi + '月喜用' + tiaoHou2.mainGan;
-    if (tiaoHou2.auxGan) yongShenText += '、' + tiaoHou2.auxGan;
+    yongShenText = fp.month.zhi + '月喜' + tiaoHou2.mainGan;
+    if (tiaoHou2.auxGan) {
+      var auxList = tiaoHou2.auxGan.split('').filter(function(c) { return c !== ' '; });
+      yongShenText += '、' + auxList.join('、');
+    }
     yongShenText += '。';
     if (tiaoHou2.description) yongShenText += tiaoHou2.description + '，' + tiaoHou2.mainGan + '為主';
-    if (tiaoHou2.auxGan) yongShenText += '，' + tiaoHou2.auxGan + '為輔';
+    if (tiaoHou2.auxGan) yongShenText += '，' + tiaoHou2.auxGan.replace(/\B/g, '、') + '為輔';
     yongShenText += '。';
   }
   html += '<div class="chart-hint-section">';

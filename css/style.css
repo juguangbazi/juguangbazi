@@ -557,6 +557,8 @@ body {
   font-size: 16px;
   line-height: 1.4;
   text-align: left;
+  display: table;
+  margin: 0 auto;
   border: none;
   flex-shrink: 0;
 }

@@ -1260,11 +1260,12 @@ function renderTabChart(result) {
   var yongShenText = '';
   var tiaoHou2 = result.tiaoHou;
   if (tiaoHou2 && tiaoHou2.mainGan) {
-    yongShenText = '日元' + fp.day.gan + '，生於' + fp.month.zhi + '月。';
-    if (tiaoHou2.description) yongShenText += '《窮通寶鑑》云：' + tiaoHou2.description + '。';
-    yongShenText += '《五行精紀》論：' + fp.day.gan + '日主，' + fp.month.zhi + '月當取' + tiaoHou2.mainGan + '為用';
-    if (tiaoHou2.auxGan) yongShenText += '，輔以' + tiaoHou2.auxGan;
-    yongShenText += '。調候為先，配合格局而論。';
+    yongShenText = fp.month.zhi + '月喜用' + tiaoHou2.mainGan;
+    if (tiaoHou2.auxGan) yongShenText += '、' + tiaoHou2.auxGan;
+    yongShenText += '。';
+    if (tiaoHou2.description) yongShenText += tiaoHou2.description + '，' + tiaoHou2.mainGan + '為主';
+    if (tiaoHou2.auxGan) yongShenText += '，' + tiaoHou2.auxGan + '為輔';
+    yongShenText += '。';
   }
   html += '<div class="chart-hint-section">';
   html += '<div class="chart-hint-title">【命盤日元提示】</div>';

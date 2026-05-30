@@ -3287,9 +3287,13 @@ function paipan(year, month, day, hour, gender) {
   // 14. 命宫/胎元/胎息/身宫
   const hourZhi = fourPillars.hour.zhi;
   const taiYuan = calcTaiYuan(fourPillars.month.gan, fourPillars.month.zhi);
+  taiYuan.naYin = NA_YIN[taiYuan.ganZhi] || '';
   const taiXi = calcTaiXi(fourPillars.day.gan, fourPillars.day.zhi);
+  taiXi.naYin = NA_YIN[taiXi.ganZhi] || '';
   const mingGong = calcMingGong(fourPillars.month.zhi, hourZhi, fourPillars.year.gan);
+  mingGong.naYin = NA_YIN[mingGong.ganZhi] || '';
   const shenGong = calcShenGong(fourPillars.month.zhi, hourZhi, fourPillars.year.gan);
+  shenGong.naYin = NA_YIN[shenGong.ganZhi] || '';
 
   // 15. 空亡
   const kongWang = getKongWang(fourPillars.day.gan, fourPillars.day.zhi);

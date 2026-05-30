@@ -3032,8 +3032,9 @@ function calcTaiYuan(monthGan, monthZhi) {
 function calcTaiXi(dayGan, dayZhi) {
   var heGan = dayGan;
   for (var i = 0; i < TIAN_GAN_HE.length; i++) {
-    if (TIAN_GAN_HE[i][0] === dayGan) { heGan = TIAN_GAN_HE[i][1]; break; }
-    if (TIAN_GAN_HE[i][1] === dayGan) { heGan = TIAN_GAN_HE[i][0]; break; }
+    var pair = TIAN_GAN_HE[i].gan;
+    if (pair[0] === dayGan) { heGan = pair[1]; break; }
+    if (pair[1] === dayGan) { heGan = pair[0]; break; }
   }
   var heZhiMap = { '子':'丑','丑':'子','寅':'亥','亥':'寅','卯':'戌','戌':'卯','辰':'酉','酉':'辰','巳':'申','申':'巳','午':'未','未':'午' };
   var heZhi = heZhiMap[dayZhi] || dayZhi;

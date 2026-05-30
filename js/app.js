@@ -992,37 +992,37 @@ function getZodiacAnimal(zhi) {
 }
 
 function getZodiacSign(month, day) {
-  var signs = [
-    { name: '水瓶座', end: [1,20] }, { name: '双鱼座', end: [2,19] },
-    { name: '白羊座', end: [3,21] }, { name: '金牛座', end: [4,20] },
-    { name: '双子座', end: [5,21] }, { name: '巨蟹座', end: [6,22] },
-    { name: '狮子座', end: [7,23] }, { name: '处女座', end: [8,23] },
-    { name: '天秤座', end: [9,23] }, { name: '天蝎座', end: [10,24] },
-    { name: '射手座', end: [11,22] }, { name: '摩羯座', end: [12,22] }
-  ];
-  for (var i = 0; i < signs.length; i++) {
-    if (month === i + 1 && day <= signs[i].end[1]) return signs[i].name;
-    if (month > i + 1) continue;
-    return signs[i].name;
-  }
-  return signs[0].name;
+  var md = month * 100 + day;
+  if (md >= 1222 || md <= 119) return '摩羯座';
+  if (md <= 218) return '水瓶座';
+  if (md <= 320) return '双鱼座';
+  if (md <= 419) return '白羊座';
+  if (md <= 520) return '金牛座';
+  if (md <= 621) return '双子座';
+  if (md <= 722) return '巨蟹座';
+  if (md <= 822) return '狮子座';
+  if (md <= 922) return '处女座';
+  if (md <= 1023) return '天秤座';
+  if (md <= 1121) return '天蝎座';
+  if (md <= 1221) return '射手座';
+  return '摩羯座';
 }
 
 function getZodiacEn(month, day) {
-  var signs = [
-    { name: 'Aquarius', end: [1,20] }, { name: 'Pisces', end: [2,19] },
-    { name: 'Aries', end: [3,21] }, { name: 'Taurus', end: [4,20] },
-    { name: 'Gemini', end: [5,21] }, { name: 'Cancer', end: [6,22] },
-    { name: 'Leo', end: [7,23] }, { name: 'Virgo', end: [8,23] },
-    { name: 'Libra', end: [9,23] }, { name: 'Scorpio', end: [10,24] },
-    { name: 'Sagittarius', end: [11,22] }, { name: 'Capricorn', end: [12,22] }
-  ];
-  for (var i = 0; i < signs.length; i++) {
-    if (month === i + 1 && day <= signs[i].end[1]) return signs[i].name;
-    if (month > i + 1) continue;
-    return signs[i].name;
-  }
-  return signs[0].name;
+  var md = month * 100 + day;
+  if (md >= 1222 || md <= 119) return 'Capricorn';
+  if (md <= 218) return 'Aquarius';
+  if (md <= 320) return 'Pisces';
+  if (md <= 419) return 'Aries';
+  if (md <= 520) return 'Taurus';
+  if (md <= 621) return 'Gemini';
+  if (md <= 722) return 'Cancer';
+  if (md <= 822) return 'Leo';
+  if (md <= 922) return 'Virgo';
+  if (md <= 1023) return 'Libra';
+  if (md <= 1121) return 'Scorpio';
+  if (md <= 1221) return 'Sagittarius';
+  return 'Capricorn';
 }
 
 function getXiuDirection(xiu) {

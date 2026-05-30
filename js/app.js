@@ -166,7 +166,32 @@ function initForm() {
 
   // 确定
   document.getElementById('picker-confirm').addEventListener('click', function() {
-    // 把当前缓冲内容也尝试提交（如果还没按对应的行按钮）
+    // 农历模式：将农历输入转为公历
+    if (_calMode === 'lunar') {
+      var ly = parseInt(document.getElementById('birth-year').value);
+      var lm = parseInt(document.getElementById('birth-month').value);
+      var ld = parseInt(document.getElementById('birth-day').value);
+      if (ly && lm && ld && BaziEngine && BaziEngine.solarToLunar) {
+        // 搜索匹配的公历日期（农历→公历）
+        var found = false;
+        for (var sy = ly - 1; sy <= ly + 2 && !found; sy++) {
+          if (sy < 1900 || sy > 2100) continue;
+          for (var sm = 1; sm <= 12 && !found; sm++) {
+            var maxDay = new Date(sy, sm, 0).getDate();
+            for (var sd = 1; sd <= maxDay && !found; sd++) {
+              var lunar = BaziEngine.solarToLunar(sy, sm, sd);
+              if (lunar.year === ly && lunar.month === lm && lunar.day === ld) {
+                document.getElementById('birth-year').value = sy;
+                document.getElementById('birth-month').value = sm;
+                document.getElementById('birth-day').value = sd;
+                found = true;
+              }
+            }
+          }
+        }
+        if (!found) { closePicker(); return; }
+      }
+    }
     updateDayOptions();
     updateDateDisplay();
     closePicker();

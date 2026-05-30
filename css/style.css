@@ -1740,11 +1740,11 @@ body {
 .basic-info-row {
   display: flex;
   align-items: center;
-  padding: 5px 16px;
+  padding: 2px 16px;
   border-bottom: 1px solid #f0ece4;
   background: #ffffff;
-  min-height: 30px;
-  gap: 10px;
+  min-height: 24px;
+  gap: 8px;
 }
 
 .basic-info-row.row-gray {
@@ -1781,12 +1781,13 @@ body {
 
 /* Section 标题行 */
 .basic-section-title {
-  padding: 11px 16px;
+  padding: 1px 16px;
   background: #6b5d4f;
   color: #ffffff;
   font-size: 14px;
   font-weight: bold;
   letter-spacing: 1px;
+  line-height: 1;
   border-bottom: 1px solid #5a4e42;
 }
 

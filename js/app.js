@@ -244,11 +244,13 @@ function initForm() {
   });
 
   // ---- 公历/农历切换 ----
+  var _calMode = 'solar'; // 当前日历模式
   document.querySelectorAll('.pcal-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.pcal-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
-      // TODO: 农历模式（当前保持公历逻辑）
+      _calMode = btn.dataset.pcal;
+      updatePlineDisplay();
     });
   });
 
@@ -360,9 +362,23 @@ function updatePlineDisplay() {
   var elD = document.getElementById('pline-day');
   var elH = document.getElementById('pline-hour');
 
-  if (elY) elY.textContent = (y ? y + '年' : '—');
-  if (elM) elM.textContent = (m ? m + '月' : '—');
-  if (elD) elD.textContent = (d ? d + '日' : '—');
+  // 农历模式：显示农历年月日
+  if (_calMode === 'lunar' && y && m && d && BaziEngine && BaziEngine.solarToLunar) {
+    try {
+      var lunar = BaziEngine.solarToLunar(parseInt(y), parseInt(m), parseInt(d));
+      if (elY) elY.textContent = lunar.year + '年';
+      if (elM) elM.textContent = (lunar.isLeap ? '閏' : '') + lunar.month + '月';
+      if (elD) elD.textContent = lunar.day + '日';
+    } catch(e) {
+      if (elY) elY.textContent = (y ? y + '年' : '—');
+      if (elM) elM.textContent = (m ? m + '月' : '—');
+      if (elD) elD.textContent = (d ? d + '日' : '—');
+    }
+  } else {
+    if (elY) elY.textContent = (y ? y + '年' : '—');
+    if (elM) elM.textContent = (m ? m + '月' : '—');
+    if (elD) elD.textContent = (d ? d + '日' : '—');
+  }
   if (elH) elH.textContent = (h || h === '0') ? h + '時' : '—';
 }
 
@@ -1356,8 +1372,8 @@ function renderTabDetail(result) {
   html += '<tr class="xipan-row-alt">';
   html += '<td class="xipan-row-label">歲年</td>';
   html += '<td colspan="4" class="xipan-click-hint-cell">點擊六柱干支可看提示</td>';
-  var displayAge = isXiaoYunMode ? dyData.startAge : (dyData.startAge !== undefined ? dyData.startAge + 1 : undefined);
-  html += '<td>' + (displayAge !== undefined ? displayAge + '歲 ' + dyData.startYear : '—') + '</td>';
+  var ceilAge = isXiaoYunMode ? dyData.startAge : Math.ceil(dy.qiYunAge);
+  html += '<td>' + (dyData.startAge !== undefined ? ceilAge + '歲 ' + dyData.startYear : '—') + '</td>';
   html += '<td>' + (selLiuNian ? selLiuNian.year : '—') + '</td>';
   html += '</tr>';
 

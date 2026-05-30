@@ -3016,8 +3016,8 @@ function getDayOffsetFrom1900(year, month, day) {
 }
 
 function getRiXiu(totalDayOffset) {
-  // 1900-01-01 = 虚宿(index 10)
-  return ERSHIBA_XIU[(10 + totalDayOffset) % 28];
+  // 1900-01-01 = 昴宿(index 17)
+  return ERSHIBA_XIU[(17 + totalDayOffset) % 28];
 }
 
 

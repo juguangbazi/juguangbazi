@@ -3057,14 +3057,10 @@ function calcMingGong(monthZhi, hourZhi, yearGan) {
 }
 
 function calcShenGong(monthZhi, hourZhi, yearGan) {
-  // 身宫：以寅为正月，顺数至生月；再将时支加临其上，逆数至酉
+  // 身宫：地支 = (时支 + (13 - 月支序) % 12) % 12
   var monthIdx = DI_ZHI.indexOf(monthZhi);
   var hourIdx = DI_ZHI.indexOf(hourZhi);
-  // 寅为正月：寅→寅(2), 卯→卯(3)... 顺数，monthBranch直接对应出生月地支
-  var monthBranch = monthIdx;
-  // 从时支逆数到酉(酉idx=9)的步数
-  var stepsToYou = (hourIdx - 9 + 12) % 12;
-  var zhiIdx = (monthBranch - stepsToYou + 12) % 12;
+  var zhiIdx = (hourIdx + (13 - monthIdx)) % 12;
   var zhi = DI_ZHI[zhiIdx];
   var gan = getMonthGanFromYear(yearGan, zhi);
   return { gan: gan, zhi: zhi, ganZhi: gan + zhi };

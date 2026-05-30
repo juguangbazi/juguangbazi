@@ -880,7 +880,7 @@ function calcDaYun(fourPillars, gender, birthDate) {
     const zhi = DI_ZHI[zhiIdx];
     const ganZhi = gan + zhi;
 
-    const startAge = Math.floor(qiYunAge) + (i - 1) * 10;
+    const startAge = Math.ceil(qiYunAge) + (i - 1) * 10;
     const endAge = startAge + 9;
     const startYear = birthYear + startAge;
     const endYear = birthYear + endAge;
@@ -902,7 +902,7 @@ function calcDaYun(fourPillars, gender, birthDate) {
   return {
     direction: isShun ? '顺行' : '逆行',
     qiYunAge: Math.round(qiYunAge * 10) / 10,
-    qiYunYear: birthYear + Math.floor(qiYunAge),
+    qiYunYear: birthYear + Math.ceil(qiYunAge),
     jieInfo,
     daYunList
   };
@@ -943,7 +943,7 @@ function calcXiaoYun(fourPillars, gender, birthDate, qiYunAge) {
   const step = isShun ? 1 : -1;
 
   const xiaoYunList = [];
-  const maxAge = Math.floor(qiYunAge);
+  const maxAge = Math.ceil(qiYunAge);
   const birthYear = birthDate.getFullYear();
 
   for (let age = 1; age <= maxAge; age++) {
@@ -3514,6 +3514,7 @@ return {
   analyzeLiuNian: analyzeLiuNian,
   calcLiuYue: calcLiuYue,
   solarToLunar: solarToLunar,
+  calcJieQiDate: calcJieQiDate,
   searchByPillars: searchByPillars,
   _constants: {
     GAN_WU_XING: GAN_WU_XING,

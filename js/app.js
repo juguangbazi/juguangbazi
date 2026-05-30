@@ -954,6 +954,8 @@ function renderTabBasic(result) {
   // Row: 節氣
   rows.push(rowNormal('節氣', getJieQiDetail(bi.year, bi.month, bi.day)));
 
+  // 分隔栏
+  rows.push(rowSection('&nbsp;'));
   // Row: 星座
   rows.push(rowNormal('星座', zodiacSign + '（' + zodiacEn + '）'));
 
@@ -977,7 +979,7 @@ function renderTabBasic(result) {
   rows.push(rowNormal('重量', '<span class="bval-chenggu-total">' + formatChengGuWeight(cg.total) + '</span><div class="bval-chenggu-detail">' + weightDetail + '</div>'));
   if (cg.poem) {
     var poemLines = formatPoem(cg.poem);
-    rows.push(rowNormal('提示', '<div class="bval-poem">' + poemLines + '</div>'));
+    rows.push(rowNormal('提示', '<div class="bval-poem">' + poemLines + '</div>', true));
   }
 
   // --- 五行信息 section ---
@@ -1003,10 +1005,22 @@ function renderTabBasic(result) {
   }).join('');
   rows.push(rowNormal('', barHtml, false, true));
 
-  // 渲染
+  // 渲染（自动交替白/米色）
   var html = '';
+  var rowIdx = 0;
   rows.forEach(function(r, i) {
+    // 跳过section标题行，不计入交替
+    if (r.indexOf('basic-section-title') >= 0) {
+      html += r;
+      rowIdx = 0;
+      return;
+    }
+    // 交替白/米色
+    if (rowIdx % 2 === 1 && r.indexOf('row-gray') < 0) {
+      r = r.replace('basic-info-row', 'basic-info-row row-gray');
+    }
     html += r;
+    rowIdx++;
   });
   document.getElementById('basic-rows').innerHTML = html;
 }
@@ -1077,18 +1091,27 @@ function getXiuDirection(xiu) {
 }
 
 function getJieQiDetail(year, month, day) {
-  // 返回当月两个节气及大致时间
   var jieNames = ['小寒','立春','驚蟄','清明','立夏','芒種','小暑','立秋','白露','寒露','立冬','大雪'];
   var qiNames = ['大寒','雨水','春分','穀雨','小滿','夏至','大暑','處暑','秋分','霜降','小雪','冬至'];
+  var idx = month - 1;
+  // 使用引擎精确计算节气时间
+  if (BaziEngine && BaziEngine.calcJieQiDate) {
+    try {
+      var jieIdx = idx * 2;       // 0=小寒,2=立春,4=惊蛰...
+      var qiIdx = jieIdx + 1;      // 1=大寒,3=雨水,5=春分...
+      var jieDate = BaziEngine.calcJieQiDate(year, jieIdx);
+      var qiDate = BaziEngine.calcJieQiDate(year, qiIdx);
+      var pad2 = function(n) { return n < 10 ? '0' + n : '' + n; };
+      var fmtTime = function(d) {
+        return d.getMonth() + 1 + '月' + d.getDate() + '日 ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+      };
+      return '<div>' + jieNames[idx] + '：' + fmtTime(jieDate) + '</div><div style="color:var(--text-dim);font-size:13px;">' + qiNames[idx] + '：' + fmtTime(qiDate) + '</div>';
+    } catch(e) {}
+  }
+  // fallback: 近似日期
   var jieDays = [5,4,6,5,6,6,7,7,8,8,7,7];
   var qiDays = [20,19,21,20,21,21,23,23,23,24,22,22];
-  var idx = month - 1;
-  var jd = jieDays[idx];
-  var qd = qiDays[idx];
-  // 简单判断当前日期在节和气之间
-  var currentJie = jieNames[idx] + ' ' + padNum(jd) + '日';
-  var currentQi = qiNames[idx] + ' ' + padNum(qd) + '日';
-  return '<div>' + currentJie + '</div><div style="color:var(--text-dim);font-size:13px;">' + currentQi + '</div>';
+  return '<div>' + jieNames[idx] + ' ' + padNum(jieDays[idx]) + '日</div><div style="color:var(--text-dim);font-size:13px;">' + qiNames[idx] + ' ' + padNum(qiDays[idx]) + '日</div>';
 }
 
 function padNum(n) {
@@ -1787,15 +1810,15 @@ function renderDaYunLiuNian(opts) {
   var qiYunCeil = Math.ceil(opts.qiYunAge || (DY.length > 0 ? DY[0].startAge : 3));
   h += '<div class="xipan-scroll-row"><table class="xipan-dy-table xipan-dy-full"><thead><tr><th></th>';
   // 小运列头（起运前岁数）
-  var xyHeader = qiYunCeil <= 1 ? '1歲' : '1-' + (qiYunCeil - 1) + '歲';
+  var xyHeader = qiYunCeil <= 1 ? '1歲' : '1-' + qiYunCeil + '歲';
   h += '<th class="' + (isXiaoYunMode ? ' xipan-dy-sel' : '') + '">' + xyHeader + '</th>';
   // 大运列头
   for (var i = 0; i < DY.length; i++) {
     var d = DY[i];
     var curDY = !isXiaoYunMode && cur >= d.startYear && cur <= d.endYear;
     var sel = !isXiaoYunMode && i === selDY;
-	    var dyAge = qiYunCeil + i * 10;
-    var dyYear = (opts.birthYear || d.startYear) + dyAge - 1;
+	    var dyAge = qiYunCeil + i * 10 + 1;
+    var dyYear = d.startYear + 1;
     h += '<th class="' + (curDY ? ' xipan-dy-cur' : '') + (sel ? ' xipan-dy-sel' : '') + '">' + dyAge + '歲<br>' + dyYear + '</th>';
   }
   h += '</tr></thead><tbody>';

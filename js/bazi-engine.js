@@ -1161,6 +1161,17 @@ const DIAO_KE = {
   '辰': '申', '巳': '酉', '午': '戌', '未': '亥',
   '申': '子', '酉': '丑', '戌': '寅', '亥': '卯'
 };
+// 灾煞（以年支查，三合局冲将星）
+const ZAI_SHA = { '子':'午','丑':'卯','寅':'子','卯':'酉','辰':'午','巳':'卯','午':'子','未':'酉','申':'午','酉':'卯','戌':'子','亥':'酉' };
+// 飞刃（羊刃对冲）
+const FEI_REN = { '甲':'酉','乙':'戌','丙':'子','丁':'丑','戊':'午','己':'未','庚':'卯','辛':'辰','壬':'午','癸':'未' };
+// 元辰（以日支查）
+const YUAN_CHEN = { '子':'未','丑':'午','寅':'酉','卯':'辰','辰':'亥','巳':'戌','午':'丑','未':'申','申':'卯','酉':'寅','戌':'巳','亥':'子' };
+// 勾绞（以日支查）
+const GOU_JIAO = { '子':'卯','丑':'辰','寅':'巳','卯':'午','辰':'未','巳':'申','午':'酉','未':'戌','申':'亥','酉':'子','戌':'丑','亥':'寅' };
+// 天罗地网
+const TIAN_LUO = ['辰','巳']; // 水土人见辰巳
+const DI_WANG = ['戌','亥']; // 火金人见戌亥
 
 function calcShenSha(fourPillars) {
   const dayGan = fourPillars.day.gan;
@@ -1399,6 +1410,23 @@ function calcShenSha(fourPillars) {
       result.push({ name: '吊客', position: z.pos, description: '主白事探问，宜多关心长者' });
     }
   }
+
+  // 灾煞（以年支查）
+  const zsZhi = ZAI_SHA[yearZhi];
+  for (const z of allZhi) { if (z.zhi === zsZhi && z.pos !== '年支') result.push({ name: '灾煞', position: z.pos, description: '主意外灾祸，宜多加防范' }); }
+  // 飞刃（以日干查）
+  const frZhi = FEI_REN[dayGan];
+  for (const z of allZhi) { if (z.zhi === frZhi) result.push({ name: '飞刃', position: z.pos, description: '主突发意外，需防外伤血光' }); }
+  // 元辰（以日支查）
+  const ycZhi = YUAN_CHEN[dayZhi];
+  for (const z of allZhi) { if (z.zhi === ycZhi && z.pos !== '日支') result.push({ name: '元辰', position: z.pos, description: '主耗财不顺，宜守不宜攻' }); }
+  // 勾绞（以日支查）
+  const gjZhi = GOU_JIAO[dayZhi];
+  for (const z of allZhi) { if (z.zhi === gjZhi && z.pos !== '日支') result.push({ name: '勾绞', position: z.pos, description: '主是非纠缠，口舌官非' }); }
+  // 天罗地网
+  const dayWx2 = GAN_WU_XING[dayGan];
+  if (dayWx2 === '水' || dayWx2 === '土') { for (const z of allZhi) { if (['辰','巳'].includes(z.zhi)) result.push({ name: '天罗', position: z.pos, description: '主受困受制，有志难伸' }); } }
+  if (dayWx2 === '火' || dayWx2 === '金') { for (const z of allZhi) { if (['戌','亥'].includes(z.zhi)) result.push({ name: '地网', position: z.pos, description: '主羁绊难行，事多阻滞' }); } }
 
   // 去重
   const seen = new Set();

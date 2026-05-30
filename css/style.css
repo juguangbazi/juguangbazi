@@ -2139,8 +2139,8 @@ body {
   font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.8;
-  padding: 3px 0 3px 4em;
-  text-indent: -4em;
+  padding: 3px 0 3px 5em;
+  text-indent: -5em;
 }
 
 .chart-hint-indent-yongshen {

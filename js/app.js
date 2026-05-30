@@ -1518,7 +1518,8 @@ function renderXipanDayun(result) {
     selectedXiaoYunIdx: _selectedXiaoYunIdx,
     currentYear: currentYear,
     monthZhiWx: ZHI_WX[fp.month.zhi],
-    qiYunAge: dy.qiYunAge
+    qiYunAge: dy.qiYunAge,
+    birthYear: result.birthInfo.year
   });
 
   // ---- 刑冲合害提示 ----
@@ -1769,7 +1770,8 @@ function renderDaYunLiuNian(opts) {
     var curDY = !isXiaoYunMode && cur >= d.startYear && cur <= d.endYear;
     var sel = !isXiaoYunMode && i === selDY;
 	    var dyAge = qiYunCeil + i * 10;
-    h += '<th class="' + (curDY ? ' xipan-dy-cur' : '') + (sel ? ' xipan-dy-sel' : '') + '">' + dyAge + '歲<br>' + d.startYear + '</th>';
+    var dyYear = (opts.birthYear || d.startYear) + dyAge - 1;
+    h += '<th class="' + (curDY ? ' xipan-dy-cur' : '') + (sel ? ' xipan-dy-sel' : '') + '">' + dyAge + '歲<br>' + dyYear + '</th>';
   }
   h += '</tr></thead><tbody>';
 

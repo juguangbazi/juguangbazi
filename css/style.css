@@ -1954,7 +1954,7 @@ body {
   color: var(--text-primary);
   font-size: 13px;
   line-height: 1;
-  vertical-align: top;
+  vertical-align: top !important;
   background: transparent;
 }
 
@@ -2007,6 +2007,7 @@ body {
   gap: 1px;
   padding-top: 0;
   margin-top: 0;
+  height: 100%;
 }
 
 .chart-canggan-item {
@@ -2096,24 +2097,27 @@ body {
 .chart-hint-section {
   background: #ffffff;
   border-bottom: 1px solid #f0ece4;
-  padding: 12px 14px;
+  padding: 4px 14px;
   margin-bottom: 0;
 }
 
 .chart-hint-title {
   font-size: 13px;
   font-weight: bold;
-  color: var(--gold);
+  color: var(--text-primary);
+  background: #f5f2ed;
   letter-spacing: 1px;
-  margin-bottom: 8px;
+  margin: 0 -14px 1px -14px;
+  padding: 2px 14px;
   text-align: center;
+  line-height: 1;
 }
 
 .chart-hint-row {
   font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.8;
-  text-align: justify;
+  padding: 3px 0;
 }
 
 .chart-hint-label {
@@ -2127,30 +2131,28 @@ body {
   font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.8;
+  padding: 3px 0;
 }
 
 .chart-hint-indent {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  padding: 3px 0 3px 4em;
+  text-indent: -4em;
 }
 
 .chart-hint-indent .chart-hint-label {
-  display: table-cell;
-  width: 82px;
   font-weight: bold;
   color: var(--text-primary);
   font-size: 12px;
   white-space: nowrap;
-  vertical-align: top;
 }
 
 .chart-hint-indent .chart-hint-body {
-  display: table-cell;
   font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.8;
-  vertical-align: top;
 }
 
 .hint-nowrap {

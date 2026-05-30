@@ -34,6 +34,7 @@ var LUNAR_DAY_NAMES = [
 // ========== 输入弹窗状态 ==========
 var _kpBuffer = '';
 var _kpSnapshot = {};  // 打开弹窗时的快照，用于取消时恢复
+var _calMode = 'solar'; // 当前日历模式（全局）
 
 // 将实际小时(0-23)映射到时辰对应的隐藏select值(0,1,3,5,...)
 function hourToSelectVal(h) {
@@ -269,7 +270,6 @@ function initForm() {
   });
 
   // ---- 公历/农历切换 ----
-  var _calMode = 'solar'; // 当前日历模式
   document.querySelectorAll('.pcal-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.pcal-btn').forEach(function(b) { b.classList.remove('active'); });

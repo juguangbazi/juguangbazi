@@ -483,11 +483,11 @@ body {
 
 .kp-clear {
   flex: 1;
-  background: #f5f2ed;
-  border: 1px solid #d5cfc4;
-  border-radius: 5px;
-  color: #999;
-  font-size: 13px;
+  background: transparent;
+  border: none;
+  color: #4a90d9;
+  font-size: 24px;
+  font-weight: bold;
   font-family: inherit;
   cursor: pointer;
   display: flex;
@@ -515,12 +515,8 @@ body {
 }
 
 /* 斑马纹 */
-.pline:nth-child(odd) {
-  background: #ffffff;
-}
-.pline:nth-child(even) {
-  background: #f8f6f2;
-}
+
+
 
 .pline-btn {
   padding: 5px 12px;
@@ -554,7 +550,7 @@ body {
   padding: 8px 14px;
   background: #faf8f4;
   color: #c94040;
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.6;
   border-top: 1px solid #f0ece4;
   border-bottom: 1px solid #f0ece4;
@@ -3148,8 +3144,8 @@ body {
 .picker-fields{flex:1;background:transparent}
 .kp-row{flex:1;display:grid;grid-template-columns:repeat(3,1fr);justify-content:center;gap:0;padding:0}
 .kp-num{min-width:36px;padding:0;text-align:center;background:transparent;border:none;color:#4a90d9;font-size:40px;font-weight:900;letter-spacing:-1px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.kp-clear{font-size:24px;font-weight:bold;color:#999;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
+\.kp-clear{font-size:24px;font-weight:bold;color:#4a90d9;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .kp-row-bottom{grid-template-columns:repeat(3,1fr)}.kp-row-bottom .kp-clear{grid-column:1/3}.kp-row-bottom .kp-num{grid-column:3}
 .pline{flex:1;display:flex;align-items:center;padding:0 8px;border:none;background:transparent}
-\.pline:nth-child(odd){background:#fff}.pline:nth-child(even){background:#fff}
+\.pline:nth-child(odd){background:var(--bg-primary)!important}.pline:nth-child(even){background:#fff}
 .picker-inner{padding:0 5em}

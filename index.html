@@ -101,12 +101,11 @@
 
         <!-- 西历/农历切换 -->
         <div class="picker-cal-bar">
-          <button class="pcal-btn active" data-pcal="solar">西曆</button>
-          <button class="pcal-btn" data-pcal="lunar">農曆</button>
+          <div class="cal-segmented"><button class="pcal-btn active" data-pcal="solar">西曆</button><button class="pcal-btn" data-pcal="lunar">農曆</button></div><span class="leap-toggle cal-segmented" id="leap-toggle"><button class="pcal-btn active" data-leap="0">一般月</button><button class="pcal-btn" data-leap="1">閏月</button></span>
         </div>
 
         <!-- 输入缓冲显示 -->
-        <div class="picker-buffer" id="picker-buffer">—</div>
+        <div class="picker-buffer-row"><div class="picker-buffer" id="picker-buffer">—</div><div class="pline pline-year" data-field="year"><span class="pline-btn" data-field="year">年</span><span class="pline-val" id="pline-year">1990年</span></div></div>
 
         <!-- 主体：键盘 + 字段行 行列对齐 -->
         <div class="picker-body">
@@ -115,15 +114,11 @@
             <div class="kp-row"><button class="kp-num" data-key="1">1</button><button class="kp-num" data-key="2">2</button><button class="kp-num" data-key="3">3</button></div>
             <div class="kp-row"><button class="kp-num" data-key="4">4</button><button class="kp-num" data-key="5">5</button><button class="kp-num" data-key="6">6</button></div>
             <div class="kp-row"><button class="kp-num" data-key="7">7</button><button class="kp-num" data-key="8">8</button><button class="kp-num" data-key="9">9</button></div>
-            <div class="kp-row"><button class="kp-clear" id="kp-clear">清除</button><button class="kp-num" data-key="0">0</button></div>
+            <div class="kp-row kp-row-bottom"><button class="kp-clear" id="kp-clear">清除</button><button class="kp-num" data-key="0">0</button></div>
           </div>
 
           <!-- 右侧：字段行 5行 -->
           <div class="picker-fields">
-            <div class="pline" data-field="year">
-              <span class="pline-btn" data-field="year">年</span>
-              <span class="pline-val" id="pline-year">1990年</span>
-            </div>
             <div class="pline" data-field="month">
               <span class="pline-btn" data-field="month">月</span>
               <span class="pline-val" id="pline-month">12月</span>

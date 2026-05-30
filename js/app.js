@@ -34,7 +34,11 @@ var LUNAR_DAY_NAMES = [
 // ========== 输入弹窗状态 ==========
 var _kpBuffer = '';
 var _kpSnapshot = {};  // 打开弹窗时的快照，用于取消时恢复
+var _calMode = 'solar';
+var _lunarYear = 0, _lunarMonth = 0, _lunarDay = 0;
+var _isLeap = false;
 var _calMode = 'solar'; // 当前日历模式（全局）
+var _lunarYear = 0, _lunarMonth = 0, _lunarDay = 0; // 农历输入值
 
 // 将实际小时(0-23)映射到时辰对应的隐藏select值(0,1,3,5,...)
 function hourToSelectVal(h) {
@@ -168,11 +172,11 @@ function initForm() {
   // 确定
   document.getElementById('picker-confirm').addEventListener('click', function() {
     // 农历模式：将农历输入转为公历
-    if (_calMode === 'lunar') {
-      var ly = parseInt(document.getElementById('birth-year').value);
-      var lm = parseInt(document.getElementById('birth-month').value);
-      var ld = parseInt(document.getElementById('birth-day').value);
-      if (ly && lm && ld && BaziEngine && BaziEngine.solarToLunar) {
+    if (_calMode === 'lunar' && _lunarYear && _lunarMonth && _lunarDay) {
+      var ly = _lunarYear;
+      var lm = _lunarMonth;
+      var ld = _lunarDay;
+      if (BaziEngine && BaziEngine.solarToLunar) {
         // 搜索匹配的公历日期（农历→公历）
         var found = false;
         for (var sy = ly - 1; sy <= ly + 2 && !found; sy++) {
@@ -181,7 +185,8 @@ function initForm() {
             var maxDay = new Date(sy, sm, 0).getDate();
             for (var sd = 1; sd <= maxDay && !found; sd++) {
               var lunar = BaziEngine.solarToLunar(sy, sm, sd);
-              if (lunar.year === ly && lunar.month === lm && lunar.day === ld) {
+              var matchLeap = _isLeap ? lunar.isLeap : !lunar.isLeap;
+              if (lunar.year === ly && lunar.month === lm && lunar.day === ld && matchLeap) {
                 document.getElementById('birth-year').value = sy;
                 document.getElementById('birth-month').value = sm;
                 document.getElementById('birth-day').value = sd;
@@ -190,7 +195,11 @@ function initForm() {
             }
           }
         }
-        if (!found) { closePicker(); return; }
+        if (!found) {
+          if (_isLeap) alert('該年無此閏月，請重新選擇');
+          closePicker();
+          return;
+        }
       }
     }
     updateDayOptions();
@@ -238,19 +247,25 @@ function initForm() {
       var hourSel = document.getElementById('birth-hour');
 
       if (field === 'year') {
-        if (val >= 1940 && val <= new Date().getFullYear()) {
+        if (_calMode === 'lunar') {
+          if (val >= 1900 && val <= 2100) _lunarYear = val;
+        } else if (val >= 1940 && val <= new Date().getFullYear()) {
           yearSel.value = val;
           updateDayOptions();
         }
       } else if (field === 'month') {
-        if (val >= 1 && val <= 12) {
+        if (_calMode === 'lunar') {
+          if (val >= 1 && val <= 12) _lunarMonth = val;
+        } else if (val >= 1 && val <= 12) {
           monthSel.value = val;
           updateDayOptions();
         }
       } else if (field === 'day') {
-        var maxDay = new Date(parseInt(yearSel.value), parseInt(monthSel.value), 0).getDate();
-        if (val >= 1 && val <= maxDay) {
-          daySel.value = val;
+        if (_calMode === 'lunar') {
+          if (val >= 1 && val <= 30) _lunarDay = val;
+        } else {
+          var maxDay = new Date(parseInt(yearSel.value), parseInt(monthSel.value), 0).getDate();
+          if (val >= 1 && val <= maxDay) daySel.value = val;
         }
       } else if (field === 'hour') {
         if (val >= 0 && val <= 23) {
@@ -270,12 +285,53 @@ function initForm() {
   });
 
   // ---- 公历/农历切换 ----
-  document.querySelectorAll('.pcal-btn').forEach(function(btn) {
+  var _isLeap = false;
+  document.querySelectorAll('.cal-segmented:not(#leap-toggle) .pcal-btn').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      document.querySelectorAll('.pcal-btn').forEach(function(b) { b.classList.remove('active'); });
+      document.querySelectorAll('.cal-segmented:not(#leap-toggle) .pcal-btn').forEach(function(b) { b.classList.remove('active'); });
       btn.classList.add('active');
       _calMode = btn.dataset.pcal;
+      var leapEl = document.getElementById('leap-toggle');
+      if (_calMode === 'lunar') {
+        updateLeapToggle();
+        if (leapEl) leapEl.classList.add('show');
+      } else {
+        if (leapEl) leapEl.classList.remove('show');
+        _isLeap = false;
+      }
+      if (leapEl) leapEl.querySelectorAll('.pcal-btn').forEach(function(b, i) { b.classList.toggle('active', i === 0); });
       updatePlineDisplay();
+    });
+  });
+  // 查找该农历年是否有闰月
+  function updateLeapToggle() {
+    var leapEl = document.getElementById('leap-toggle');
+    if (!leapEl) return;
+    var testYear = _lunarYear || new Date().getFullYear();
+    var leapMonth = 0;
+    for (var sm = 1; sm <= 12; sm++) {
+      for (var sd = 1; sd <= 31; sd++) {
+        try {
+          var lunar = BaziEngine.solarToLunar(testYear, sm, sd);
+          if (lunar.year === testYear && lunar.isLeap) { leapMonth = lunar.month; break; }
+        } catch(e) {}
+      }
+      if (leapMonth) break;
+    }
+    var leapBtns = leapEl.querySelectorAll('.pcal-btn');
+    if (leapBtns.length > 1) {
+      leapBtns[1].textContent = leapMonth > 0 ? '閏' + leapMonth + '月' : '閏月';
+    }
+    _isLeap = false;
+    if (leapBtns.length > 0) leapBtns[0].classList.add('active');
+    if (leapBtns.length > 1) leapBtns[1].classList.remove('active');
+  }
+  // 闰月切换
+  document.querySelectorAll('#leap-toggle .pcal-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#leap-toggle .pcal-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      _isLeap = btn.dataset.leap === '1';
     });
   });
 
@@ -387,17 +443,21 @@ function updatePlineDisplay() {
   var elD = document.getElementById('pline-day');
   var elH = document.getElementById('pline-hour');
 
-  // 农历模式：显示农历年月日
-  if (_calMode === 'lunar' && y && m && d && BaziEngine && BaziEngine.solarToLunar) {
-    try {
-      var lunar = BaziEngine.solarToLunar(parseInt(y), parseInt(m), parseInt(d));
-      if (elY) elY.textContent = lunar.year + '年';
-      if (elM) elM.textContent = (lunar.isLeap ? '閏' : '') + lunar.month + '月';
-      if (elD) elD.textContent = lunar.day + '日';
-    } catch(e) {
-      if (elY) elY.textContent = (y ? y + '年' : '—');
-      if (elM) elM.textContent = (m ? m + '月' : '—');
-      if (elD) elD.textContent = (d ? d + '日' : '—');
+  // 农历模式：显示用户输入的农历值或转换值
+  if (_calMode === 'lunar') {
+    if (_lunarYear) {
+      if (elY) elY.textContent = _lunarYear + '年';
+      if (elM) elM.textContent = (_lunarMonth || '—') + '月';
+      if (elD) elD.textContent = (_lunarDay || '—') + '日';
+    } else if (y && m && d && BaziEngine && BaziEngine.solarToLunar) {
+      try {
+        var lunar = BaziEngine.solarToLunar(parseInt(y), parseInt(m), parseInt(d));
+        if (elY) elY.textContent = lunar.year + '年';
+        if (elM) elM.textContent = (lunar.isLeap ? '閏' : '') + lunar.month + '月';
+        if (elD) elD.textContent = lunar.day + '日';
+      } catch(e) {
+        if (elY) elY.textContent = '—';
+      }
     }
   } else {
     if (elY) elY.textContent = (y ? y + '年' : '—');

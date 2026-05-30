@@ -97,48 +97,35 @@
         </div>
 
         <!-- 内容区域（两侧留白） -->
-        <div class="picker-inner">
+                <div class="picker-inner">
 
-        <!-- 西历/农历切换 -->
         <div class="picker-cal-bar">
           <div class="cal-segmented"><button class="pcal-btn active" data-pcal="solar">西曆</button><button class="pcal-btn" data-pcal="lunar">農曆</button></div><span class="leap-toggle cal-segmented" id="leap-toggle"><button class="pcal-btn active" data-leap="0">一般月</button><button class="pcal-btn" data-leap="1">閏月</button></span>
         </div>
 
-        <!-- 输入缓冲显示 -->
-        <div class="picker-buffer-row"><div class="picker-buffer" id="picker-buffer">—</div><div class="pline pline-year" data-field="year"><span class="pline-btn" data-field="year">年</span><span class="pline-val" id="pline-year">1990年</span></div></div>
-
-        <!-- 主体：键盘 + 字段行 行列对齐 -->
         <div class="picker-body">
-          <!-- 左侧：数字键盘 4行 -->
-          <div class="picker-keypad">
-            <div class="kp-row"><button class="kp-num" data-key="1">1</button><button class="kp-num" data-key="2">2</button><button class="kp-num" data-key="3">3</button></div>
-            <div class="kp-row"><button class="kp-num" data-key="4">4</button><button class="kp-num" data-key="5">5</button><button class="kp-num" data-key="6">6</button></div>
-            <div class="kp-row"><button class="kp-num" data-key="7">7</button><button class="kp-num" data-key="8">8</button><button class="kp-num" data-key="9">9</button></div>
-            <div class="kp-row kp-row-bottom"><button class="kp-clear" id="kp-clear">清除</button><button class="kp-num" data-key="0">0</button></div>
+          <div class="pb-row">
+            <div class="pb-left"><div class="pb-buf" id="picker-buffer">—</div></div>
+            <div class="pb-right"><span class="pline-btn" data-field="year">年</span><span class="pline-val" id="pline-year">1990年</span></div>
           </div>
-
-          <!-- 右侧：字段行 5行 -->
-          <div class="picker-fields">
-            <div class="pline" data-field="month">
-              <span class="pline-btn" data-field="month">月</span>
-              <span class="pline-val" id="pline-month">12月</span>
-            </div>
-            <div class="pline" data-field="day">
-              <span class="pline-btn" data-field="day">日</span>
-              <span class="pline-val" id="pline-day">10日</span>
-            </div>
-            <div class="pline" data-field="hour">
-              <span class="pline-btn" data-field="hour">時</span>
-              <span class="pline-val" id="pline-hour">13時</span>
-            </div>
-            <div class="pline" data-field="minute">
-              <span class="pline-btn" data-field="minute">分</span>
-              <span class="pline-val" id="pline-minute">00分</span>
-            </div>
+          <div class="pb-row">
+            <div class="pb-left"><div class="kp-row"><button class="kp-num" data-key="1">1</button><button class="kp-num" data-key="2">2</button><button class="kp-num" data-key="3">3</button></div></div>
+            <div class="pb-right"><span class="pline-btn" data-field="month">月</span><span class="pline-val" id="pline-month">12月</span></div>
+          </div>
+          <div class="pb-row">
+            <div class="pb-left"><div class="kp-row"><button class="kp-num" data-key="4">4</button><button class="kp-num" data-key="5">5</button><button class="kp-num" data-key="6">6</button></div></div>
+            <div class="pb-right"><span class="pline-btn" data-field="day">日</span><span class="pline-val" id="pline-day">10日</span></div>
+          </div>
+          <div class="pb-row">
+            <div class="pb-left"><div class="kp-row"><button class="kp-num" data-key="7">7</button><button class="kp-num" data-key="8">8</button><button class="kp-num" data-key="9">9</button></div></div>
+            <div class="pb-right"><span class="pline-btn" data-field="hour">時</span><span class="pline-val" id="pline-hour">13時</span></div>
+          </div>
+          <div class="pb-row">
+            <div class="pb-left"><div class="kp-row kp-bot"><button class="kp-clear" id="kp-clear">清除</button><button class="kp-num" data-key="0">0</button></div></div>
+            <div class="pb-right"><span class="pline-btn" data-field="minute">分</span><span class="pline-val" id="pline-minute">00分</span></div>
           </div>
         </div>
 
-        <!-- 提示文字 -->
         <div class="picker-hint">
           如輸入1999年，則依次按1999四個藍色數字，然後按藍色的「年」，右邊顯示1999年。當按「年」按鈕的時候，如果是合法的年，則右邊年對應會改變，日月時分同理。
         </div>

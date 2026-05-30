@@ -1589,7 +1589,7 @@ const TIAO_HOU = {
     '寅': { main: '丙', aux: '癸', desc: '初春尚有余寒，丙火照暖为急，癸水润根为辅。丙火为主，癸水为佐' },
     '卯': { main: '庚', aux: '丙丁', desc: '阳刃当令，木气旺盛，非庚金不能修剪。庚金为主，辅以丙丁火暖局' },
     '辰': { main: '庚', aux: '丁', desc: '暮春木气犹盛，庚金制木为先，丁火配合制庚之寒' },
-    '巳': { main: '癸', aux: '庚丁', desc: '夏火炎炎，木性枯焦，癸水调和气候为主，庚金生水，丁火为辅' },
+    '巳': { main: '癸', aux: '庚丁', desc: '调和气候，癸水为主。原局气润，庚丁为用' },
     '午': { main: '癸', aux: '庚丁', desc: '盛夏火烈，甲木焦枯，非癸水不能解炎。癸水为主，庚金发源，丁火暗藏' },
     '未': { main: '癸', aux: '庚丁', desc: '季夏土燥木枯，癸水润泽为急，庚丁佐之' },
     '申': { main: '庚', aux: '丁', desc: '秋金当令，庚金雕木成器，丁火推助炼金。庚为主，丁为辅' },
@@ -1666,7 +1666,7 @@ const TIAO_HOU = {
     '酉': { main: '丙', aux: '癸', desc: '食神当令，金多泄土，丙火暖局生身。丙为主，癸为辅' },
     '戌': { main: '甲', aux: '丙癸', desc: '劫财当令，燥土壅塞，甲木疏劈为先。甲为主，丙癸配合' },
     '亥': { main: '丙', aux: '甲', desc: '正财当令，水冷土寒，丙火暖局为急。丙为主，甲为辅' },
-    '子': { main: '丙', aux: '甲', desc: '偏财当令，水旺土寒，丙火为第一要务。丙为主，甲为佐' },
+    '子': { main: '丙', aux: '甲戊', desc: '三冬己土，非丙暖不生。壬水太旺，取戊土制之。土多，取甲木疏之' },
     '丑': { main: '丙', aux: '甲', desc: '比肩当令，寒土冰结，丙火解冻暖局。丙为主，甲疏土为辅' }
   },
   '庚': {
@@ -2935,60 +2935,40 @@ var LUNAR_INFO = [
 ];
 
 function solarToLunar(year, month, day) {
-  // 计算从1900-01-01到目标日期的天数
-  var solarOffset = 0;
-  for (var y = 1900; y < year; y++) {
-    solarOffset += (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365;
-  }
-  for (var m = 1; m < month; m++) {
-    solarOffset += solarMonthDays(year, m);
-  }
-  solarOffset += day - 1;
-
-  // 农历1900年正月初一 = 公历1900-01-31 (offset=30), 但 LUNAR_INFO 数据实际对齐需调整为 epoch 59
-  var lunarOffset = solarOffset - 59;
-  if (lunarOffset < 0) {
-    return { year: 1899, month: 12, day: 31 + lunarOffset + 1, isLeap: false };
-  }
-
-  var lunarYear = 1900;
-  var yearDays;
-  while (lunarYear <= 2100) {
-    yearDays = lunarYearDays(lunarYear);
-    if (lunarOffset < yearDays) break;
-    lunarOffset -= yearDays;
-    lunarYear++;
-  }
-  if (lunarYear > 2100) lunarYear = 2100;
-
-  var yearInfo = LUNAR_INFO[lunarYear - 1900];
-  var leapMonth = yearInfo & 0xf;
-  var lunarMonth = 1, lunarDay, isLeap = false;
-
-  for (var m = 1; m <= 12; m++) {
-    var mDays = (yearInfo >> (3 + m) & 1) ? 30 : 29;
-    if (lunarOffset < mDays) {
-      lunarMonth = m;
-      lunarDay = lunarOffset + 1;
-      isLeap = false;
-      break;
-    }
-    lunarOffset -= mDays;
-
-    if (leapMonth === m) {
-      var leapDays = (yearInfo >> 16 & 1) ? 30 : 29;
-      if (lunarOffset < leapDays) {
-        lunarMonth = m;
-        lunarDay = lunarOffset + 1;
-        isLeap = true;
-        break;
+  var CHN_MONTH = { '正月':1,'二月':2,'三月':3,'四月':4,'五月':5,'六月':6,'七月':7,'八月':8,'九月':9,'十月':10,'十一月':11,'腊月':12,'十二月':12 };
+  var fmt = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
+    year: 'numeric', month: 'numeric', day: 'numeric'
+  });
+  var date = new Date(year, month - 1, day, 12, 0, 0);
+  // 先用 formatToParts（更可靠）
+  if (fmt.formatToParts) {
+    var parts = fmt.formatToParts(date);
+    var ly = 0, lm = 0, ld = 0, leap = false;
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (p.type === 'year' || p.type === 'relatedYear') ly = parseInt(p.value);
+      else if (p.type === 'month') {
+        // "正月" 或 "闰四月"
+        var mv = p.value;
+        if (mv.indexOf('闰') === 0) { leap = true; mv = mv.substring(1); }
+        lm = CHN_MONTH[mv] || parseInt(mv);
       }
-      lunarOffset -= leapDays;
+      else if (p.type === 'day') ld = parseInt(p.value);
     }
+    if (ly && lm && ld) return { year: ly, month: lm, day: ld, isLeap: leap };
   }
-  if (!lunarDay) { lunarMonth = 12; lunarDay = lunarOffset + 1; }
-
-  return { year: lunarYear, month: lunarMonth, day: lunarDay, isLeap: isLeap };
+  // fallback: 正则解析
+  var str = fmt.format(date);
+  var match = str.match(/(\d+)年(闰?)(.+?)月(\d+)/);
+  if (match) {
+    return {
+      year: parseInt(match[1]),
+      month: CHN_MONTH[match[3]] || parseInt(match[3]),
+      day: parseInt(match[4]),
+      isLeap: match[2] === '闰'
+    };
+  }
+  return { year: year, month: month, day: day, isLeap: false };
 }
 
 function lunarYearDays(y) {

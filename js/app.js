@@ -1262,17 +1262,14 @@ function renderTabChart(result) {
   if (tiaoHou2 && tiaoHou2.mainGan) {
     yongShenText = fp.month.zhi + '月喜' + tiaoHou2.mainGan;
     if (tiaoHou2.auxGan) {
-      var auxList = tiaoHou2.auxGan.split('').filter(function(c) { return c !== ' '; });
-      yongShenText += '、' + auxList.join('、');
+      yongShenText += '、' + tiaoHou2.auxGan.split('').join('、');
     }
     yongShenText += '。';
-    if (tiaoHou2.description) yongShenText += tiaoHou2.description + '，' + tiaoHou2.mainGan + '為主';
-    if (tiaoHou2.auxGan) yongShenText += '，' + tiaoHou2.auxGan.replace(/\B/g, '、') + '為輔';
-    yongShenText += '。';
+    if (tiaoHou2.description) yongShenText += tiaoHou2.description + '。';
   }
   html += '<div class="chart-hint-section">';
   html += '<div class="chart-hint-title">【命盤日元提示】</div>';
-  html += '<div class="chart-hint-text chart-hint-indent"><span class="chart-hint-label">用神：</span>' + (yongShenText || '暫無') + '</div>';
+  html += '<div class="chart-hint-text chart-hint-indent-yongshen"><span class="chart-hint-label">用神：</span>' + (yongShenText || '暫無') + '</div>';
   html += '</div>';
 
   html += '</div>'; // .chart-hints
@@ -1748,7 +1745,8 @@ function renderDaYunLiuNian(opts) {
   var qiYunCeil = Math.ceil(opts.qiYunAge || (DY.length > 0 ? DY[0].startAge : 3));
   h += '<div class="xipan-scroll-row"><table class="xipan-dy-table xipan-dy-full"><thead><tr><th></th>';
   // 小运列头（起运前岁数）
-  h += '<th class="' + (isXiaoYunMode ? ' xipan-dy-sel' : '') + '">1-' + (qiYunCeil - 1) + '歲</th>';
+  var xyHeader = qiYunCeil <= 1 ? '1歲' : '1-' + (qiYunCeil - 1) + '歲';
+  h += '<th class="' + (isXiaoYunMode ? ' xipan-dy-sel' : '') + '">' + xyHeader + '</th>';
   // 大运列头
   for (var i = 0; i < DY.length; i++) {
     var d = DY[i];

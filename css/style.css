@@ -2142,6 +2142,14 @@ body {
   text-indent: -4em;
 }
 
+.chart-hint-indent-yongshen {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  padding: 3px 0 3px 3em;
+  text-indent: -3em;
+}
+
 .chart-hint-indent .chart-hint-label {
   font-weight: bold;
   color: var(--text-primary);
@@ -2270,8 +2278,27 @@ body {
   color: #a09888;
 }
 
+.xipan-header-row th {
+  vertical-align: top;
+  padding-top: 0;
+}
+
 .xipan-header-row th.xipan-col-day {
   color: #e8c860;
+}
+
+/* 大运流年列白色底（仅表头+第一行） */
+.xipan-table thead th:last-child,
+.xipan-table thead th:nth-last-child(2),
+.xipan-table tbody tr:nth-child(1) td:last-child,
+.xipan-table tbody tr:nth-child(1) td:nth-last-child(2) {
+  background: #ffffff;
+}
+
+/* 大运列左边线隔开前四柱 */
+.xipan-table thead th:nth-child(6),
+.xipan-table tbody td:nth-child(6) {
+  border-left: 1px solid #d5cfc4;
 }
 
 .xipan-table td {
@@ -2335,14 +2362,14 @@ body {
 
 .xipan-gan {
   display: inline-block;
-  font-size: 26px;
+  font-size: 30px;
   font-weight: bold;
 }
 
 /* 地支行 */
 .xipan-zhi {
   display: inline-block;
-  font-size: 26px;
+  font-size: 30px;
   font-weight: bold;
 }
 
@@ -2809,7 +2836,9 @@ body {
   .xipan-table thead th {
     font-size: 11px;
     letter-spacing: 0;
-    padding: 4px 1px;
+    padding: 0;
+    vertical-align: top;
+    line-height: 1;
   }
   .xipan-header-row th:first-child {
     width: 22px;

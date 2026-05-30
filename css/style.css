@@ -551,13 +551,13 @@ body {
 
 /* 提示文字 */
 .picker-hint {
-  padding: 8px 14px;
-  background: #faf8f4;
+  padding: 4px 14px;
+  background: transparent;
   color: #c94040;
-  font-size: 10px;
-  line-height: 1.6;
-  border-top: 1px solid #f0ece4;
-  border-bottom: 1px solid #f0ece4;
+  font-size: 16px;
+  line-height: 1.4;
+  text-align: left;
+  border: none;
   flex-shrink: 0;
 }
 
@@ -3157,7 +3157,7 @@ body {
 .pb-row{display:flex;align-items:center;flex:1}
 .pb-left{width:54%;flex:none;display:flex;align-items:center;justify-content:center;padding-left:5em}
 .pb-right{flex:1;display:flex;align-items:center;padding-right:5em}
-.pb-buf{font-size:36px;color:#000;font-weight:400;letter-spacing:4px}
+.pb-buf{font-size:32px;color:#000;font-weight:400;letter-spacing:4px}
 .pb-right .pline-btn,.pline-btn{width:40px;padding:0;background:transparent;color:#4a90d9;border:none;font-size:24px;font-weight:900;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center}
 .pb-right .pline-val,.pline-val{flex:1;text-align:right;font-size:24px;color:#3d3226;padding-right:0;white-space:nowrap}
 .kp-row{display:grid;grid-template-columns:repeat(3,1fr);width:100%;gap:0;padding:0}

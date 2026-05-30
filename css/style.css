@@ -1732,8 +1732,8 @@ body {
 }
 
 .tab-nav .tab-btn.active {
-  color: #2196F3;
-  border-bottom-color: #2196F3;
+  color: var(--text-primary);
+  border-bottom-color: var(--text-primary);
 }
 
 /* ========== 基本页 - 信息行布局 ========== */
@@ -1927,7 +1927,7 @@ body {
 
 .chart-table thead th, .chart-table th {
   background: transparent !important;
-  color: var(--gold);
+  color: var(--text-dim);
   padding: 0;
   font-size: 12px;
   letter-spacing: 3px;
@@ -2222,7 +2222,7 @@ body {
 
 .xipan-sect-label {
   font-size: 12px;
-  color: var(--gold);
+  color: var(--text-dim);
   letter-spacing: 2px;
   padding: 10px 6px 4px;
   text-align: center;
@@ -2242,7 +2242,7 @@ body {
 
 .xipan-table thead th {
   background: transparent;
-  color: var(--gold);
+  color: var(--text-dim);
   padding: 0;
   font-size: 12px;
   font-weight: normal;
@@ -2461,7 +2461,7 @@ body {
 
 .xipan-dy-table thead th {
   background: transparent;
-  color: var(--gold);
+  color: var(--text-dim);
   padding: 4px 2px;
   font-size: 10px;
   font-weight: normal;

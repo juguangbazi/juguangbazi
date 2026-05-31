@@ -2027,6 +2027,8 @@ function renderXipanDayun(result) {
 
   var ganTips = analyzeGanHeTips(tipCols);
   var zhiTips = analyzeZhiTips(tipCols);
+  var lnGanTips = tipLiuNian ? analyzeLiuNianGanHe(tipLiuNian.gan, tipCols) : '';
+  var lnZhiTips = tipLiuNian ? analyzeLiuNianZhiHe(tipLiuNian.zhi, tipCols) : '';
 
   html += '<div class="chart-hint-section" style="margin:10px 8px;">';
   html += '<div class="chart-hint-title">【細盤六柱提示】</div>';
@@ -2036,6 +2038,12 @@ function renderXipanDayun(result) {
   }
   html += '<div class="chart-hint-indent"><span class="chart-hint-label">天干提示：</span><span class="chart-hint-body">' + wrapTips(ganTips) + '</span></div>';
   html += '<div class="chart-hint-indent"><span class="chart-hint-label">地支提示：</span><span class="chart-hint-body">' + wrapTips(zhiTips) + '</span></div>';
+  if (lnGanTips) {
+    html += '<div class="chart-hint-indent"><span class="chart-hint-label">流年天干：</span><span class="chart-hint-body">' + wrapTips(lnGanTips) + '</span></div>';
+  }
+  if (lnZhiTips) {
+    html += '<div class="chart-hint-indent"><span class="chart-hint-label">流年地支：</span><span class="chart-hint-body">' + wrapTips(lnZhiTips) + '</span></div>';
+  }
   html += '</div>';
 
   document.getElementById('xipan-dayun-section').innerHTML = html;
@@ -2132,6 +2140,80 @@ function analyzeGanHeTips(cols) {
       }
     }
   }
+  return tips.join('；') || '';
+}
+
+// 流年天干与原局+大运的五合分析
+function analyzeLiuNianGanHe(lnGan, cols) {
+  var tips = [];
+  var GAN_HE = { '甲己':'土','乙庚':'金','丙辛':'水','丁壬':'木','戊癸':'火' };
+  var GAN_HE_REV = {};
+  Object.keys(GAN_HE).forEach(function(k) {
+    GAN_HE_REV[k[0]] = { gan: k[1], hua: GAN_HE[k] };
+    GAN_HE_REV[k[1]] = { gan: k[0], hua: GAN_HE[k] };
+  });
+  var posNames = ['年','月','日','時','大運'];
+  var refCols = cols.slice(0, cols.length - 1);
+
+  refCols.forEach(function(col, i) {
+    var g = col.gan;
+    if (!g) return;
+    var key = [lnGan, g].sort().join('');
+    if (GAN_HE[key]) {
+      tips.push('流年' + lnGan + '與' + posNames[i] + g + '五合化' + GAN_HE[key]);
+    }
+  });
+
+  return tips.join('；') || '';
+}
+
+// 流年地支与原局+大运的合化分析
+function analyzeLiuNianZhiHe(lnZhi, cols) {
+  var tips = [];
+  var LIU_HE = { '子丑':'土','寅亥':'木','卯戌':'火','辰酉':'金','巳申':'水','午未':'火' };
+  var LIU_HE_REV = {};
+  Object.keys(LIU_HE).forEach(function(k) {
+    LIU_HE_REV[k[0]] = { zhi: k[1], hua: LIU_HE[k] };
+    LIU_HE_REV[k[1]] = { zhi: k[0], hua: LIU_HE[k] };
+  });
+  var SAN_HE = { '申子辰':'水','亥卯未':'木','寅午戌':'火','巳酉丑':'金' };
+  var CHONG = { '子午':1,'丑未':1,'寅申':1,'卯酉':1,'辰戌':1,'巳亥':1 };
+  var XING = { '寅巳':'無恩','巳申':'無恩','丑戌':'恃勢','戌未':'恃勢','子卯':'無禮' };
+  var HAI = { '子未':1,'丑午':1,'寅巳':1,'卯辰':1,'申亥':1,'酉戌':1 };
+  var PO = { '子酉':1,'寅亥':1,'辰丑':1,'午卯':1,'申巳':1,'戌未':1 };
+
+  // 只取原局4柱+大运（前5列 or 全部不含流年自身）
+  var refCols = cols.slice(0, cols.length - 1); // 去掉最后一列（流年自身）
+  var posNames = ['年','月','日','時','大運'];
+
+  refCols.forEach(function(col, i) {
+    var z = col.zhi;
+    if (!z) return;
+    var key = [lnZhi, z].sort().join('');
+    // 六合
+    if (LIU_HE[key]) {
+      tips.push('流年' + lnZhi + '與' + posNames[i] + z + '六合' + LIU_HE[key]);
+    }
+    // 三合（检查是否同在三合局中）
+    Object.keys(SAN_HE).forEach(function(sk) {
+      if (sk.indexOf(lnZhi) >= 0 && sk.indexOf(z) >= 0 && lnZhi !== z) {
+        if (tips.indexOf('流年' + lnZhi + '與' + posNames[i] + z + '三合' + SAN_HE[sk] + '局') < 0) {
+          tips.push('流年' + lnZhi + '與' + posNames[i] + z + '三合' + SAN_HE[sk] + '局');
+        }
+      }
+    });
+    // 冲
+    if (CHONG[key]) tips.push('流年' + lnZhi + '與' + posNames[i] + z + '相沖');
+    // 刑
+    var xKey = lnZhi + z, xKeyR = z + lnZhi;
+    if (XING[xKey]) tips.push('流年' + lnZhi + '與' + posNames[i] + z + '相刑（' + XING[xKey] + '）');
+    else if (XING[xKeyR]) tips.push('流年' + lnZhi + '與' + posNames[i] + z + '相刑（' + XING[xKeyR] + '）');
+    // 害
+    if (HAI[key]) tips.push('流年' + lnZhi + '與' + posNames[i] + z + '相害');
+    // 破
+    if (PO[key]) tips.push('流年' + lnZhi + '與' + posNames[i] + z + '相破');
+  });
+
   return tips.join('；') || '';
 }
 

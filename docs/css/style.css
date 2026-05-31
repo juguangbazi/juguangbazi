@@ -245,22 +245,30 @@ body {
 
 /* 備註 */
 .row-notes {
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: stretch;
   flex: 1;
   min-height: 80px;
+  background: #ffffff;
+}
+
+.input-label-block {
+  display: block;
+  width: 100%;
+  padding-bottom: 6px;
 }
 
 .note-area {
+  width: 100%;
   flex: 1;
   border: none;
-  background: transparent;
+  background: #ffffff;
   color: #3d3226;
   font-size: 14px;
   font-family: inherit;
   resize: none;
   outline: none;
   padding: 4px 0;
-  align-self: stretch;
 }
 
 .note-area::placeholder {
@@ -3260,6 +3268,8 @@ body {
 .picker-inner{padding:0}
 .picker-body{display:flex;flex-direction:column;height:49vh;background:#fff;overflow:hidden;contain:layout style}
 .pb-row{display:flex;align-items:center;flex:0 0 auto;height:calc(49vh / 5)}
+.pb-row:nth-child(odd){background:#fff}
+.pb-row:nth-child(even){background:#faf7f0}
 .pb-left{width:54%;flex:none;display:flex;align-items:center;justify-content:center;padding-left:5em}
 .pb-right{flex:1;display:flex;align-items:center;padding-right:5em}
 .pb-buf{font-size:32px;color:#000;font-weight:400;letter-spacing:4px}

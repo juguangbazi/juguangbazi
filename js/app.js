@@ -499,12 +499,16 @@ function updateDateDisplay() {
 }
 
 // ========== 四柱输入弹窗 ==========
-var _szSelected = {
-  year: { gan: '甲', zhi: '子' },
-  month: { gan: '甲', zhi: '子' },
-  day: { gan: '甲', zhi: '子' },
-  hour: { gan: '甲', zhi: '子' }
-};
+var _szSelected = (function() {
+  var now = new Date();
+  var r = BaziEngine.paipan(now.getFullYear(), now.getMonth() + 1, now.getDate(), now.getHours(), '男');
+  return {
+    year: { gan: r.fourPillars.year.gan, zhi: r.fourPillars.year.zhi },
+    month: { gan: r.fourPillars.month.gan, zhi: r.fourPillars.month.zhi },
+    day: { gan: r.fourPillars.day.gan, zhi: r.fourPillars.day.zhi },
+    hour: { gan: r.fourPillars.hour.gan, zhi: r.fourPillars.hour.zhi }
+  };
+})();
 var _szSearchResults = [];
 
 function initSizhuPicker() {
@@ -512,48 +516,118 @@ function initSizhuPicker() {
   var DI_ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
   var PILLARS = ['year', 'month', 'day', 'hour'];
 
-  // 构建轮盘选项（仅显示当前选中项，左右滑动切换）
+  // 构建轮盘选项（点击弹出选择框）
   function buildWheel(wheelId, items, selectedVal) {
     var wheel = document.getElementById(wheelId);
     if (!wheel) return;
-    var inner = wheel.querySelector('.sz-wheel-inner');
-    if (!inner) return;
-    inner.innerHTML = '';
-    for (var i = 0; i < items.length; i++) {
-      var div = document.createElement('div');
-      div.className = 'sz-wheel-item' + (items[i] === selectedVal ? ' selected' : '');
-      div.textContent = items[i];
-      div.dataset.value = items[i];
-      div.dataset.idx = i;
-      inner.appendChild(div);
-    }
+    wheel.innerHTML = '<div class="sz-wheel-val">' + selectedVal + '</div>';
+    wheel.dataset.items = JSON.stringify(items);
+    wheel.addEventListener('click', function() {
+      showSzPicker(wheelId, items, selectedVal);
+    });
+  }
 
-    // 左右滑动切换
-    var startX = 0;
-    wheel.addEventListener('touchstart', function(e) {
-      startX = e.touches[0].clientX;
-    }, {passive: true});
-    wheel.addEventListener('touchend', function(e) {
-      var endX = e.changedTouches[0].clientX;
-      var diff = endX - startX;
-      if (Math.abs(diff) < 20) return; // 忽略短滑动
-      var allItems = inner.querySelectorAll('.sz-wheel-item');
-      var curIdx = 0;
-      for (var i = 0; i < allItems.length; i++) {
-        if (allItems[i].classList.contains('selected')) { curIdx = i; break; }
+  var YANG_GAN = ['甲','丙','戊','庚','壬'];
+  var YANG_ZHI = ['子','寅','辰','午','申','戌'];
+
+  function isYang(gz) { return YANG_GAN.indexOf(gz) >= 0 || YANG_ZHI.indexOf(gz) >= 0; }
+
+  // 根据已选内容过滤可选干支
+  function getFilteredItems(wheelId, allItems, applyFull) {
+    var parts = wheelId.replace('sz-wheel-', '').split('-');
+    var pillar = parts[0], type = parts[1];
+    // 第一次点天干：全部可选；第一次点地支：按当前天干阴阳过滤
+    if (!applyFull) {
+      if (type === 'zhi') {
+        var g = (_szSelected[pillar] && _szSelected[pillar].gan) || '';
+        if (g) return allItems.filter(function(z) { return isYang(g) === isYang(z); });
       }
-      var nextIdx;
-      if (diff > 0) {
-        // 右滑 → 上一个
-        nextIdx = curIdx <= 0 ? allItems.length - 1 : curIdx - 1;
-      } else {
-        // 左滑 → 下一个
-        nextIdx = (curIdx + 1) % allItems.length;
+      return allItems; // 天干全部可选
+    }
+    // 手动选择后：天干和地支互相限制阴阳配对
+    if (type === 'zhi') {
+      var pg = (_szSelected[pillar] && _szSelected[pillar].gan) || '';
+      if (pg) return allItems.filter(function(z) { return isYang(pg) === isYang(z); });
+    }
+    if (type === 'gan') {
+      var pz = (_szSelected[pillar] && _szSelected[pillar].zhi) || '';
+      if (pz) return allItems.filter(function(g) { return isYang(pz) === isYang(g); });
+    }
+    // 以下规则仅在首次手动选择后生效
+    if (pillar === 'month' && type === 'gan') {
+      var yearGan = (_szSelected.year && _szSelected.year.gan) || '';
+      if (yearGan) {
+        var startMap = {'甲':'丙','乙':'戊','丙':'庚','丁':'壬','戊':'甲','己':'丙','庚':'戊','辛':'庚','壬':'壬','癸':'甲'};
+        var startGan = startMap[yearGan];
+        if (startGan) { var startIdx = TIAN_GAN.indexOf(startGan); var f = []; for (var i = 0; i < TIAN_GAN.length; i++) f.push(TIAN_GAN[(startIdx + i) % 10]); return f; }
       }
-      allItems[curIdx].classList.remove('selected');
-      allItems[nextIdx].classList.add('selected');
-      updateSzSelection();
-      updateSzDisplay();
+    }
+    if (pillar === 'hour' && type === 'gan') {
+      var dayGan = (_szSelected.day && _szSelected.day.gan) || '';
+      if (dayGan) {
+        var startMap2 = {'甲':'甲','乙':'丙','丙':'戊','丁':'庚','戊':'壬','己':'甲','庚':'丙','辛':'戊','壬':'庚','癸':'壬'};
+        var startGan2 = startMap2[dayGan];
+        if (startGan2) { var startIdx2 = TIAN_GAN.indexOf(startGan2); var f2 = []; for (var i = 0; i < TIAN_GAN.length; i++) f2.push(TIAN_GAN[(startIdx2 + i) % 10]); return f2; }
+      }
+    }
+    return allItems;
+  }
+
+  // 弹出顺序：年干→年支→月干→月支→日干→日支→时干→时支
+  var SZ_SEQUENCE = [
+    'sz-wheel-year-gan','sz-wheel-year-zhi',
+    'sz-wheel-month-gan','sz-wheel-month-zhi',
+    'sz-wheel-day-gan','sz-wheel-day-zhi',
+    'sz-wheel-hour-gan','sz-wheel-hour-zhi'
+  ];
+
+  function autoOpenNext(currentWheelId) {
+    var idx = SZ_SEQUENCE.indexOf(currentWheelId);
+    if (idx < 0 || idx >= SZ_SEQUENCE.length - 1) return;
+    var nextId = SZ_SEQUENCE[idx + 1];
+    var nextWheel = document.getElementById(nextId);
+    if (!nextWheel) return;
+    var nextVal = nextWheel.querySelector('.sz-wheel-val');
+    if (!nextVal) return;
+    var curText = nextVal.textContent;
+    // Determine items for next wheel
+    var parts = nextId.replace('sz-wheel-', '').split('-');
+    var items = (parts[1] === 'gan') ? TIAN_GAN : DI_ZHI;
+    setTimeout(function() { showSzPicker(nextId, items, curText); }, 200);
+  }
+
+  var _szHasSelection = false;
+
+  function showSzPicker(wheelId, items, currentVal) {
+    var oldPicker = document.querySelector(".sz-inline-picker");
+    if (oldPicker) oldPicker.remove();
+    var filteredItems = _szHasSelection ? getFilteredItems(wheelId, items) : items;
+    var container = document.querySelector(".sizhu-select-area");
+    if (!container) return;
+    var html = '<div class="sz-inline-picker"><div class="sz-picker-grid">';
+    for (var i = 0; i < filteredItems.length; i++) {
+      html += '<div class="sz-pick-item' + (filteredItems[i] === currentVal ? ' selected' : '') + '" data-val="' + filteredItems[i] + '">' + filteredItems[i] + '</div>';
+    }
+    html += '</div></div>';
+    container.insertAdjacentHTML("beforeend", html);
+    var picker = container.querySelector(".sz-inline-picker");
+    picker.querySelectorAll(".sz-pick-item").forEach(function(item) {
+      item.addEventListener("click", function() {
+        var val = this.dataset.val;
+        var wheel = document.getElementById(wheelId);
+        if (wheel) {
+          var vEl = wheel.querySelector(".sz-wheel-val");
+          vEl.textContent = val;
+          vEl.style.background = "#4a90d9";
+          vEl.style.color = "#fff";
+          wheel.dataset.selected = val;
+        }
+        _szHasSelection = true;
+        updateSzSelection();
+        updateSzDisplay();
+        picker.remove();
+        autoOpenNext(wheelId);
+      });
     });
   }
 
@@ -564,14 +638,15 @@ function initSizhuPicker() {
   function updateSzSelection() {
     var wheels = document.querySelectorAll('.sz-wheel');
     wheels.forEach(function(w) {
-      var sel = w.querySelector('.sz-wheel-item.selected');
-      if (!sel) return;
-      var id = w.id; // e.g. "sz-wheel-year-gan"
-      var parts = id.replace('sz-wheel-', '').split('-'); // ['year', 'gan']
+      var valEl = w.querySelector('.sz-wheel-val');
+      if (!valEl) return;
+      var val = valEl.textContent;
+      var id = w.id;
+      var parts = id.replace('sz-wheel-', '').split('-');
       var pillar = parts[0];
       var type = parts[1];
       if (_szSelected[pillar]) {
-        _szSelected[pillar][type] = sel.dataset.value;
+        _szSelected[pillar][type] = val;
       }
     });
   }
@@ -1398,7 +1473,85 @@ function renderTabChart(result) {
 
   html += '</div>'; // .chart-hints
 
+  // 理论参考区（点击pill展示对应参考内容）
+  html += renderTheorySection(result);
+
   document.getElementById('chart-table-wrap').innerHTML = html;
+}
+
+// ==================== 理论参考区 ====================
+function renderTheorySection(result) {
+  var theories = [
+    { id: 'qiongtong', name: '窮通寶鑑', icon: '📖',
+      placeholder: '以日干配月令，論調候用神。' + (result.tiaoHou ? '「' + result.tiaoHou.mainGan + '」為調候關鍵。' + result.tiaoHou.description : '暫無數據。') },
+    { id: 'ditian', name: '滴天髓', icon: '💧',
+      placeholder: DI_TIAN_SUI[result.fourPillars.day.gan] || '暫無數據。' },
+    { id: 'sanming', name: '三命通會', icon: '📚',
+      placeholder: '萬民英所著，集明代以前命理大成，論述格局、神煞、六親等。（更多內容敬請期待）' },
+    { id: 'bazitiyao', name: '八字提要', icon: '📋',
+      placeholder: '以日干配月令地支，取六十甲子日柱逐一解說。（更多內容敬請期待）' },
+    { id: 'ziping', name: '子平真詮', icon: '📜',
+      placeholder: '沈孝瞻著，以月令透干取格為核心。' + (result.geJu ? '此命為「' + result.geJu.type + '」，月令' + result.geJu.monthZhi + '。' : '暫無數據。') },
+    { id: 'yuanhai', name: '淵海子平', icon: '📯',
+      placeholder: '宋代徐子平所傳，為八字命理奠基之作，內外十八格體系。（更多內容敬請期待）' },
+    { id: 'tianyuan', name: '天元咸巫', icon: '🔮',
+      placeholder: '論述天元（天干）與地支的互動關係、咸池桃花等。（更多內容敬請期待）' },
+    { id: 'shenfeng', name: '神峰通考', icon: '🏔️',
+      placeholder: '張楠著，強調病藥理論，以八字之病取藥為用神。（更多內容敬請期待）' },
+    { id: 'qianli', name: '千里命稿', icon: '📝',
+      placeholder: '民國韋千里所著，以通俗語言解說命理，適合入門參考。（更多內容敬請期待）' },
+    { id: 'wuxingji', name: '五行精紀', icon: '⭐',
+      placeholder: '宋代廖中所著，論述五行精微之理，納音、神煞等詳解。（更多內容敬請期待）' },
+    { id: 'lixuzhong', name: '李虛中命書', icon: '🔖',
+      placeholder: '唐代李虛中所著，以年柱為主的早期命理經典。（更多內容敬請期待）' }
+  ];
+
+  var html = '<div class="theory-section">';
+  html += '<div class="theory-section-title">【經典參考】</div>';
+
+  // pills
+  html += '<div class="theory-pills" id="theory-pills">';
+  theories.forEach(function(t, i) {
+    html += '<button class="theory-pill" data-theory="' + t.id + '" onclick="selectTheory(\'' + t.id + '\')">' + t.icon + ' ' + t.name + '</button>';
+  });
+  html += '</div>';
+
+  // content area
+  html += '<div class="theory-content" id="theory-content">';
+  html += '<div class="theory-content-hint">點擊上方古籍名稱查看參考</div>';
+  html += '</div>';
+
+  html += '</div>';
+
+  // 存储理论数据
+  window._theoryData = theories;
+
+  return html;
+}
+
+// 理论选择
+function selectTheory(id) {
+  // 更新pill选中态
+  document.querySelectorAll('.theory-pill').forEach(function(p) {
+    p.classList.toggle('selected', p.dataset.theory === id);
+  });
+
+  // 显示对应内容
+  var data = window._theoryData || [];
+  var found = null;
+  for (var i = 0; i < data.length; i++) {
+    if (data[i].id === id) { found = data[i]; break; }
+  }
+
+  var contentEl = document.getElementById('theory-content');
+  if (!contentEl) return;
+
+  if (found) {
+    contentEl.innerHTML = '<div class="theory-content-title">' + found.icon + ' ' + found.name + '</div>' +
+      '<div class="theory-content-body">' + found.placeholder + '</div>';
+  } else {
+    contentEl.innerHTML = '<div class="theory-content-hint">暫無此理論數據</div>';
+  }
 }
 
 // ==================== Tab 3: 细盘 ====================

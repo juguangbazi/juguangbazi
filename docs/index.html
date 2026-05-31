@@ -198,13 +198,16 @@
           </div>
 
           <!-- 提示文字 -->
-          <div class="sizhu-wheels-hint">〈手指左右撥動可選擇〉</div>
+          <div class="sizhu-wheels-hint">〈手指點擊干支可選擇〉</div>
         </div>
 
         <!-- 查找功能区 -->
         <div class="sizhu-search-bar">
           <span class="sizhu-search-range">範圍:1911–2100年</span>
-          <button class="sizhu-search-btn" id="sizhu-search-btn">查找</button>
+          <span class="sizhu-search-actions">
+            <button class="sizhu-search-btn sizhu-cancel-btn" id="sizhu-cancel-btn">取消</button>
+            <button class="sizhu-search-btn" id="sizhu-search-btn">查找</button>
+          </span>
         </div>
 
         <!-- 查找结果列表 -->
@@ -308,7 +311,7 @@
       </button>
       <button class="tab-btn" data-tab="tab-tips">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-        <span>提示</span>
+        <span>解讀</span>
       </button>
     </nav>
 

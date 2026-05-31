@@ -2014,14 +2014,35 @@ function renderXipanDayun(result) {
   });
 
   // ---- 刑冲合害提示 ----
-  var tipDaYun = dy.daYunList[_selectedDaYunIdx];
-  var tipLiuNian = tipDaYun ? selLiuNianFromYear(tipDaYun, _selectedLiuNianYear || currentYear) : null;
+  var isXiaoYunTips = (_selectedDaYunIdx === -1);
+  var tipDaYun = isXiaoYunTips ? null : dy.daYunList[_selectedDaYunIdx];
+  var tipLiuNian = null;
+  if (isXiaoYunTips) {
+    var lnYear = _selectedLiuNianYear || currentYear;
+    var tg = BaziEngine._constants.TIAN_GAN;
+    var dz = BaziEngine._constants.DI_ZHI;
+    tipLiuNian = { gan: tg[(lnYear - 4) % 10], zhi: dz[(lnYear - 4) % 12], year: lnYear };
+  } else if (tipDaYun) {
+    tipLiuNian = selLiuNianFromYear(tipDaYun, _selectedLiuNianYear || currentYear);
+  }
+
   var tipCols = [
     { gan: fp.year.gan, zhi: fp.year.zhi },
     { gan: fp.month.gan, zhi: fp.month.zhi },
     { gan: fp.day.gan, zhi: fp.day.zhi },
     { gan: fp.hour.gan, zhi: fp.hour.zhi }
   ];
+  // 小运模式：加入小运
+  if (isXiaoYunTips) {
+    var xiaoYunList = result.xiaoYun || [];
+    var matchedXY = null;
+    var targetAge = (tipLiuNian ? tipLiuNian.year : currentYear) - result.birthInfo.year + 1;
+    for (var xi = 0; xi < xiaoYunList.length; xi++) {
+      if (xiaoYunList[xi].age === targetAge) { matchedXY = xiaoYunList[xi]; break; }
+    }
+    if (!matchedXY && xiaoYunList.length > 0) matchedXY = xiaoYunList[0];
+    if (matchedXY) tipCols.push({ gan: matchedXY.gan, zhi: matchedXY.zhi });
+  }
   if (tipDaYun) tipCols.push({ gan: tipDaYun.gan, zhi: tipDaYun.zhi });
   if (tipLiuNian) tipCols.push({ gan: tipLiuNian.gan, zhi: tipLiuNian.zhi });
 
@@ -2029,7 +2050,8 @@ function renderXipanDayun(result) {
   var zhiTips = analyzeZhiTips(tipCols);
 
   html += '<div class="chart-hint-section" style="margin:10px 8px;">';
-  html += '<div class="chart-hint-title">【細盤六柱提示】</div>';
+  var tipsTitle = isXiaoYunTips ? '【小運流年提示】' : '【細盤六柱提示】';
+  html += '<div class="chart-hint-title">' + tipsTitle + '</div>';
   function wrapTips(str) {
     if (!str) return '<span class="hint-nowrap">無</span>';
     return str.split('；').map(function(s) { return '<span class="hint-nowrap">' + s + '</span>'; }).join('；');

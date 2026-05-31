@@ -2027,8 +2027,6 @@ function renderXipanDayun(result) {
 
   var ganTips = analyzeGanHeTips(tipCols);
   var zhiTips = analyzeZhiTips(tipCols);
-  var lnGanTips = tipLiuNian ? analyzeLiuNianGanHe(tipLiuNian.gan, tipCols) : '';
-  var lnZhiTips = tipLiuNian ? analyzeLiuNianZhiHe(tipLiuNian.zhi, tipCols) : '';
 
   html += '<div class="chart-hint-section" style="margin:10px 8px;">';
   html += '<div class="chart-hint-title">【細盤六柱提示】</div>';
@@ -2038,12 +2036,6 @@ function renderXipanDayun(result) {
   }
   html += '<div class="chart-hint-indent"><span class="chart-hint-label">天干提示：</span><span class="chart-hint-body">' + wrapTips(ganTips) + '</span></div>';
   html += '<div class="chart-hint-indent"><span class="chart-hint-label">地支提示：</span><span class="chart-hint-body">' + wrapTips(zhiTips) + '</span></div>';
-  if (lnGanTips) {
-    html += '<div class="chart-hint-indent"><span class="chart-hint-label">流年天干：</span><span class="chart-hint-body">' + wrapTips(lnGanTips) + '</span></div>';
-  }
-  if (lnZhiTips) {
-    html += '<div class="chart-hint-indent"><span class="chart-hint-label">流年地支：</span><span class="chart-hint-body">' + wrapTips(lnZhiTips) + '</span></div>';
-  }
   html += '</div>';
 
   document.getElementById('xipan-dayun-section').innerHTML = html;

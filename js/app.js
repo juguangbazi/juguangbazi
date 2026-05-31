@@ -2145,12 +2145,13 @@ function analyzeGanHeTips(cols) {
   var heMap = { '甲':'己','乙':'庚','丙':'辛','丁':'壬','戊':'癸','己':'甲','庚':'乙','辛':'丙','壬':'丁','癸':'戊' };
   var heNames = { '甲己':'土','乙庚':'金','丙辛':'水','丁壬':'木','戊癸':'火' };
   var tips = [];
+  var seen = {};
   var gans = cols.map(function(c, i) { return c.gan; }).filter(function(g) { return g; });
   for (var i = 0; i < gans.length; i++) {
     for (var j = i + 1; j < gans.length; j++) {
       if (heMap[gans[i]] === gans[j]) {
         var key = [gans[i], gans[j]].sort().join('');
-        tips.push(gans[i] + gans[j] + '合可化' + (heNames[key] || ''));
+        if (!seen[key]) { seen[key] = true; tips.push(key + '合' + (heNames[key] || '')); }
       }
     }
   }
@@ -2239,7 +2240,7 @@ function analyzeZhiTips(cols) {
   Object.keys(sanHui).forEach(function(key) {
     var parts = key.split('');
     if (parts.every(function(p) { return zhis.indexOf(p) >= 0; })) {
-      tips.push(key.split('').join('') + '可會為' + sanHui[key]);
+      tips.push(parts.join('') + '三會' + sanHui[key]);
     }
   });
   // 三合
@@ -2247,16 +2248,34 @@ function analyzeZhiTips(cols) {
   Object.keys(sanHe).forEach(function(key) {
     var parts = key.split('');
     if (parts.every(function(p) { return zhis.indexOf(p) >= 0; })) {
-      tips.push(parts.join('') + '可三合' + sanHe[key]);
+      tips.push(parts.join('') + '三合' + sanHe[key]);
     }
+  });
+  // 半合（需四正：子午卯酉）
+  var SI_ZHENG = { '子':1,'午':1,'卯':1,'酉':1 };
+  var BAN_HE = {
+    '申子':'水','子辰':'水',
+    '亥卯':'木','卯未':'木',
+    '寅午':'火','午戌':'火',
+    '巳酉':'金','酉丑':'金'
+  };
+  var seenBan = {};
+  zhis.forEach(function(z1, i) {
+    zhis.forEach(function(z2, j) {
+      if (i >= j) return;
+      var k1 = z1 + z2, k2 = z2 + z1;
+      var bk = BAN_HE[k1] || BAN_HE[k2];
+      if (bk && (SI_ZHENG[z1] || SI_ZHENG[z2])) {
+        var key = [z1, z2].sort().join('');
+        if (!seenBan[key]) { seenBan[key] = true; tips.push(key + '半合' + bk); }
+      }
+    });
   });
   // 六合
   var liuHe = { '子丑':'土','寅亥':'木','卯戌':'火','辰酉':'金','巳申':'水','午未':'火' };
   var liuHeRev = {};
   Object.keys(liuHe).forEach(function(k) {
-    var parts = k.split('');
-    liuHeRev[parts[0]] = parts[1];
-    liuHeRev[parts[1]] = parts[0];
+    liuHeRev[k[0]] = k[1]; liuHeRev[k[1]] = k[0];
   });
   var seenHe = {};
   zhis.forEach(function(z1, i) {
@@ -2264,52 +2283,53 @@ function analyzeZhiTips(cols) {
       if (i >= j) return;
       if (liuHeRev[z1] === z2) {
         var key = [z1, z2].sort().join('');
-        if (!seenHe[key]) {
-          seenHe[key] = true;
-          tips.push(z1 + z2 + '可合' + (liuHe[key] || liuHe[z2+z1] || ''));
-        }
+        if (!seenHe[key]) { seenHe[key] = true; tips.push(key + '合' + (liuHe[key] || liuHe[z2+z1] || '')); }
       }
     });
   });
-  // 刑
-  var xing = { '寅巳':'無恩之刑','巳申':'無恩之刑','丑戌':'恃勢之刑','戌未':'恃勢之刑','子卯':'無禮之刑' };
-  var xingPairs = [];
+  // 刑（简洁版）
+  var xingMap = { '寅巳':1,'巳申':1,'丑戌':1,'戌未':1,'子卯':1 };
   zhis.forEach(function(z1, i) {
     zhis.forEach(function(z2, j) {
       if (i >= j) return;
-      var key = z1 + z2;
-      var keyR = z2 + z1;
-      if (xing[key] || xing[keyR]) {
-        xingPairs.push(key + '可' + (xing[key] || xing[keyR]));
-      }
+      if (xingMap[z1+z2] || xingMap[z2+z1]) tips.push(z1 + z2 + '相刑');
     });
   });
-  tips = tips.concat(xingPairs);
   // 冲
-  var chong = { '子午':true,'丑未':true,'寅申':true,'卯酉':true,'辰戌':true,'巳亥':true };
+  var chong = { '子午':1,'丑未':1,'寅申':1,'卯酉':1,'辰戌':1,'巳亥':1 };
   zhis.forEach(function(z1, i) {
     zhis.forEach(function(z2, j) {
       if (i >= j) return;
-      if (chong[z1+z2] || chong[z2+z1]) tips.push(z1 + z2 + '可相沖');
+      if (chong[z1+z2] || chong[z2+z1]) tips.push(z1 + z2 + '相沖');
     });
   });
   // 害
-  var hai = { '子未':true,'丑午':true,'寅巳':true,'卯辰':true,'申亥':true,'酉戌':true };
+  var hai = { '子未':1,'丑午':1,'寅巳':1,'卯辰':1,'申亥':1,'酉戌':1 };
   zhis.forEach(function(z1, i) {
     zhis.forEach(function(z2, j) {
       if (i >= j) return;
-      if (hai[z1+z2] || hai[z2+z1]) tips.push(z1 + z2 + '可相害');
+      if (hai[z1+z2] || hai[z2+z1]) tips.push(z1 + z2 + '相害');
     });
   });
   // 破
-  var po = { '子酉':true,'寅亥':true,'辰丑':true,'午卯':true,'申巳':true,'戌未':true };
+  var po = { '子酉':1,'寅亥':1,'辰丑':1,'午卯':1,'申巳':1,'戌未':1 };
   zhis.forEach(function(z1, i) {
     zhis.forEach(function(z2, j) {
       if (i >= j) return;
-      if (po[z1+z2] || po[z2+z1]) tips.push(z1 + z2 + '可相破');
+      if (po[z1+z2] || po[z2+z1]) tips.push(z1 + z2 + '相破');
     });
   });
-  return tips.join('；') || '';
+  // 去重：同对地支的合优先于半合
+  var deduped = [];
+  var seenPairs = {};
+  tips.forEach(function(t) {
+    var pair = t.substring(0, 2);
+    if (!seenPairs[pair]) {
+      seenPairs[pair] = true;
+      deduped.push(t);
+    }
+  });
+  return deduped.join('；') || '';
 }
 
 // ========== 干支神煞简算（用于大运流年，以日干/年干/年支为参照） ==========

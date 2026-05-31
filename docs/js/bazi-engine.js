@@ -1,4 +1,4 @@
-const BaziEngine = (function() {
+var BaziEngine = (function() {
 
 // === src/utils/constants.js ===
 // 天干
@@ -880,7 +880,7 @@ function calcDaYun(fourPillars, gender, birthDate) {
     const zhi = DI_ZHI[zhiIdx];
     const ganZhi = gan + zhi;
 
-    const startAge = Math.floor(qiYunAge) + (i - 1) * 10;
+    const startAge = Math.ceil(qiYunAge) + (i - 1) * 10;
     const endAge = startAge + 9;
     const startYear = birthYear + startAge;
     const endYear = birthYear + endAge;
@@ -902,7 +902,7 @@ function calcDaYun(fourPillars, gender, birthDate) {
   return {
     direction: isShun ? '顺行' : '逆行',
     qiYunAge: Math.round(qiYunAge * 10) / 10,
-    qiYunYear: birthYear + Math.floor(qiYunAge),
+    qiYunYear: birthYear + Math.ceil(qiYunAge),
     jieInfo,
     daYunList
   };
@@ -943,7 +943,7 @@ function calcXiaoYun(fourPillars, gender, birthDate, qiYunAge) {
   const step = isShun ? 1 : -1;
 
   const xiaoYunList = [];
-  const maxAge = Math.floor(qiYunAge);
+  const maxAge = Math.ceil(qiYunAge);
   const birthYear = birthDate.getFullYear();
 
   for (let age = 1; age <= maxAge; age++) {
@@ -1048,6 +1048,130 @@ const YUE_DE = {
   '巳': '庚', '酉': '庚', '丑': '庚',
   '亥': '甲', '卯': '甲', '未': '甲'
 };
+
+// 红鸾（以日支查）
+const HONG_LUAN = {
+  '子': '卯', '丑': '寅', '寅': '丑', '卯': '子',
+  '辰': '亥', '巳': '戌', '午': '酉', '未': '申',
+  '申': '未', '酉': '午', '戌': '巳', '亥': '辰'
+};
+
+// 天喜（以日支查）
+const TIAN_XI = {
+  '子': '酉', '丑': '申', '寅': '未', '卯': '午',
+  '辰': '巳', '巳': '辰', '午': '卯', '未': '寅',
+  '申': '丑', '酉': '子', '戌': '亥', '亥': '戌'
+};
+
+// 孤辰（以年支查）
+const GU_CHEN = {
+  '寅': '巳', '卯': '巳', '辰': '巳',
+  '巳': '申', '午': '申', '未': '申',
+  '申': '亥', '酉': '亥', '戌': '亥',
+  '亥': '寅', '子': '寅', '丑': '寅'
+};
+
+// 寡宿（以年支查）
+const GUA_SU = {
+  '寅': '丑', '卯': '丑', '辰': '丑',
+  '巳': '辰', '午': '辰', '未': '辰',
+  '申': '未', '酉': '未', '戌': '未',
+  '亥': '戌', '子': '戌', '丑': '戌'
+};
+
+// 金舆（以日干查）
+const JIN_YU = {
+  '甲': '辰', '乙': '巳', '丙': '未', '丁': '申',
+  '戊': '未', '己': '申', '庚': '戌', '辛': '亥',
+  '壬': '丑', '癸': '寅'
+};
+
+// 学堂（以日干查，长生位）
+const XUE_TANG = {
+  '甲': '亥', '乙': '午', '丙': '寅', '丁': '酉',
+  '戊': '寅', '己': '酉', '庚': '巳', '辛': '子',
+  '壬': '申', '癸': '卯'
+};
+
+// 词馆（以日干查，临官位）
+const CI_GUAN = {
+  '甲': '寅', '乙': '申', '丙': '巳', '丁': '亥',
+  '戊': '巳', '己': '亥', '庚': '申', '辛': '寅',
+  '壬': '亥', '癸': '巳'
+};
+
+// 太极贵人（以日干查）
+const TAI_JI_GUI_REN = {
+  '甲': ['子', '午'], '乙': ['子', '午'],
+  '丙': ['卯', '酉'], '丁': ['卯', '酉'],
+  '戊': ['辰', '戌', '丑', '未'], '己': ['辰', '戌', '丑', '未'],
+  '庚': ['寅', '亥'], '辛': ['寅', '亥'],
+  '壬': ['巳', '申'], '癸': ['巳', '申']
+};
+
+// 福星贵人（以日干查）
+const FU_XING_GUI_REN = {
+  '甲': ['寅', '丑'], '乙': ['丑', '卯'],
+  '丙': ['寅', '巳'], '丁': ['巳', '申'],
+  '戊': ['申', '丑'], '己': ['申', '亥'],
+  '庚': ['巳', '午'], '辛': ['卯', '申'],
+  '壬': ['亥', '子'], '癸': ['亥', '卯']
+};
+
+// 国印贵人（以日干查）
+const GUO_YIN_GUI_REN = {
+  '甲': '戌', '乙': '亥', '丙': '丑', '丁': '寅',
+  '戊': '丑', '己': '寅', '庚': '辰', '辛': '巳',
+  '壬': '未', '癸': '申'
+};
+
+// 天厨贵人（以日干查）
+const TIAN_CHU_GUI_REN = {
+  '甲': '巳', '乙': '午', '丙': '子', '丁': '巳',
+  '戊': '午', '己': '申', '庚': '寅', '辛': '午',
+  '壬': '酉', '癸': '亥'
+};
+
+// 亡神（以年支查）
+const WANG_SHEN = {
+  '寅': '巳', '午': '巳', '戌': '巳',
+  '申': '亥', '子': '亥', '辰': '亥',
+  '巳': '申', '酉': '申', '丑': '申',
+  '亥': '寅', '卯': '寅', '未': '寅'
+};
+
+// 劫煞（以年支查）
+const JIE_SHA = {
+  '寅': '亥', '午': '亥', '戌': '亥',
+  '申': '巳', '子': '巳', '辰': '巳',
+  '巳': '寅', '酉': '寅', '丑': '寅',
+  '亥': '申', '卯': '申', '未': '申'
+};
+
+// 丧门（以年支查）
+const SANG_MEN = {
+  '子': '寅', '丑': '卯', '寅': '辰', '卯': '巳',
+  '辰': '午', '巳': '未', '午': '申', '未': '酉',
+  '申': '戌', '酉': '亥', '戌': '子', '亥': '丑'
+};
+
+// 吊客（以年支查）
+const DIAO_KE = {
+  '子': '辰', '丑': '巳', '寅': '午', '卯': '未',
+  '辰': '申', '巳': '酉', '午': '戌', '未': '亥',
+  '申': '子', '酉': '丑', '戌': '寅', '亥': '卯'
+};
+// 灾煞（以年支查，三合局冲将星）
+const ZAI_SHA = { '子':'午','丑':'卯','寅':'子','卯':'酉','辰':'午','巳':'卯','午':'子','未':'酉','申':'午','酉':'卯','戌':'子','亥':'酉' };
+// 飞刃（羊刃对冲）
+const FEI_REN = { '甲':'酉','乙':'戌','丙':'子','丁':'丑','戊':'午','己':'未','庚':'卯','辛':'辰','壬':'午','癸':'未' };
+// 元辰（以日支查）
+const YUAN_CHEN = { '子':'未','丑':'午','寅':'酉','卯':'辰','辰':'亥','巳':'戌','午':'丑','未':'申','申':'卯','酉':'寅','戌':'巳','亥':'子' };
+// 勾绞（以日支查）
+const GOU_JIAO = { '子':'卯','丑':'辰','寅':'巳','卯':'午','辰':'未','巳':'申','午':'酉','未':'戌','申':'亥','酉':'子','戌':'丑','亥':'寅' };
+// 天罗地网
+const TIAN_LUO = ['辰','巳']; // 水土人见辰巳
+const DI_WANG = ['戌','亥']; // 火金人见戌亥
 
 function calcShenSha(fourPillars) {
   const dayGan = fourPillars.day.gan;
@@ -1166,6 +1290,143 @@ function calcShenSha(fourPillars) {
       }
     }
   }
+
+  // 红鸾（以日支查）
+  const hlZhi = HONG_LUAN[dayZhi];
+  for (const z of allZhi) {
+    if (z.zhi === hlZhi && z.pos !== '日支') {
+      result.push({ name: '红鸾', position: z.pos, description: '主婚喜、恋爱、添丁之喜' });
+    }
+  }
+
+  // 天喜（以日支查）
+  const txZhi = TIAN_XI[dayZhi];
+  for (const z of allZhi) {
+    if (z.zhi === txZhi && z.pos !== '日支') {
+      result.push({ name: '天喜', position: z.pos, description: '主喜事临门、好事成双' });
+    }
+  }
+
+  // 孤辰（以年支查）
+  const gcZhi = GU_CHEN[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === gcZhi && z.pos !== '年支') {
+      result.push({ name: '孤辰', position: z.pos, description: '主孤独感强，六亲缘薄' });
+    }
+  }
+
+  // 寡宿（以年支查）
+  const gsZhi = GUA_SU[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === gsZhi && z.pos !== '年支') {
+      result.push({ name: '寡宿', position: z.pos, description: '主清心寡欲，独来独往' });
+    }
+  }
+
+  // 金舆（以日干查）
+  const jyZhi = JIN_YU[dayGan];
+  for (const z of allZhi) {
+    if (z.zhi === jyZhi) {
+      result.push({ name: '金舆', position: z.pos, description: '主有车马之福，出行得贵人助' });
+    }
+  }
+
+  // 学堂（以日干查）
+  const xtZhi = XUE_TANG[dayGan];
+  for (const z of allZhi) {
+    if (z.zhi === xtZhi) {
+      result.push({ name: '学堂', position: z.pos, description: '主学业优秀，聪慧过人，利考试' });
+    }
+  }
+
+  // 词馆（以日干查）
+  const cgZhi2 = CI_GUAN[dayGan];
+  for (const z of allZhi) {
+    if (z.zhi === cgZhi2) {
+      result.push({ name: '词馆', position: z.pos, description: '主文采出众，口才好，擅长表达' });
+    }
+  }
+
+  // 太极贵人（以日干查）
+  const tjgrZhi = TAI_JI_GUI_REN[dayGan] || [];
+  for (const z of allZhi) {
+    if (tjgrZhi.includes(z.zhi)) {
+      result.push({ name: '太极贵人', position: z.pos, description: '主聪明好学，喜钻研玄学命理' });
+    }
+  }
+
+  // 福星贵人（以日干查）
+  const fxgrZhi = FU_XING_GUI_REN[dayGan] || [];
+  for (const z of allZhi) {
+    if (fxgrZhi.includes(z.zhi)) {
+      result.push({ name: '福星贵人', position: z.pos, description: '主福气深厚，一生衣食无忧' });
+    }
+  }
+
+  // 国印贵人（以日干查）
+  const gygrZhi = GUO_YIN_GUI_REN[dayGan];
+  for (const z of allZhi) {
+    if (z.zhi === gygrZhi) {
+      result.push({ name: '国印贵人', position: z.pos, description: '主有权柄之象，利公职仕途' });
+    }
+  }
+
+  // 天厨贵人（以日干查）
+  const tccZhi = TIAN_CHU_GUI_REN[dayGan];
+  for (const z of allZhi) {
+    if (z.zhi === tccZhi) {
+      result.push({ name: '天厨贵人', position: z.pos, description: '主口福好，有美食之缘，生活安逸' });
+    }
+  }
+
+  // 亡神（以年支查）
+  const wsZhi = WANG_SHEN[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === wsZhi && z.pos !== '年支') {
+      result.push({ name: '亡神', position: z.pos, description: '主心神不定，易有波折变动' });
+    }
+  }
+
+  // 劫煞（以年支查）
+  const jsZhi = JIE_SHA[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === jsZhi && z.pos !== '年支') {
+      result.push({ name: '劫煞', position: z.pos, description: '主意外之事，提防是非破财' });
+    }
+  }
+
+  // 丧门（以年支查）
+  const smZhi = SANG_MEN[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === smZhi && z.pos !== '年支') {
+      result.push({ name: '丧门', position: z.pos, description: '主孝服之事，注意家人健康' });
+    }
+  }
+
+  // 吊客（以年支查）
+  const dkZhi = DIAO_KE[yearZhi];
+  for (const z of allZhi) {
+    if (z.zhi === dkZhi && z.pos !== '年支') {
+      result.push({ name: '吊客', position: z.pos, description: '主白事探问，宜多关心长者' });
+    }
+  }
+
+  // 灾煞（以年支查）
+  const zsZhi = ZAI_SHA[yearZhi];
+  for (const z of allZhi) { if (z.zhi === zsZhi && z.pos !== '年支') result.push({ name: '灾煞', position: z.pos, description: '主意外灾祸，宜多加防范' }); }
+  // 飞刃（以日干查）
+  const frZhi = FEI_REN[dayGan];
+  for (const z of allZhi) { if (z.zhi === frZhi) result.push({ name: '飞刃', position: z.pos, description: '主突发意外，需防外伤血光' }); }
+  // 元辰（以日支查）
+  const ycZhi = YUAN_CHEN[dayZhi];
+  for (const z of allZhi) { if (z.zhi === ycZhi && z.pos !== '日支') result.push({ name: '元辰', position: z.pos, description: '主耗财不顺，宜守不宜攻' }); }
+  // 勾绞（以日支查）
+  const gjZhi = GOU_JIAO[dayZhi];
+  for (const z of allZhi) { if (z.zhi === gjZhi && z.pos !== '日支') result.push({ name: '勾绞', position: z.pos, description: '主是非纠缠，口舌官非' }); }
+  // 天罗地网
+  const dayWx2 = GAN_WU_XING[dayGan];
+  if (dayWx2 === '水' || dayWx2 === '土') { for (const z of allZhi) { if (['辰','巳'].includes(z.zhi)) result.push({ name: '天罗', position: z.pos, description: '主受困受制，有志难伸' }); } }
+  if (dayWx2 === '火' || dayWx2 === '金') { for (const z of allZhi) { if (['戌','亥'].includes(z.zhi)) result.push({ name: '地网', position: z.pos, description: '主羁绊难行，事多阻滞' }); } }
 
   // 去重
   const seen = new Set();
@@ -1347,6 +1608,521 @@ function calcXingChongHeHai(fourPillars) {
 }
 
 
+// === src/analysis/geju.js ===
+
+// 调候用神表（穷通宝鉴）：十天干生于十二月所需调候天干
+// 格式：TIAO_HOU[日干][月支] = { main: '主用神', aux: '辅助' }
+const TIAO_HOU = {
+  '甲': {
+    '寅': { main: '丙', aux: '癸', desc: '初春尚有余寒，丙火照暖为急，癸水润根为辅。丙火为主，癸水为佐' },
+    '卯': { main: '庚', aux: '丙丁', desc: '阳刃当令，木气旺盛，非庚金不能修剪。庚金为主，辅以丙丁火暖局' },
+    '辰': { main: '庚', aux: '丁', desc: '暮春木气犹盛，庚金制木为先，丁火配合制庚之寒' },
+    '巳': { main: '癸', aux: '庚丁', desc: '调和气候，癸水为主。原局气润，庚丁为用' },
+    '午': { main: '癸', aux: '庚丁', desc: '盛夏火烈，甲木焦枯，非癸水不能解炎。癸水为主，庚金发源，丁火暗藏' },
+    '未': { main: '癸', aux: '庚丁', desc: '季夏土燥木枯，癸水润泽为急，庚丁佐之' },
+    '申': { main: '庚', aux: '丁', desc: '秋金当令，庚金雕木成器，丁火推助炼金。庚为主，丁为辅' },
+    '酉': { main: '庚', aux: '丁丙', desc: '秋深金锐，官星当旺，庚金修剪甲木，丁火暖局解金寒' },
+    '戌': { main: '庚', aux: '甲丁', desc: '戌土燥重，庚金制木为先，甲木疏通，丁火温润。庚为主，丁甲为用' },
+    '亥': { main: '庚', aux: '丁丙', desc: '水旺木浮，庚金制水生木，丁火温暖为急。庚为主，丙丁暖局' },
+    '子': { main: '丁', aux: '庚丙', desc: '仲冬水冷木寒，丁火暖局为第一要务，庚金为佐。丁为主，庚为用' },
+    '丑': { main: '丁', aux: '庚丙', desc: '季冬寒重，丁火暖身解冻为先，庚金修剪残枝。丁为主，庚为辅' }
+  },
+  '乙': {
+    '寅': { main: '丙', aux: '癸', desc: '初春尚寒，乙木柔嫩，丙火照暖催发为先，癸水润根。丙为主，癸为佐' },
+    '卯': { main: '癸', aux: '丙', desc: '建禄之地，木气方盛，癸水润木养根为主，丙火照暖为辅' },
+    '辰': { main: '癸', aux: '丙', desc: '春末土重，癸水润木疏通为先，丙火照暖次之' },
+    '巳': { main: '癸', aux: '丙', desc: '夏火初炎，乙木易枯，非癸水不能调候。癸为主，丙为助' },
+    '午': { main: '癸', aux: '丙丁', desc: '盛夏火炎木枯，癸水解炎救急为主，丙丁火暗藏为辅' },
+    '未': { main: '癸', aux: '丙', desc: '季夏土燥，木根干涸，癸水润培为急，丙火温暖为辅' },
+    '申': { main: '丙', aux: '癸', desc: '秋金克木，丙火制金护木为主，癸水润根。丙为主，癸为佐' },
+    '酉': { main: '丙', aux: '癸', desc: '秋深金旺杀重，丙火制杀护身为急，癸水化金生木' },
+    '戌': { main: '癸', aux: '丙', desc: '戌土燥重，木气受困，癸水润燥通根为主，丙火温养为辅' },
+    '亥': { main: '丙', aux: '戊', desc: '冬水寒木，非丙火不能发荣。丙为主，戊土制水为佐' },
+    '子': { main: '丙', aux: '', desc: '水冷木寒，丙火为第一要务，无丙则木不发' },
+    '丑': { main: '丙', aux: '', desc: '季冬寒重，丙火暖身解冻为先，无丙则生机不显' }
+  },
+  '丙': {
+    '寅': { main: '壬', aux: '庚', desc: '春初火相未旺，壬水制炎为急，庚金为水源。壬为主，庚为辅' },
+    '卯': { main: '壬', aux: '', desc: '木旺火相，壬水调济为急，不可缺水' },
+    '辰': { main: '壬', aux: '甲', desc: '土重晦光，壬水解燥为先，甲木疏土。壬为主，甲为用' },
+    '巳': { main: '壬', aux: '癸庚', desc: '火临禄旺之地，烈焰腾空，非壬水不能解炎。壬为主，庚金发源' },
+    '午': { main: '壬', aux: '庚', desc: '阳刃当令，火势冲天，壬水救局急用。壬为主，庚金为水源' },
+    '未': { main: '壬', aux: '庚', desc: '火土相炎，壬水解燥救急，庚金发源。壬为主，庚为用' },
+    '申': { main: '壬', aux: '戊', desc: '秋金生水，壬水通源为用。壬为主，戊土防壬泛滥' },
+    '酉': { main: '壬', aux: '', desc: '秋深金旺，财星当令，壬水为用调候。壬水不可少' },
+    '戌': { main: '甲', aux: '壬', desc: '火库燥土，甲木疏土为先，壬水解燥。甲为主，壬为辅' },
+    '亥': { main: '甲', aux: '壬戊庚', desc: '水旺火绝，甲木生火为第一要务。甲为主，戊土制水为辅' },
+    '子': { main: '壬', aux: '戊', desc: '正官当令，水旺火熄，壬戊并用取平衡。壬戊为主' },
+    '丑': { main: '壬', aux: '甲', desc: '寒土晦火，壬水解冻为先，甲木疏土。壬为主，甲为用' }
+  },
+  '丁': {
+    '寅': { main: '甲', aux: '庚', desc: '春木生火，甲木为丁火之源，庚金劈甲引火。甲为主，庚为佐' },
+    '卯': { main: '庚', aux: '甲', desc: '木多火塞，庚金劈木引丁为急。庚为主，甲为佐' },
+    '辰': { main: '甲', aux: '庚', desc: '土重晦光，甲木疏土引火为先，庚金劈甲。甲为主，庚为用' },
+    '巳': { main: '甲', aux: '庚', desc: '帝旺之地，火势炎炎，甲木为源，庚金劈甲引丁。甲为主，庚为辅' },
+    '午': { main: '壬', aux: '庚癸', desc: '建禄火炎，壬水解炎救急为主，庚金发源为佐' },
+    '未': { main: '甲', aux: '庚壬', desc: '火退气渐衰，甲木扶助为先，庚壬配合为用' },
+    '申': { main: '甲', aux: '庚丙', desc: '金旺晦火，甲木生扶为要，庚金劈甲引丁。甲为主，丙为辅' },
+    '酉': { main: '甲', aux: '庚丙', desc: '金多火熄，偏财当令，甲木扶身为急。甲为主，丙暖为辅' },
+    '戌': { main: '甲', aux: '庚戊', desc: '火库被晦，甲木疏通为先，庚戊配合为用' },
+    '亥': { main: '甲', aux: '庚', desc: '官星当令，水旺火绝，甲木生丁为救命之物。甲为主，庚为辅' },
+    '子': { main: '甲', aux: '庚', desc: '七杀当权，冬水灭火，甲木为第一要务。甲为主，庚劈甲引丁' },
+    '丑': { main: '甲', aux: '庚', desc: '寒土晦光，甲庚同用。甲疏土生火，庚劈甲引丁' }
+  },
+  '戊': {
+    '寅': { main: '丙', aux: '甲癸', desc: '七杀当令，春木克土，丙火化杀生身为急。丙为主，甲癸为辅' },
+    '卯': { main: '丙', aux: '甲癸', desc: '正官当令，木旺土虚，丙火通关化木生土。丙为主，甲癸为辅' },
+    '辰': { main: '甲', aux: '癸丙', desc: '比肩当令，土重壅塞，甲木疏土为先。甲为主，癸丙配合' },
+    '巳': { main: '壬', aux: '甲丙', desc: '印星当令，火炎土燥，壬水调候为先。壬为主，甲丙为辅' },
+    '午': { main: '壬', aux: '甲丙', desc: '火旺土焦，印星过旺，壬水调候为急。壬为主，甲木疏土' },
+    '未': { main: '癸', aux: '丙甲', desc: '劫财当令，燥土难生，癸水润泽为先。癸为主，丙甲佐之' },
+    '申': { main: '丙', aux: '癸甲', desc: '食神泄气，金旺土虚，丙火生扶为要。丙为主，癸润为辅' },
+    '酉': { main: '丙', aux: '癸', desc: '伤官当令，金多泄土，丙火为第一要务。丙为主，癸为助' },
+    '戌': { main: '甲', aux: '丙癸', desc: '比肩当令，燥土重实，甲木疏通为先。甲为主，丙癸配合' },
+    '亥': { main: '甲', aux: '丙', desc: '偏财当令，水旺土荡，甲木制水固土为先。甲为主，丙火暖局' },
+    '子': { main: '丙', aux: '甲', desc: '正财当令，水冷土寒，丙火暖局生身为急。丙为主，甲为辅' },
+    '丑': { main: '丙', aux: '甲', desc: '劫财当令，寒土凝结，丙火解冻暖身。丙为主，甲木疏土' }
+  },
+  '己': {
+    '寅': { main: '丙', aux: '庚甲', desc: '正官当令，春木克土，丙火化官生身为要。丙为主，庚甲为辅' },
+    '卯': { main: '甲', aux: '丙癸', desc: '七杀当令，木旺土倾，甲木疏泄为先。甲为主，丙癸为辅' },
+    '辰': { main: '丙', aux: '甲癸', desc: '劫财当令，土湿气重，丙火暖局为急。丙为主，甲癸佐之' },
+    '巳': { main: '癸', aux: '丙', desc: '印星当令，火炎土燥，癸水润泽调候为先。癸为主，丙为辅' },
+    '午': { main: '癸', aux: '丙', desc: '偏印当令，火旺土焦，癸水解燥救急。癸为主，丙火温养为辅' },
+    '未': { main: '癸', aux: '丙', desc: '比肩当令，燥土难生，癸水润泽为急。癸为主，丙为辅' },
+    '申': { main: '丙', aux: '癸', desc: '伤官当令，金泄土气，丙火生扶为主。丙为主，癸润为辅' },
+    '酉': { main: '丙', aux: '癸', desc: '食神当令，金多泄土，丙火暖局生身。丙为主，癸为辅' },
+    '戌': { main: '甲', aux: '丙癸', desc: '劫财当令，燥土壅塞，甲木疏劈为先。甲为主，丙癸配合' },
+    '亥': { main: '丙', aux: '甲', desc: '正财当令，水冷土寒，丙火暖局为急。丙为主，甲为辅' },
+    '子': { main: '丙', aux: '甲戊', desc: '三冬己土，非丙暖不生。壬水太旺，取戊土制之。土多，取甲木疏之' },
+    '丑': { main: '丙', aux: '甲', desc: '比肩当令，寒土冰结，丙火解冻暖局。丙为主，甲疏土为辅' }
+  },
+  '庚': {
+    '寅': { main: '丁', aux: '甲丙', desc: '偏财当令，春木旺而金囚，丁火炼金为主，甲木为辅' },
+    '卯': { main: '丁', aux: '甲丙', desc: '正财当令，木坚金缺，丁火制木护金为急。丁为主，甲丙为辅' },
+    '辰': { main: '甲', aux: '丁壬', desc: '偏印当令，土重埋金，甲木疏土为先。甲为主，丁火炼金' },
+    '巳': { main: '壬', aux: '丙戊', desc: '七杀当令，火旺熔金，壬水救急为第一要务。壬为主，丙戊为辅' },
+    '午': { main: '壬', aux: '癸', desc: '正官当令，烈火熔金，壬水救金不熔。壬为主，癸为辅' },
+    '未': { main: '壬', aux: '甲丁', desc: '正印当令，燥土脆金，壬水润局为急。壬为主，甲丁为辅' },
+    '申': { main: '丁', aux: '甲', desc: '比肩当令，金临禄旺，丁火炼金成器。丁为主，甲木为辅' },
+    '酉': { main: '丁', aux: '甲丙', desc: '阳刃当令，金气过旺，丁火锻炼为先。丁为主，甲丙为辅' },
+    '戌': { main: '甲', aux: '壬', desc: '偏印当令，燥土埋金，甲木疏土为要。甲为主，壬水润局' },
+    '亥': { main: '丁', aux: '丙', desc: '食神当令，水冷金寒，丁火暖局为先。丁为主，丙火为助' },
+    '子': { main: '丁', aux: '甲丙', desc: '伤官当令，水旺金沉，丁火暖身为急。丁为主，甲丙为辅' },
+    '丑': { main: '丙', aux: '丁甲', desc: '正印当令，寒土埋金，丙火暖局为先。丙为主，丁甲为辅' }
+  },
+  '辛': {
+    '寅': { main: '己', aux: '壬庚', desc: '正财当令，春木旺而金弱，己土生金为先。己为主，壬庚为辅' },
+    '卯': { main: '壬', aux: '甲', desc: '偏财当令，木坚金缺，壬水通关润金。壬为主，甲为辅' },
+    '辰': { main: '壬', aux: '甲', desc: '正印当令，土重埋金，壬水淘洗为先。壬为主，甲木疏土' },
+    '巳': { main: '壬', aux: '甲癸', desc: '正官当令，火旺熔金，壬水救急解炎。壬为主，甲癸为辅' },
+    '午': { main: '壬', aux: '己癸', desc: '七杀当令，烈火熔金，壬水解炎救急。壬为主，己癸为辅' },
+    '未': { main: '壬', aux: '庚甲', desc: '偏印当令，燥土脆金，壬水润局为先。壬为主，庚甲为辅' },
+    '申': { main: '壬', aux: '甲', desc: '劫财当令，金多水浊，壬水淘洗为急。壬为主，甲木为辅' },
+    '酉': { main: '壬', aux: '甲', desc: '比肩当令，金气过重，壬水泄金之秀。壬为主，甲木为辅' },
+    '戌': { main: '壬', aux: '甲', desc: '正印当令，燥土埋金，壬水润局为先。壬为主，甲木疏土' },
+    '亥': { main: '壬', aux: '丙', desc: '伤官当令，水冷金寒，壬水淘洗为主，丙火暖局为辅' },
+    '子': { main: '丙', aux: '壬甲', desc: '食神当令，水旺金沉，丙火暖局为急。丙为主，壬甲为辅' },
+    '丑': { main: '丙', aux: '壬甲', desc: '偏印当令，寒土冻金，丙火解冻暖局。丙为主，壬甲为辅' }
+  },
+  '壬': {
+    '寅': { main: '庚', aux: '丙戊', desc: '食神当令，春木泄水，庚金发源为急。庚为主，丙戊为辅' },
+    '卯': { main: '戊', aux: '辛庚', desc: '伤官当令，木旺水浅，戊土制水归流为先。戊为主，辛庚发源' },
+    '辰': { main: '甲', aux: '庚', desc: '七杀当令，水库土壅，甲木疏土泄水。甲为主，庚金发源' },
+    '巳': { main: '壬', aux: '辛庚', desc: '偏财当令，火旺水涸，壬水帮身为急。壬为主，辛庚为辅' },
+    '午': { main: '癸', aux: '庚辛', desc: '正财当令，火炎水干，癸水解炎为先。癸为主，庚辛发源' },
+    '未': { main: '辛', aux: '甲', desc: '正官当令，土燥水涸，辛金发源为急。辛为主，甲木疏土' },
+    '申': { main: '戊', aux: '丁', desc: '偏印当令，金水相生，戊土堤防为先。戊为主，丁佐之' },
+    '酉': { main: '甲', aux: '庚', desc: '正印当令，金多水浊，甲木泄水为用。甲为主，庚金为辅' },
+    '戌': { main: '甲', aux: '丙', desc: '七杀当令，土燥水涸，甲木疏土为先。甲为主，丙火暖局' },
+    '亥': { main: '戊', aux: '丙庚', desc: '比肩当令，水旺泛滥，戊土堤防为急。戊为主，丙庚为辅' },
+    '子': { main: '戊', aux: '丙', desc: '阳刃当令，水势滔天，戊土堤防为主。戊为主，丙火暖局' },
+    '丑': { main: '丙', aux: '丁甲', desc: '正官当令，寒水冰结，丙火解冻暖局。丙为主，丁甲为辅' }
+  },
+  '癸': {
+    '寅': { main: '辛', aux: '丙', desc: '伤官当令，春木泄水，辛金发源为先。辛为主，丙火暖局' },
+    '卯': { main: '庚', aux: '辛', desc: '食神当令，木盛水浅，庚金发源为急。庚为主，辛金助之' },
+    '辰': { main: '辛', aux: '甲', desc: '正官当令，水库壅塞，辛金发源流通。辛为主，甲木疏土' },
+    '巳': { main: '辛', aux: '壬', desc: '正财当令，火旺水涸，辛金发源为先。辛为主，壬水帮身' },
+    '午': { main: '庚', aux: '壬癸', desc: '偏财当令，火炎水干，庚金发源为急。庚为主，壬癸帮身' },
+    '未': { main: '庚', aux: '辛壬', desc: '七杀当令，燥土干涸，庚金为水源。庚为主，辛壬为辅' },
+    '申': { main: '丁', aux: '甲', desc: '正印当令，金多水浊，丁火制金为先。丁为主，甲木为辅' },
+    '酉': { main: '辛', aux: '丙', desc: '偏印当令，金重水涩，辛金发源通流。辛为主，丙火暖局' },
+    '戌': { main: '辛', aux: '甲壬', desc: '正官当令，燥土塞水，辛金发源为先。辛为主，甲疏壬辅' },
+    '亥': { main: '庚', aux: '辛戊', desc: '劫财当令，水旺需庚金为源。庚为主，辛戊为辅' },
+    '子': { main: '丙', aux: '辛', desc: '比肩当令，水冷冰寒，丙火暖局为第一要务。丙为主，辛为辅' },
+    '丑': { main: '丙', aux: '丁', desc: '七杀当令，冬寒水冻，丙火解冻暖局。丙为主，丁火助暖' }
+  }
+};
+
+// 获取调候用神
+function getTiaoHou(dayGan, monthZhi) {
+  const entry = TIAO_HOU[dayGan] && TIAO_HOU[dayGan][monthZhi];
+  if (!entry) return null;
+  return {
+    mainGan: entry.main,
+    auxGan: entry.aux,
+    description: entry.desc,
+    mainWx: entry.main ? GAN_WU_XING[entry.main.split('')[0]] : null
+  };
+}
+
+// ========== 格局判定（子平真诠） ==========
+// 以月令为主，看月支藏干在天干透出情况确定格局
+function determineGeJu(fourPillars) {
+  const monthZhi = fourPillars.month.zhi;
+  const dayGan = fourPillars.day.gan;
+  const dayWx = GAN_WU_XING[dayGan];
+  const cangGan = ZHI_CANG_GAN[monthZhi];
+
+  // 所有透出的天干
+  const allGans = [
+    fourPillars.year.gan,
+    fourPillars.month.gan,
+    fourPillars.day.gan,
+    fourPillars.hour.gan
+  ];
+
+  // 检查月令藏干哪些在天干透出
+  const touChu = cangGan.filter(g => allGans.includes(g));
+
+  let geJu = null;
+  let geJuType = null;
+
+  // 先检查是否为建禄格/月刃格（月令为日主之禄或羊刃）
+  const luShenZhi = LU_SHEN[dayGan];
+  const yangRenZhi = YANG_REN[dayGan];
+
+  if (monthZhi === luShenZhi) {
+    // 建禄格：月令为日主之禄
+    // 再看透出何干取格
+    if (touChu.length > 0) {
+      const firstTou = touChu[0];
+      const ss = getShiShen(dayGan, firstTou);
+      geJuType = '建禄格';
+      geJu = { type: geJuType, ss: ss, touGan: firstTou };
+    } else {
+      geJuType = '建禄格';
+      geJu = { type: geJuType, ss: null, touGan: null };
+    }
+  } else if (monthZhi === yangRenZhi) {
+    // 月刃格（阳刃格）
+    if (touChu.length > 0) {
+      const firstTou = touChu[0];
+      const ss = getShiShen(dayGan, firstTou);
+      geJuType = '月刃格';
+      geJu = { type: geJuType, ss: ss, touGan: firstTou };
+    } else {
+      geJuType = '月刃格';
+      geJu = { type: geJuType, ss: null, touGan: null };
+    }
+  } else {
+    // 普通格局：以月令透出之十神定格局
+    // 比肩劫财不入格，需过滤后再取透干
+    const validTouChu = touChu.filter(g => {
+      const s = getShiShen(dayGan, g);
+      return s !== '比肩' && s !== '劫财';
+    });
+    if (validTouChu.length > 0) {
+      const firstTou = validTouChu[0];
+      const ss = getShiShen(dayGan, firstTou);
+      const geJuMap = {
+        '正官': '正官格', '偏官': '七杀格',
+        '正印': '正印格', '偏印': '偏印格',
+        '正财': '正财格', '偏财': '偏财格',
+        '食神': '食神格', '伤官': '伤官格'
+      };
+      geJuType = geJuMap[ss] || (ss + '格');
+      geJu = { type: geJuType, ss: ss, touGan: firstTou };
+    } else {
+      // 月令不透（或只透比劫），以月令本气取格
+      const benQi = cangGan[0];
+      const ss = getShiShen(dayGan, benQi);
+      const geJuMap = {
+        '正官': '正官格', '偏官': '七杀格',
+        '正印': '正印格', '偏印': '偏印格',
+        '正财': '正财格', '偏财': '偏财格',
+        '食神': '食神格', '伤官': '伤官格',
+        '比肩': '建禄格', '劫财': '月刃格'
+      };
+      geJuType = geJuMap[ss] || (ss + '格');
+      geJu = { type: geJuType, ss: ss, touGan: benQi, hidden: true };
+    }
+  }
+
+  return {
+    ...geJu,
+    monthZhi,
+    cangGan,
+    touChu,
+    isJianLu: geJuType === '建禄格',
+    isYueRen: geJuType === '月刃格'
+  };
+}
+
+// ========== 特殊组合分析 ==========
+function analyzeSpecialCombinations(fourPillars, shiShen) {
+  const dayGan = fourPillars.day.gan;
+  const combinations = [];
+
+  // 天干十神列表
+  const ganShiShen = [
+    { pos: '年干', gan: fourPillars.year.gan, ss: shiShen.year.gan },
+    { pos: '月干', gan: fourPillars.month.gan, ss: shiShen.month.gan },
+    { pos: '日干', gan: fourPillars.day.gan, ss: '日主' },
+    { pos: '时干', gan: fourPillars.hour.gan, ss: shiShen.hour.gan }
+  ];
+
+  // 1. 枭印夺食：偏印 + (食神或伤官)同现
+  const hasPianYin = ganShiShen.filter(g => g.ss === '偏印');
+  const hasShiShang = ganShiShen.filter(g => g.ss === '食神' || g.ss === '伤官');
+  if (hasPianYin.length > 0 && hasShiShang.length > 0) {
+    for (const py of hasPianYin) {
+      for (const ss2 of hasShiShang) {
+        if (py.pos !== ss2.pos) {
+          const ssName = ss2.ss === '食神' ? '食神' : '伤官';
+          combinations.push({
+            name: '枭印夺食',
+            severity: 'high',
+            description: `${py.pos}${py.gan}（偏印）克制${ss2.pos}${ss2.gan}（${ssName}），为枭印夺食。才华难展、福气受损，思路容易受限，需注意情绪管理。`,
+            solution: '若有偏财透出可制枭护食，或走财运通关化解。',
+            involved: [py, ss2]
+          });
+        }
+      }
+    }
+  }
+
+  // 2. 伤官见官：伤官 + 正官同现
+  const hasShangGuan = ganShiShen.filter(g => g.ss === '伤官');
+  const hasZhengGuan = ganShiShen.filter(g => g.ss === '正官');
+  if (hasShangGuan.length > 0 && hasZhengGuan.length > 0) {
+    for (const sg of hasShangGuan) {
+      for (const zg of hasZhengGuan) {
+        if (sg.pos !== zg.pos) {
+          combinations.push({
+            name: '伤官见官',
+            severity: 'medium',
+            description: `${sg.pos}${sg.gan}（伤官）与${zg.pos}${zg.gan}（正官）并见。伤官克官，主叛逆不服管束，事业易有波折，人际关系需谨慎处理。`,
+            solution: '若有印星透出制伤护官，可化解此病。',
+            involved: [sg, zg]
+          });
+        }
+      }
+    }
+  }
+
+  // 3. 财星坏印：正/偏财克正/偏印
+  const hasCai = ganShiShen.filter(g => g.ss === '正财' || g.ss === '偏财');
+  const hasYin = ganShiShen.filter(g => g.ss === '正印' || g.ss === '偏印');
+  if (hasCai.length > 0 && hasYin.length > 0) {
+    for (const c of hasCai) {
+      for (const y of hasYin) {
+        if (c.pos !== y.pos) {
+          combinations.push({
+            name: '财星坏印',
+            severity: 'medium',
+            description: `${c.pos}${c.gan}（财星）克制${y.pos}${y.gan}（印星），为财坏印。印主学业、名誉、靠山，被财所坏容易因利益损名誉，读书期间易分心。`,
+            solution: '若有官星通关（财生官、官生印），或比劫制财护印可解。',
+            involved: [c, y]
+          });
+        }
+      }
+    }
+  }
+
+  // 4. 官杀混杂：正官 + 偏官同现
+  if (hasZhengGuan.length > 0) {
+    const hasPianGuan = ganShiShen.filter(g => g.ss === '偏官');
+    if (hasPianGuan.length > 0) {
+      combinations.push({
+        name: '官杀混杂',
+        severity: 'medium',
+        description: '正官与偏官（七杀）并见，事业上容易面临多重压力，选择困难，需分清主次、专注一处。',
+        solution: '去官留杀或去杀留官，以印化杀或食神制杀，取清为贵。',
+        involved: [...hasZhengGuan, ...hasPianGuan]
+      });
+    }
+  }
+
+  // 5. 食神制杀：食神克制七杀（吉）
+  const hasShiShen2 = ganShiShen.filter(g => g.ss === '食神');
+  if (hasShiShen2.length > 0) {
+    const hasPianGuan2 = ganShiShen.filter(g => g.ss === '偏官');
+    if (hasPianGuan2.length > 0) {
+      combinations.push({
+        name: '食神制杀',
+        severity: 'good',
+        description: '食神制七杀，以才华智慧驾驭权力压力，是成大事之象。有魄力有手段，能化压力为动力。',
+        solution: '',
+        involved: [...hasShiShen2, ...hasPianGuan2]
+      });
+    }
+  }
+
+  // 6. 杀印相生：七杀生印、印生身（吉）
+  if (hasYin.length > 0) {
+    const hasPianGuan3 = ganShiShen.filter(g => g.ss === '偏官');
+    if (hasPianGuan3.length > 0) {
+      combinations.push({
+        name: '杀印相生',
+        severity: 'good',
+        description: '七杀生印、印再生身，压力化为动力，又有贵人扶持，是掌权柄之象。',
+        solution: '',
+        involved: [...hasYin, ...hasPianGuan3]
+      });
+    }
+  }
+
+  // 7. 伤官生财：伤官生财星（吉）
+  if (hasShangGuan.length > 0 && hasCai.length > 0) {
+    combinations.push({
+      name: '伤官生财',
+      severity: 'good',
+      description: '伤官才华转化为财星，靠技术和创意赚钱，是以技艺致富之路。',
+      solution: '',
+      involved: [...hasShangGuan, ...hasCai]
+    });
+  }
+
+  // 8. 财官相生：财生官（吉）
+  if (hasCai.length > 0 && hasZhengGuan.length > 0) {
+    combinations.push({
+      name: '财官相生',
+      severity: 'good',
+      description: '财生官，事业因财富而得提升，适合走正规职业发展道路，有名有利。',
+      solution: '',
+      involved: [...hasCai, ...hasZhengGuan]
+    });
+  }
+
+  // 去重
+  const seen = new Set();
+  return combinations.filter(c => {
+    const key = c.name;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+// ========== 综合用神分析（整合调候+格局+强弱） ==========
+function analyzeYongShen(fourPillars, dayStrength, shiShen, tiaoHou) {
+  const dayGan = fourPillars.day.gan;
+  const dayWx = GAN_WU_XING[dayGan];
+  const monthZhi = fourPillars.month.zhi;
+  const strength = dayStrength.strength;
+
+  // 1. 调候用神（第一优先）
+  let tiaoHouYongShen = null;
+  let tiaoHouWx = null;
+  if (tiaoHou) {
+    tiaoHouYongShen = tiaoHou.mainGan;
+    tiaoHouWx = tiaoHou.mainWx;
+  }
+
+  // 2. 格局用神
+  const geJu = determineGeJu(fourPillars);
+  let geJuYongShen = null;
+
+  if (geJu.type === '正官格') {
+    geJuYongShen = { ss: '正印', wx: WU_XING_BEI_SHENG[dayWx], desc: '正官格喜印护官、喜财生官' };
+  } else if (geJu.type === '七杀格') {
+    geJuYongShen = { ss: '食神', wx: WU_XING_SHENG[dayWx], desc: '七杀格喜食神制杀、喜印化杀' };
+  } else if (geJu.type === '正财格') {
+    geJuYongShen = { ss: '正官', wx: WU_XING_BEI_KE[dayWx], desc: '正财格喜官护财、喜食伤生财' };
+  } else if (geJu.type === '偏财格') {
+    geJuYongShen = { ss: '正官', wx: WU_XING_BEI_KE[dayWx], desc: '偏财格喜官护财、喜食伤生财' };
+  } else if (geJu.type === '正印格') {
+    geJuYongShen = { ss: '正官', wx: WU_XING_BEI_KE[dayWx], desc: '正印格喜官生印、忌财坏印' };
+  } else if (geJu.type === '偏印格') {
+    geJuYongShen = { ss: '偏财', wx: WU_XING_KE[dayWx], desc: '偏印格喜财制枭、忌食神被夺' };
+  } else if (geJu.type === '食神格') {
+    geJuYongShen = { ss: '偏财', wx: WU_XING_KE[dayWx], desc: '食神格喜生财、忌偏印夺食' };
+  } else if (geJu.type === '伤官格') {
+    geJuYongShen = { ss: '正印', wx: WU_XING_BEI_SHENG[dayWx], desc: '伤官格喜印制伤护官、喜财泄伤' };
+  } else if (geJu.type === '建禄格') {
+    geJuYongShen = { ss: '正官', wx: WU_XING_BEI_KE[dayWx], desc: '建禄格喜官杀制、喜财生官、喜食伤泄秀' };
+  } else if (geJu.type === '月刃格') {
+    geJuYongShen = { ss: '正官', wx: WU_XING_BEI_KE[dayWx], desc: '月刃格喜官杀制刃、忌冲刃' };
+  }
+
+  // 3. 强弱用神（扶抑）
+  let strengthYongShen = null;
+  if (['身强', '偏强'].includes(strength)) {
+    // 身强宜克泄耗：官杀 > 食伤 > 财
+    strengthYongShen = {
+      main: WU_XING_BEI_KE[dayWx] || WU_XING_KE[dayWx],
+      alt: WU_XING_SHENG[dayWx],
+      desc: '身强喜克泄耗，以官杀制身、食伤泄秀、财星耗身为用'
+    };
+  } else if (['身弱', '偏弱'].includes(strength)) {
+    // 身弱宜生扶：印 > 比劫
+    strengthYongShen = {
+      main: WU_XING_BEI_SHENG[dayWx],
+      alt: dayWx,
+      desc: '身弱喜生扶，以印星生身、比劫帮身为用'
+    };
+  } else {
+    strengthYongShen = {
+      main: WU_XING_SHENG[dayWx] || WU_XING_BEI_SHENG[dayWx],
+      alt: dayWx,
+      desc: '中和偏灵活，顺势取用'
+    };
+  }
+
+  // === 综合优先级 ===
+  // 1. 调候为急（优先于一切）
+  // 2. 格局用神
+  // 3. 强弱扶抑
+  // 4. 特殊组合通关
+
+  const priority = [];
+  let mainYongShenWx = null;
+
+  if (tiaoHouWx) {
+    priority.push({
+      priority: 1,
+      source: '调候（穷通宝鉴）',
+      wx: tiaoHouWx,
+      gan: tiaoHouYongShen,
+      desc: tiaoHou ? tiaoHou.description : ''
+    });
+    mainYongShenWx = tiaoHouWx;
+  }
+
+  if (geJuYongShen) {
+    priority.push({
+      priority: 2,
+      source: '格局（子平真诠）',
+      wx: geJuYongShen.wx,
+      ss: geJuYongShen.ss,
+      desc: geJuYongShen.desc
+    });
+    if (!mainYongShenWx) mainYongShenWx = geJuYongShen.wx;
+  }
+
+  if (strengthYongShen) {
+    priority.push({
+      priority: 3,
+      source: '扶抑（强弱平衡）',
+      wx: strengthYongShen.main,
+      altWx: strengthYongShen.alt,
+      desc: strengthYongShen.desc
+    });
+    if (!mainYongShenWx) mainYongShenWx = strengthYongShen.main;
+  }
+
+  return {
+    mainYongShenWx,
+    priority,
+    tiaoHou,
+    geJu,
+    strengthYongShen
+  };
+}
+
+
 // === src/analysis/report.js ===
 
 // 日柱性格描述
@@ -1455,25 +2231,28 @@ function generateReport(result) {
   // ===== 一、命主概述 =====
   sections.push(genOverview(result));
 
-  // ===== 二、性格特征 =====
+  // ===== 二、格局与用神 =====
+  sections.push(genGeJuAndYongShen(result));
+
+  // ===== 三、性格特征 =====
   sections.push(genPersonality(result));
 
-  // ===== 三、事业方向 =====
+  // ===== 四、事业方向 =====
   sections.push(genCareer(result));
 
-  // ===== 四、财运分析 =====
+  // ===== 五、财运分析 =====
   sections.push(genWealth(result));
 
-  // ===== 五、感情婚姻 =====
+  // ===== 六、感情婚姻 =====
   sections.push(genRelationship(result));
 
-  // ===== 六、健康提醒 =====
+  // ===== 七、健康提醒 =====
   sections.push(genHealth(result));
 
-  // ===== 七、大运走势 =====
+  // ===== 八、大运走势 =====
   sections.push(genDaYunTrend(result));
 
-  // ===== 八、开运建议 =====
+  // ===== 九、开运建议 =====
   sections.push(genSuggestions(result));
 
   return formatReport(sections, result);
@@ -1505,7 +2284,8 @@ function genOverview(result) {
 
   // 提及重要神煞
   const importantShenSha = result.shenSha.filter(s =>
-    ['天乙贵人', '文昌贵人', '驿马', '禄神', '羊刃'].includes(s.name)
+    ['天乙贵人', '文昌贵人', '驿马', '禄神', '羊刃', '天德贵人', '月德贵人',
+     '太极贵人', '福星贵人', '学堂', '词馆', '红鸾', '天喜', '金舆', '将星'].includes(s.name)
   );
   if (importantShenSha.length > 0) {
     const names = [...new Set(importantShenSha.map(s => s.name))];
@@ -1522,7 +2302,84 @@ function getShenShaOverview(names) {
   if (names.includes('驿马')) parts.push('一生多动多走动');
   if (names.includes('禄神')) parts.push('能靠自身能力立足');
   if (names.includes('羊刃')) parts.push('性格刚强有魄力');
+  if (names.includes('天德贵人') || names.includes('月德贵人')) parts.push('灾祸不侵贵人扶助');
+  if (names.includes('太极贵人')) parts.push('喜钻研有玄学天赋');
+  if (names.includes('福星贵人')) parts.push('福气深厚衣食无忧');
+  if (names.includes('学堂') || names.includes('词馆')) parts.push('学业优秀文采出众');
+  if (names.includes('红鸾') || names.includes('天喜')) parts.push('婚恋顺利喜事临门');
+  if (names.includes('金舆')) parts.push('出行得助有车马之福');
+  if (names.includes('将星')) parts.push('有领导才能和权威');
   return parts.join('，');
+}
+
+function genGeJuAndYongShen(result) {
+  const dayGan = result.fourPillars.day.gan;
+  const dayWx = GAN_WU_XING[dayGan];
+  const geJu = result.geJu;
+  const yongShen = result.yongShen;
+  const tiaoHou = result.tiaoHou;
+  const combos = result.specialCombinations || [];
+  const strength = result.dayStrength;
+
+  const lines = [];
+
+  // 格局
+  const geJuLabel = geJu.type || '未定';
+  let geJuDesc = `月令${geJu.monthZhi}`;
+  if (geJu.touChu && geJu.touChu.length > 0) {
+    geJuDesc += `，藏干${geJu.cangGan.join('、')}，透出${geJu.touChu.join('、')}，`;
+  } else {
+    geJuDesc += `，藏干${geJu.cangGan.join('、')}，不透天干，`;
+  }
+  geJuDesc += `取【${geJuLabel}】。`;
+
+  if (geJu.isJianLu) {
+    geJuDesc += '建禄格日主得月令禄根，自身力量不弱，喜官杀制、食伤泄。';
+  } else if (geJu.isYueRen) {
+    geJuDesc += '月刃格日主极旺，刃为凶物，喜官杀制刃为用。';
+  } else if (geJu.hidden) {
+    geJuDesc += '因月令不透天干，以本气取格。';
+  }
+  lines.push(geJuDesc);
+
+  // 调候
+  if (tiaoHou) {
+    lines.push('');
+    lines.push(`【调候分析】日主${dayGan}生于${result.fourPillars.month.zhi}月，${tiaoHou.description}。`);
+    lines.push(`调候用神取【${tiaoHou.mainGan}】(${tiaoHou.mainWx})——这是命局的第一需要，优先于其他取用。`);
+  }
+
+  // 特殊组合
+  if (combos.length > 0) {
+    lines.push('');
+    lines.push('【特殊组合】');
+    for (const c of combos) {
+      const icon = c.severity === 'good' ? '✓' : c.severity === 'high' ? '⚠' : '○';
+      lines.push(`${icon} ${c.name}：${c.description}`);
+      if (c.solution) {
+        lines.push(`  化解：${c.solution}`);
+      }
+    }
+  }
+
+  // 用神综合分析
+  if (yongShen && yongShen.priority) {
+    lines.push('');
+    lines.push('【用神综合分析】');
+    lines.push(`主用神五行：【${yongShen.mainYongShenWx}】`);
+    for (const p of yongShen.priority) {
+      lines.push(`  ${p.priority}. ${p.source} → 取${p.wx}（${p.desc}）`);
+    }
+  }
+
+  // 忌神
+  const jiShen = WU_XING_BEI_KE[yongShen.mainYongShenWx] || '';
+  const chouShen = WU_XING_SHENG[yongShen.mainYongShenWx] || '';
+  if (jiShen) {
+    lines.push(`\n忌神：${jiShen}（克制用神）、${chouShen}（泄耗用神）`);
+  }
+
+  return { title: '格局与用神分析', content: lines.join('\n') };
 }
 
 function genPersonality(result) {
@@ -1555,6 +2412,18 @@ function genPersonality(result) {
   }
   if (ganShiShen.includes('比肩') || ganShiShen.includes('劫财')) {
     lines.push('命中比劫透出，社交能力强，重情重义，但也要注意把握好合作中的主次关系。');
+  }
+
+  // 根据神煞补充
+  const shenShaNames = result.shenSha.map(s => s.name);
+  if (shenShaNames.includes('学堂') || shenShaNames.includes('词馆')) {
+    lines.push('命带学堂/词馆，天生聪慧，学习能力强，文采出众，适合学术研究和文字工作。');
+  }
+  if (shenShaNames.includes('太极贵人')) {
+    lines.push('命带太极贵人，对哲学、玄学、命理等有天然兴趣和天赋，悟性高。');
+  }
+  if (shenShaNames.includes('福星贵人')) {
+    lines.push('命带福星贵人，天生福气好，一生少有大灾大难，遇事多能化险为夷。');
   }
 
   return { title: '性格特征', content: lines.join('\n') };
@@ -1767,6 +2636,22 @@ function genRelationship(result) {
   if (taohua.length > 0) {
     const thPositions = taohua.map(t => t.position).join('、');
     lines.push(`\n命带桃花（${thPositions}），人缘好、异性缘佳。社交场合容易吸引注意，但婚后需注意保持适当的社交边界。`);
+  }
+
+  // 红鸾天喜
+  const hongluan = result.shenSha.filter(s => s.name === '红鸾');
+  const tianxi = result.shenSha.filter(s => s.name === '天喜');
+  if (hongluan.length > 0 || tianxi.length > 0) {
+    const hlPositions = [...hongluan, ...tianxi].map(t => `${t.name}(${t.position})`).join('、');
+    lines.push(`\n命带${hlPositions}，主婚恋顺利，喜事临门。在感情方面比较容易遇到合适的缘分，婚姻大事相对顺遂。`);
+  }
+
+  // 孤辰寡宿
+  const guchen = result.shenSha.filter(s => s.name === '孤辰');
+  const guasu = result.shenSha.filter(s => s.name === '寡宿');
+  if (guchen.length > 0 || guasu.length > 0) {
+    const goPositions = [...guchen, ...guasu].map(t => `${t.name}(${t.position})`).join('、');
+    lines.push(`\n命带${goPositions}，感情上可能偏晚或偏淡，对独处有天然的需求。建议多主动社交，拓宽交友圈。`);
   }
 
   return { title: '感情婚姻', content: lines.join('\n') };
@@ -1990,28 +2875,26 @@ function analyzeLiuNian(dayGan, dayWx, strengthStr, liuNian, daYun) {
 function genSuggestions(result) {
   const dayGan = result.fourPillars.day.gan;
   const dayWx = GAN_WU_XING[dayGan];
-  const strength = result.dayStrength;
-  const wxCount = result.wuXing.count;
+  const yongShen = result.yongShen;
+  const tiaoHou = result.tiaoHou;
 
-  let yongShenWx;
-  if (['身强', '偏强'].includes(strength.strength)) {
-    yongShenWx = WU_XING_KE[dayWx]; // 财星
-  } else if (['身弱', '偏弱'].includes(strength.strength)) {
-    yongShenWx = WU_XING_BEI_SHENG[dayWx]; // 印星
-  } else {
-    // 中和看缺什么补什么
-    const missing = Object.keys(wxCount).filter(k => wxCount[k] === 0);
-    yongShenWx = missing.length > 0 ? missing[0] : WU_XING_SHENG[dayWx];
-  }
+  const yongShenWx = (yongShen && yongShen.mainYongShenWx) || WU_XING_BEI_SHENG[dayWx];
 
   const lines = [];
 
-  lines.push(`根据命局分析，你的喜用五行为【${yongShenWx}】，在生活中可以适当增加${yongShenWx}的元素：`);
+  lines.push(`根据调候、格局、强弱综合判断，你的主用神五行为【${yongShenWx}】：`);
   lines.push('');
   lines.push(`  幸运颜色：${WU_XING_COLOR[yongShenWx]}`);
   lines.push(`  有利方位：${WU_XING_DIRECTION[yongShenWx]}`);
   lines.push(`  幸运数字：${WU_XING_NUMBER[yongShenWx]}`);
   lines.push(`  适合行业：${WU_XING_CAREER[yongShenWx]}`);
+
+  // 如果有调候需要，额外提示
+  if (tiaoHou && tiaoHou.mainWx !== yongShenWx) {
+    lines.push('');
+    lines.push(`调候提示：日主${dayGan}生于${result.fourPillars.month.zhi}月，需${tiaoHou.mainGan}(${tiaoHou.mainWx})调候，在生活环境中可兼顾此五行。`);
+  }
+
   lines.push('');
   lines.push('提示：以上为基础分析，仅供参考。命理讲究"命运在自己手中"，了解自己的优势和不足，扬长避短，才是命理的真正价值。');
   lines.push('');
@@ -2030,9 +2913,10 @@ function formatReport(sections, result) {
   lines.push('╚═══════════════════════════════════════════════════╝');
   lines.push('');
 
+  const nums = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
   for (let i = 0; i < sections.length; i++) {
     const s = sections[i];
-    const num = ['一', '二', '三', '四', '五', '六', '七', '八'][i];
+    const num = nums[i] || (i + 1);
     lines.push(`━━━ ${num}、${s.title} ━━━`);
     lines.push('');
     lines.push(s.content);
@@ -2052,8 +2936,331 @@ function formatReport(sections, result) {
 
 
 
+// === src/utils/lunar.js ===
+// 农历转换（用于称骨等需要农历月日的场景）
+// 1900-2100 年农历数据：每年一个整数，低4位=闰月(0=无闰)，bit4-15依次为正月到十二月的大小月(1=30天,0=29天)
+var LUNAR_INFO = [
+  0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+  0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+  0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+  0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+  0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+  0x06ca0,0x0b550,0x15355,0x04d70,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa3,
+  0x0aea0,0x0ab50,0x04b60,0x1aae4,0x0a570,0x14e50,0x05260,0x0f263,0x0d950,0x05b57,
+  0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a3,
+  0x195a0,0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,
+  0x09570,0x092e0,0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,
+  0x092d0,0x0cab5,0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,
+  0x052b0,0x0a930,0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,
+  0x0ea65,0x0d530,0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,
+  0x0d520,0x0dd45,0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,
+  0x06d20,0x0ada0,0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,
+  0x1a6c4,0x0aae0,0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,
+  0x0a6d0,0x055d4,0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,
+  0x0a5b0,0x052b0,0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,
+  0x054e4,0x0d160,0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a4d0,
+  0x0d150,0x0f252,0x0d520
+];
+
+function solarToLunar(year, month, day) {
+  var CHN_MONTH = { '正月':1,'二月':2,'三月':3,'四月':4,'五月':5,'六月':6,'七月':7,'八月':8,'九月':9,'十月':10,'十一月':11,'腊月':12,'十二月':12 };
+  var fmt = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
+    year: 'numeric', month: 'numeric', day: 'numeric'
+  });
+  var date = new Date(year, month - 1, day, 12, 0, 0);
+  // 先用 formatToParts（更可靠）
+  if (fmt.formatToParts) {
+    var parts = fmt.formatToParts(date);
+    var ly = 0, lm = 0, ld = 0, leap = false;
+    for (var i = 0; i < parts.length; i++) {
+      var p = parts[i];
+      if (p.type === 'year' || p.type === 'relatedYear') ly = parseInt(p.value);
+      else if (p.type === 'month') {
+        // "正月" 或 "闰四月"
+        var mv = p.value;
+        if (mv.indexOf('闰') === 0) { leap = true; mv = mv.substring(1); }
+        lm = CHN_MONTH[mv] || parseInt(mv);
+      }
+      else if (p.type === 'day') ld = parseInt(p.value);
+    }
+    if (ly && lm && ld) return { year: ly, month: lm, day: ld, isLeap: leap };
+  }
+  // fallback: 正则解析
+  var str = fmt.format(date);
+  var match = str.match(/(\d+)年(闰?)(.+?)月(\d+)/);
+  if (match) {
+    return {
+      year: parseInt(match[1]),
+      month: CHN_MONTH[match[3]] || parseInt(match[3]),
+      day: parseInt(match[4]),
+      isLeap: match[2] === '闰'
+    };
+  }
+  return { year: year, month: month, day: day, isLeap: false };
+}
+
+function lunarYearDays(y) {
+  var info = LUNAR_INFO[y - 1900];
+  var days = 0;
+  for (var m = 1; m <= 12; m++) { days += (info >> (3 + m) & 1) ? 30 : 29; }
+  if (info & 0xf) { days += (info >> 16 & 1) ? 30 : 29; }
+  return days;
+}
+
+function solarMonthDays(y, m) {
+  if (m === 2) return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 29 : 28;
+  return [31, 0, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+}
 
 
+// === src/misc/mansions.js ===
+var ERSHIBA_XIU = [
+  '角','亢','氐','房','心','尾','箕',
+  '斗','牛','女','虚','危','室','壁',
+  '奎','娄','胃','昴','毕','觜','参',
+  '井','鬼','柳','星','张','翼','轸'
+];
+
+function getDayPillar60Index(dayGan, dayZhi) {
+  var ganIdx = TIAN_GAN.indexOf(dayGan);
+  var zhiIdx = DI_ZHI.indexOf(dayZhi);
+  for (var i = 0; i < 60; i++) {
+    if (i % 10 === ganIdx && i % 12 === zhiIdx) return i;
+  }
+  return 0;
+}
+
+// 计算从1900-01-01到给定日期的总天数偏移
+function getDayOffsetFrom1900(year, month, day) {
+  var offset = 0;
+  for (var y = 1900; y < year; y++) {
+    offset += (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365;
+  }
+  for (var m = 1; m < month; m++) {
+    offset += solarMonthDays(year, m);
+  }
+  offset += day - 1;
+  return offset;
+}
+
+function getRiXiu(totalDayOffset) {
+  // 1900-01-01 = 张宿(index 24)，经验证1990-12-10=房宿
+  return ERSHIBA_XIU[(24 + totalDayOffset) % 28];
+}
+
+
+// === src/misc/palaces.js ===
+function calcTaiYuan(monthGan, monthZhi) {
+  var ganIdx = TIAN_GAN.indexOf(monthGan);
+  var zhiIdx = DI_ZHI.indexOf(monthZhi);
+  var tGan = TIAN_GAN[(ganIdx + 1) % 10];
+  var tZhi = DI_ZHI[(zhiIdx + 3) % 12];
+  return { gan: tGan, zhi: tZhi, ganZhi: tGan + tZhi };
+}
+
+function calcTaiXi(dayGan, dayZhi) {
+  var heGan = dayGan;
+  for (var i = 0; i < TIAN_GAN_HE.length; i++) {
+    var pair = TIAN_GAN_HE[i].gan;
+    if (pair[0] === dayGan) { heGan = pair[1]; break; }
+    if (pair[1] === dayGan) { heGan = pair[0]; break; }
+  }
+  var heZhiMap = { '子':'丑','丑':'子','寅':'亥','亥':'寅','卯':'戌','戌':'卯','辰':'酉','酉':'辰','巳':'申','申':'巳','午':'未','未':'午' };
+  var heZhi = heZhiMap[dayZhi] || dayZhi;
+  return { gan: heGan, zhi: heZhi, ganZhi: heGan + heZhi };
+}
+
+function calcMingGong(monthZhi, hourZhi, yearGan) {
+  // 命宫：以子为正月（寅），逆数至生月；再将时支加临其上，顺数至卯
+  var monthIdx = DI_ZHI.indexOf(monthZhi);
+  var hourIdx = DI_ZHI.indexOf(hourZhi);
+  // 子为正月(寅)：寅→子(0), 卯→亥(11), 辰→戌(10)... 逆数
+  var monthBranch = (2 - monthIdx + 12) % 12;
+  // 从时支顺数到卯的步数：子→卯=3步, 丑→卯=2步...
+  var stepsToMao = (3 - hourIdx + 12) % 12;
+  var zhiIdx = (monthBranch + stepsToMao) % 12;
+  var zhi = DI_ZHI[zhiIdx];
+  var gan = getMonthGanFromYear(yearGan, zhi);
+  return { gan: gan, zhi: zhi, ganZhi: gan + zhi };
+}
+
+function calcShenGong(monthZhi, hourZhi, yearGan) {
+  // 身宫：地支 = (时支 + (13 - 月支序) % 12) % 12
+  var monthIdx = DI_ZHI.indexOf(monthZhi);
+  var hourIdx = DI_ZHI.indexOf(hourZhi);
+  var zhiIdx = (hourIdx + (13 - monthIdx)) % 12;
+  var zhi = DI_ZHI[zhiIdx];
+  var gan = getMonthGanFromYear(yearGan, zhi);
+  return { gan: gan, zhi: zhi, ganZhi: gan + zhi };
+}
+
+function getMonthGanFromYear(yearGan, monthZhi) {
+  var yearGanIdx = TIAN_GAN.indexOf(yearGan);
+  var monthZhiIdx = DI_ZHI.indexOf(monthZhi);
+  var startGan = [2, 4, 6, 8, 0, 2, 4, 6, 8, 0][yearGanIdx];
+  var monthOffset = (monthZhiIdx - 2 + 12) % 12;
+  return TIAN_GAN[(startGan + monthOffset) % 10];
+}
+
+
+// === src/misc/kongwang.js ===
+function getKongWang(gan, zhi) {
+  var ganIdx = TIAN_GAN.indexOf(gan);
+  var zhiIdx = DI_ZHI.indexOf(zhi);
+  var xunStartZhi = (zhiIdx - ganIdx + 12) % 12;
+  var kong1 = DI_ZHI[(xunStartZhi + 10) % 12];
+  var kong2 = DI_ZHI[(xunStartZhi + 11) % 12];
+  return { zhi: [kong1, kong2], desc: kong1 + kong2 + '空' };
+}
+
+
+// === src/misc/chenggu.js ===
+var CG_YEAR = {
+  '甲子':0.7,'乙丑':0.9,'丙寅':0.6,'丁卯':0.7,'戊辰':1.2,'己巳':0.5,'庚午':0.9,'辛未':0.8,'壬申':0.7,'癸酉':0.8,
+  '甲戌':0.5,'乙亥':0.9,'丙子':0.8,'丁丑':0.8,'戊寅':0.8,'己卯':1.9,'庚辰':1.2,'辛巳':0.6,'壬午':0.8,'癸未':0.7,
+  '甲申':0.5,'乙酉':1.5,'丙戌':0.6,'丁亥':1.6,'戊子':1.5,'己丑':0.7,'庚寅':0.9,'辛卯':1.2,'壬辰':1.0,'癸巳':0.7,
+  '甲午':1.5,'乙未':0.6,'丙申':0.5,'丁酉':1.4,'戊戌':1.4,'己亥':0.9,'庚子':0.7,'辛丑':0.7,'壬寅':0.9,'癸卯':1.2,
+  '甲辰':0.8,'乙巳':0.7,'丙午':1.3,'丁未':0.5,'戊申':1.4,'己酉':0.5,'庚戌':0.9,'辛亥':1.7,'壬子':0.5,'癸丑':0.7,
+  '甲寅':1.2,'乙卯':0.8,'丙辰':0.8,'丁巳':0.6,'戊午':1.9,'己未':0.6,'庚申':0.8,'辛酉':1.6,'壬戌':1.0,'癸亥':0.7
+};
+var CG_MONTH = { 1:0.6,2:0.7,3:1.8,4:0.9,5:0.5,6:1.6,7:0.9,8:1.5,9:1.8,10:0.8,11:0.9,12:0.5 };
+var CG_DAY = {
+  1:0.5,2:1.0,3:0.8,4:1.5,5:1.0,6:1.5,7:0.8,8:1.6,9:0.8,10:1.6,
+  11:0.9,12:1.7,13:0.8,14:1.7,15:1.0,16:0.8,17:0.9,18:1.8,19:0.5,20:1.0,
+  21:1.0,22:0.9,23:0.8,24:0.9,25:1.5,26:1.8,27:0.7,28:0.8,29:1.6,30:0.6
+};
+var CG_HOUR = {
+  '子':1.6,'丑':0.6,'寅':0.7,'卯':1.0,'辰':0.9,'巳':1.6,'午':1.0,'未':0.8,'申':0.8,'酉':0.9,'戌':0.6,'亥':0.6
+};
+var CG_SCORES = [
+  [2.1,'短命非业谓大凶，平生灾难事重重，凶祸频临陷逆境，终世困苦事不成。'],
+  [2.2,'身寒骨冷苦伶仃，此命推来行乞人，劳劳碌碌无度日，终年打拱过平生。'],
+  [2.3,'此命推来骨格轻，求谋作事事难成，妻儿兄弟应难许，别处他乡作散人。'],
+  [2.4,'此命推来福禄无，门庭困苦总难荣，六亲骨肉皆无靠，流浪他乡作老翁。'],
+  [2.5,'此命推来祖业微，门庭营度似稀奇，六亲骨肉如冰炭，一世勤劳自把持。'],
+  [2.6,'平生衣禄苦中求，独自营谋事不休，离祖出门宜早计，晚来衣禄自无休。'],
+  [2.7,'一生作事少商量，难靠祖宗作主张，独马单枪空做去，早年晚岁总无长。'],
+  [2.8,'一生行事似飘蓬，祖宗产业在梦中，若不过房改名姓，也当移徒二三通。'],
+  [2.9,'初年运限未曾亨，纵有功名在后成，须过四旬才可立，移居改姓始为良。'],
+  [3.0,'劳劳碌碌苦中求，东奔西走何日休，若使终身勤与俭，老来稍可免忧愁。'],
+  [3.1,'忙忙碌碌苦中求，何日云开见日头，难得祖基家可立，中年衣食渐无忧。'],
+  [3.2,'初年运蹇事难谋，渐有财源如水流，到得中年衣食旺，那时名利一齐收。'],
+  [3.3,'早年做事事难成，百年勤劳枉费心，半世自如流水去，后来运到始得金。'],
+  [3.4,'此命福气果如何，僧道门中衣禄多，离祖出家方为妙，终朝拜佛念弥陀。'],
+  [3.5,'生平福量不周全，祖业根基觉少传，营事生涯宜守旧，时来衣食胜从前。'],
+  [3.6,'不须劳碌过平生，独自成家福不轻，早有福星常照命，任君行去百般成。'],
+  [3.7,'此命般般事不成，弟兄少力自孤行，虽然祖业须微有，来得明时去不明。'],
+  [3.8,'一身骨肉最清高，早入簧门姓氏标，待到年将三十六，蓝衫脱去换红袍。'],
+  [3.9,'此命终身运不通，劳劳作事尽皆空，苦心竭力成家计，到得那时在梦中。'],
+  [4.0,'平生衣禄是绵长，件件心中自主张，前面风霜多受过，后来必定享安康。'],
+  [4.1,'此命推来自不同，为人能干异凡庸，中年还有逍遥福，不比前时运未通。'],
+  [4.2,'得宽怀处且宽怀，何用双眉皱不开，若使中年命运济，那时名利一齐来。'],
+  [4.3,'为人心性最聪明，作事轩昂近贵人，衣禄一生天注定，不须劳碌是丰亨。'],
+  [4.4,'万事由天莫苦求，须知福禄赖人修，当年财帛难如意，晚景欣然便不忧。'],
+  [4.5,'名利推求竟若何，前番辛苦后奔波，命中难养男和女，骨肉扶持也不多。'],
+  [4.6,'东西南北尽皆通，出姓移居更觉隆，衣禄无穷无数定，中年晚景一般同。'],
+  [4.7,'此命推求旺末年，妻荣子贵自怡然，平生原有滔滔福，可卜财源若水泉。'],
+  [4.8,'初年运道未曾通，几许蹉跎命亦穷，兄弟六亲无依靠，一生事业晚来丰。'],
+  [4.9,'此命推来福不轻，自成自立显门庭，从来富贵人钦敬，使婢差奴过一生。'],
+  [5.0,'为利为名终日劳，中年福禄也多遭，老来自有财星照，不比前番目下高。'],
+  [5.1,'一世荣华事事通，不须劳碌自亨通，弟兄叔侄皆如意，家业成时福禄宏。'],
+  [5.2,'一世亨通事事能，不须劳苦自然宁，宗族有光欣喜甚，家产丰盈自称心。'],
+  [5.3,'此格推来福泽宏，兴家立业在其中，一生衣食安排定，却是人间一福翁。'],
+  [5.4,'此命详审福泽宏，诗书满腹看功成，丰衣足食多安稳，正是人间有福人。'],
+  [5.5,'走马扬鞭争利名，少年做事费筹论，一朝福禄源源至，富贵荣华显六亲。'],
+  [5.6,'此格推来礼义通，一身福禄用无穷，甜酸苦辣皆尝过，滚滚财源盈而丰。'],
+  [5.7,'福禄丰盈万事全，一身荣耀乐天年，名扬威震人争羡，处世逍遥宛遇仙。'],
+  [5.8,'平生衣食自然来，名利双全富贵偕，金榜题名登甲第，紫袍玉带走金阶。'],
+  [5.9,'细推此格秀而清，必定才高学业成，甲第之中应有分，扬鞭走马显威荣。'],
+  [6.0,'一朝金榜快题名，显祖荣宗大器成，衣禄定然无欠缺，田园财帛更丰盈。'],
+  [6.1,'不作朝中金榜客，定为世上大财翁，聪明天赋经书熟，名显高科自是荣。'],
+  [6.2,'此命生来福不穷，读书必定显亲宗，紫衣金带为卿相，富贵荣华孰与同。'],
+  [6.3,'命主为官福禄长，得来富贵实非常，名题金塔传金榜，定中高科天下扬。'],
+  [6.4,'此格威权不可当，紫袍金带坐高堂，荣华富贵谁能及，万古留名姓氏扬。'],
+  [6.5,'细推此命福非轻，富贵荣华孰与争，定国安邦人极品，威声显赫震寰瀛。'],
+  [6.6,'此格人间一福人，堆金积玉满堂春，从来富贵由天定，正笏垂绅谒圣君。'],
+  [6.7,'此命生来福自宏，田园家业最高隆，平生衣禄盈丰足，一路荣华万事通。'],
+  [6.8,'富贵由天莫苦求，万金家计不须谋，如今不比前番事，祖业根基万古留。'],
+  [6.9,'君是人间衣禄星，一身富贵众人钦，总然福禄由天定，安享荣华过一生。'],
+  [7.0,'此命推来福不轻，何须愁虑苦劳心，荣华富贵已天定，正笏垂绅拜紫宸。'],
+  [7.1,'此命推来大不同，公侯卿相在其中，一生自有逍遥福，富贵荣华极登场。']
+];
+
+function calcChengGu(yearGanZhi, lunarMonth, lunarDay, hourZhi) {
+  var yw = CG_YEAR[yearGanZhi] || 0;
+  var mw = CG_MONTH[lunarMonth] || 0;
+  var dw = CG_DAY[lunarDay] || 0;
+  var hw = CG_HOUR[hourZhi] || 0;
+  var total = Math.round((yw + mw + dw + hw) * 10) / 10;
+  var poem = '';
+  for (var i = 0; i < CG_SCORES.length; i++) {
+    if (Math.abs(CG_SCORES[i][0] - total) < 0.05) { poem = CG_SCORES[i][1]; break; }
+  }
+  return { yearWeight: yw, monthWeight: mw, dayWeight: dw, hourWeight: hw, total: total, poem: poem };
+}
+
+
+// === src/fate/liuyue.js ===
+function calcLiuYue(liuNianGan) {
+  var months = [];
+  var yearGanIdx = TIAN_GAN.indexOf(liuNianGan);
+  var startGan = [2, 4, 6, 8, 0, 2, 4, 6, 8, 0][yearGanIdx];
+  var monthNames = ['正月','二月','三月','四月','五月','六月','七月','八月','九月','十月','冬月','腊月'];
+  for (var i = 0; i < 12; i++) {
+    var zhiIdx = (2 + i) % 12;
+    var ganIdx = (startGan + i) % 10;
+    var gan = TIAN_GAN[ganIdx];
+    var zhi = DI_ZHI[zhiIdx];
+    var gz = gan + zhi;
+    months.push({ gan: gan, zhi: zhi, ganZhi: gz, month: i + 1, name: monthNames[i], naYin: NA_YIN[gz] });
+  }
+  return months;
+}
+
+
+// 根据四柱反查公历日期（1911-2100）
+function searchByPillars(targetYearGan, targetYearZhi, targetMonthGan, targetMonthZhi, targetDayGan, targetDayZhi, targetHourGan, targetHourZhi) {
+  var results = [];
+  var HOUR_VALS = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]; // 时辰起始小时
+
+  for (var year = 1911; year <= 2100; year++) {
+    // 快速跳过：用年中6月15日的年柱做筛选（远离立春边界）
+    var midYear = new Date(year, 5, 15, 12, 0, 0);
+    var yp = getYearPillar(midYear);
+    if (yp.gan !== targetYearGan || yp.zhi !== targetYearZhi) continue;
+
+    // 年柱匹配，遍历全年每一天
+    for (var month = 0; month < 12; month++) {
+      var daysInMonth = new Date(year, month + 1, 0).getDate();
+      for (var day = 1; day <= daysInMonth; day++) {
+        for (var hi = 0; hi < HOUR_VALS.length; hi++) {
+          var h = HOUR_VALS[hi];
+          var date = new Date(year, month, day, h, 0, 0);
+          var fp = getFourPillars(date);
+
+          if (fp.month.gan === targetMonthGan && fp.month.zhi === targetMonthZhi &&
+              fp.day.gan === targetDayGan && fp.day.zhi === targetDayZhi &&
+              fp.hour.gan === targetHourGan && fp.hour.zhi === targetHourZhi) {
+            results.push({
+              year: year,
+              month: month + 1,
+              day: day,
+              hour: h,
+              fourPillars: {
+                year: fp.year,
+                month: fp.month,
+                day: fp.day,
+                hour: fp.hour
+              }
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return results;
+}
 
 function paipan(year, month, day, hour, gender) {
   const birthDate = new Date(year, month - 1, day, hour);
@@ -2088,6 +3295,52 @@ function paipan(year, month, day, hour, gender) {
   // 8. 日主强弱
   const dayStrength = judgeDayStrength(fourPillars);
 
+  // 9. 调候
+  const tiaoHou = getTiaoHou(fourPillars.day.gan, fourPillars.month.zhi);
+
+  // 10. 格局
+  const geJu = determineGeJu(fourPillars);
+
+  // 11. 特殊组合
+  const specialCombinations = analyzeSpecialCombinations(fourPillars, shiShen);
+
+  // 12. 综合用神
+  const yongShen = analyzeYongShen(fourPillars, dayStrength, shiShen, tiaoHou);
+
+  // 13. 二十八星宿
+  const dayPillar60Index = getDayPillar60Index(fourPillars.day.gan, fourPillars.day.zhi);
+  const totalDayOffset = getDayOffsetFrom1900(year, month, day);
+  const riXiu = getRiXiu(totalDayOffset);
+
+  // 14. 命宫/胎元/胎息/身宫
+  const hourZhi = fourPillars.hour.zhi;
+  const taiYuan = calcTaiYuan(fourPillars.month.gan, fourPillars.month.zhi);
+  taiYuan.naYin = NA_YIN[taiYuan.ganZhi] || '';
+  const taiXi = calcTaiXi(fourPillars.day.gan, fourPillars.day.zhi);
+  taiXi.naYin = NA_YIN[taiXi.ganZhi] || '';
+  const mingGong = calcMingGong(fourPillars.month.zhi, hourZhi, fourPillars.year.gan);
+  mingGong.naYin = NA_YIN[mingGong.ganZhi] || '';
+  const shenGong = calcShenGong(fourPillars.month.zhi, hourZhi, fourPillars.year.gan);
+  shenGong.naYin = NA_YIN[shenGong.ganZhi] || '';
+
+  // 15. 空亡
+  const kongWang = getKongWang(fourPillars.day.gan, fourPillars.day.zhi);
+  const yearKongWang = getKongWang(fourPillars.year.gan, fourPillars.year.zhi);
+
+  // 16. 自坐星运（每柱天干坐本柱地支的十二长生）
+  var ziZuo = {};
+  var positions = ['year', 'month', 'day', 'hour'];
+  positions.forEach(function(pos) {
+    ziZuo[pos] = getChangSheng(fourPillars[pos].gan, fourPillars[pos].zhi);
+  });
+
+  // 17. 袁天罡称骨
+  var lunar = solarToLunar(year, month, day);
+  const chengGu = calcChengGu(fourPillars.year.ganZhi, lunar.month, lunar.day, hourZhi);
+
+  // 18. 小运
+  const xiaoYun = calcXiaoYun(fourPillars, gender, birthDate, daYun.qiYunAge);
+
   return {
     birthInfo: { year, month, day, hour, gender },
     fourPillars,
@@ -2098,7 +3351,23 @@ function paipan(year, month, day, hour, gender) {
     daYun,
     shenSha,
     xingChongHeHai: xchh,
-    dayStrength
+    dayStrength,
+    tiaoHou,
+    geJu,
+    specialCombinations,
+    yongShen,
+    // 新增
+    riXiu: riXiu,
+    taiYuan: taiYuan,
+    taiXi: taiXi,
+    mingGong: mingGong,
+    shenGong: shenGong,
+    kongWang: kongWang,
+    yearKongWang: yearKongWang,
+    ziZuo: ziZuo,
+    chengGu: chengGu,
+    xiaoYun: xiaoYun,
+    lunarDate: lunar
   };
 }
 
@@ -2270,12 +3539,26 @@ function getDisplayWidth(str) {
 return {
   paipan: paipan,
   generateReport: generateReport,
+  analyzeLiuNian: analyzeLiuNian,
+  calcLiuYue: calcLiuYue,
+  solarToLunar: solarToLunar,
+  calcJieQiDate: calcJieQiDate,
+  searchByPillars: searchByPillars,
   _constants: {
     GAN_WU_XING: GAN_WU_XING,
     ZHI_WU_XING: ZHI_WU_XING,
     ZHI_CANG_GAN: ZHI_CANG_GAN,
-    GAN_YIN_YANG: GAN_YIN_YANG
+    GAN_YIN_YANG: GAN_YIN_YANG,
+    TIAN_GAN: TIAN_GAN,
+    DI_ZHI: DI_ZHI,
+    NA_YIN: NA_YIN
+  },
+  getKongWang: getKongWang,
+  getLeapMonth: function(y) {
+    if (y < 1900 || y > 2100) return 0;
+    return LUNAR_INFO[y - 1900] & 0xf;
   }
 };
 
 })();
+if (typeof window !== 'undefined') { window.BaziEngine = BaziEngine; }

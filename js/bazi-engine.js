@@ -3553,7 +3553,11 @@ return {
     DI_ZHI: DI_ZHI,
     NA_YIN: NA_YIN
   },
-  getKongWang: getKongWang
+  getKongWang: getKongWang,
+  getLeapMonth: function(y) {
+    if (y < 1900 || y > 2100) return 0;
+    return LUNAR_INFO[y - 1900] & 0xf;
+  }
 };
 
 })();

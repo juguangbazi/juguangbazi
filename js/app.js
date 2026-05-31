@@ -806,6 +806,21 @@ var currentResult = null;
 var _selectedDaYunIdx = null;
 var _selectedXiaoYunIdx = undefined;
 
+// 跳转到细盘tab，强制刷新为当前大运/流年
+function switchToDetailTab() {
+  _selectedDaYunIdx = null;
+  _selectedLiuNianYear = null;
+  _selectedXiaoYunIdx = undefined;
+  renderTabDetail(currentResult);
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+  var detailBtn = document.querySelector('.tab-btn[data-tab="tab-detail"]');
+  if (detailBtn) detailBtn.classList.add('active');
+  var detailTab = document.getElementById('tab-detail');
+  if (detailTab) detailTab.classList.add('active');
+  document.getElementById('result-header-title').textContent = (currentResult._name || '') + ' 細盤信息';
+}
+
 function doPaipan() {
   if (typeof BaziEngine === 'undefined' || !BaziEngine.paipan) {
     alert('引擎載入失敗，請刷新頁面');
@@ -834,9 +849,11 @@ function doPaipan() {
     currentResult = BaziEngine.paipan(year, month, day, hour, gender);
     currentResult._name = name;
     _selectedDaYunIdx = null;
+    _selectedLiuNianYear = null;
 
     renderResult(currentResult);
     showPage('result');
+    switchToDetailTab();
   } catch (e) {
     alert('排盤出錯：' + e.message);
     console.error(e);
@@ -932,6 +949,7 @@ function initRecordsPage() {
     _selectedLiuNianYear = null;
     renderResult(currentResult);
     showPage('result');
+    switchToDetailTab();
   });
 
   // 刪除
@@ -1756,12 +1774,16 @@ function renderTabDetail(result) {
   var ss = result.shiShen;
   var currentYear = new Date().getFullYear();
 
-  if (_selectedDaYunIdx === null) {
-    _selectedDaYunIdx = dy.daYunList.findIndex(function(d) { return currentYear >= d.startYear && currentYear <= d.endYear; });
-    if (_selectedDaYunIdx < 0) _selectedDaYunIdx = 0;
-  }
-
   var beforeQiYun = currentYear < dy.qiYunYear;
+
+  if (_selectedDaYunIdx === null) {
+    if (beforeQiYun) {
+      _selectedDaYunIdx = -1; // 未起运，显示小运
+    } else {
+      _selectedDaYunIdx = dy.daYunList.findIndex(function(d) { return currentYear >= d.startYear && currentYear <= d.endYear; });
+      if (_selectedDaYunIdx < 0) _selectedDaYunIdx = 0;
+    }
+  }
   var isXiaoYunMode = (_selectedDaYunIdx === -1);
   var selDaYun = isXiaoYunMode ? null : (dy.daYunList[_selectedDaYunIdx] || null);
   var dyData = {};
@@ -1859,7 +1881,7 @@ function renderTabDetail(result) {
     var ssDisplay = c === 2 ? dayLabel.replace('元', '元<br>') : ssLabel;
     html += '<td class="xipan-cell-tag">' +
       (ssLabel ? '<span class="xipan-ss-tag' + ssCls + '">' + ssDisplay + '</span>' : '') +
-      '<span class="xipan-gan ' + WX_CLASS[wxGan] + '">' + gan + '</span>' +
+      '<span class="xipan-gan ' + WX_CLASS[wxGan] + '" onclick="showPillarPopup(' + c + ')">' + gan + '</span>' +
       '</td>';
   }
   html += '</tr>';
@@ -1881,7 +1903,7 @@ function renderTabDetail(result) {
     }
     html += '<td class="xipan-cell-tag">' +
       (zhiSSLabels.length > 0 ? '<span class="xipan-ss-tag xipan-ss-stack">' + zhiSSLabels.join('<br>') + '</span>' : '') +
-      '<span class="xipan-zhi ' + WX_CLASS[wxZhi] + '" onclick="onXipanClickZhi(\'' + zhi + '\',\'' + wxZhi + '\',' + c + ')">' + zhi + '</span>' +
+      '<span class="xipan-zhi ' + WX_CLASS[wxZhi] + '" onclick="showPillarPopup(' + c + ')">' + zhi + '</span>' +
       '</td>';
   }
   html += '</tr>';
@@ -1955,8 +1977,12 @@ function renderXipanDayun(result) {
   var ZHI_WX = BaziEngine._constants.ZHI_WU_XING;
 
   if (_selectedDaYunIdx === null) {
-    _selectedDaYunIdx = dy.daYunList.findIndex(function(d) { return currentYear >= d.startYear && currentYear <= d.endYear; });
-    if (_selectedDaYunIdx < 0) _selectedDaYunIdx = 0;
+    if (currentYear < dy.qiYunYear) {
+      _selectedDaYunIdx = -1; // 未起运，显示小运
+    } else {
+      _selectedDaYunIdx = dy.daYunList.findIndex(function(d) { return currentYear >= d.startYear && currentYear <= d.endYear; });
+      if (_selectedDaYunIdx < 0) _selectedDaYunIdx = 0;
+    }
   }
 
   var html = '';
@@ -2190,45 +2216,130 @@ function analyzeZhiTips(cols) {
   return tips.join('；') || '';
 }
 
-// ========== 细盘交互 ==========
-function onXipanClickGan(gan, wx, ssName) {
-  alert(gan + '（' + wx + '）· 十神：' + ssName);
+// ========== 干支神煞简算（用于大运流年，以日干/年干/年支为参照） ==========
+function getGanZhiShenSha(colGan, zhi) {
+  var result = [];
+  var fp = (currentResult && currentResult.fourPillars) ? currentResult.fourPillars : null;
+  if (!fp) return result;
+  var dayGan = fp.day.gan, yearZhi = fp.year.zhi, dayZhi = fp.day.zhi;
+  var refGans = [dayGan, fp.year.gan]; // 以日干、年干为参照
+
+  // 天乙贵人（日干/年干 → 贵人地支）
+  var TIANYI = { '甲':'丑未','乙':'子申','丙':'亥酉','丁':'亥酉','戊':'丑未','己':'子申','庚':'丑未','辛':'午寅','壬':'卯巳','癸':'卯巳' };
+  for (var i = 0; i < refGans.length; i++) {
+    var ty = TIANYI[refGans[i]] || '';
+    if (ty.indexOf(zhi) >= 0) { result.push('天乙貴人'); break; }
+  }
+  // 文昌贵人
+  var WENCHANG = { '甲':'巳','乙':'午','丙':'申','丁':'酉','戊':'申','己':'酉','庚':'亥','辛':'子','壬':'寅','癸':'卯' };
+  if (WENCHANG[dayGan] === zhi) result.push('文昌貴人');
+  // 禄神（日干临官位，大运/流年地支落于日干禄位）
+  var LUSHEN = { '甲':'寅','乙':'卯','丙':'巳','丁':'午','戊':'巳','己':'午','庚':'申','辛':'酉','壬':'亥','癸':'子' };
+  if (LUSHEN[dayGan] === zhi) result.push('祿神');
+  // 羊刃（日干帝旺位）
+  var YANGREN = { '甲':'卯','乙':'寅','丙':'午','丁':'巳','戊':'午','己':'巳','庚':'酉','辛':'申','壬':'子','癸':'亥' };
+  if (YANGREN[dayGan] === zhi) result.push('羊刃');
+  // 太极贵人
+  var TAIJI = { '甲':'子午','乙':'子午','丙':'卯酉','丁':'卯酉','戊':'辰戌丑未','己':'辰戌丑未','庚':'寅亥','辛':'寅亥','壬':'巳申','癸':'巳申' };
+  var tj = TAIJI[dayGan] || '';
+  if (tj.indexOf(zhi) >= 0) result.push('太極貴人');
+  // 金舆
+  var JINYU = { '甲':'辰','乙':'巳','丙':'未','丁':'申','戊':'未','己':'申','庚':'戌','辛':'亥','壬':'丑','癸':'寅' };
+  if (JINYU[dayGan] === zhi) result.push('金輿');
+  // 学堂
+  var XUETANG = { '甲':'亥','乙':'午','丙':'寅','丁':'酉','戊':'寅','己':'酉','庚':'巳','辛':'子','壬':'申','癸':'卯' };
+  if (XUETANG[dayGan] === zhi) result.push('學堂');
+  // 将星（地支三合帝旺）
+  var JIANGXING = { '申':'子','子':'子','辰':'子','寅':'午','午':'午','戌':'午','巳':'酉','酉':'酉','丑':'酉','亥':'卯','卯':'卯','未':'卯' };
+  if (JIANGXING[zhi] && JIANGXING[zhi] === zhi) {} // 每个支都是自己的将星?
+  // 天德贵人（月支 → 天干）
+  var TIANDE = { '寅':'丁','卯':'申','辰':'壬','巳':'辛','午':'亥','未':'甲','申':'癸','酉':'寅','戌':'丙','亥':'乙','子':'巳','丑':'庚' };
+  if (TIANDE[fp.month.zhi] === colGan) result.push('天德貴人');
+  // 月德贵人（月支三合局 → 天干）
+  var YUEDE = { '寅':'丙','午':'丙','戌':'丙','亥':'甲','卯':'甲','未':'甲','申':'壬','子':'壬','辰':'壬','巳':'庚','酉':'庚','丑':'庚' };
+  if (YUEDE[fp.month.zhi] === colGan) result.push('月德貴人');
+  // 劫煞（年支/日支三合局绝地）
+  var JIESHA_OF = { '申':'巳','子':'巳','辰':'巳','寅':'亥','午':'亥','戌':'亥','巳':'寅','酉':'寅','丑':'寅','亥':'申','卯':'申','未':'申' };
+  // 灾煞（年支/日支三合局胎地）
+  var ZAISHA_OF = { '申':'午','子':'午','辰':'午','寅':'卯','午':'卯','戌':'卯','巳':'酉','酉':'酉','丑':'酉','亥':'子','卯':'子','未':'子' };
+  var refZhis = [yearZhi, dayZhi];
+  var hasJie = false, hasZai = false;
+  refZhis.forEach(function(rz) {
+    if (rz && JIESHA_OF[rz] === zhi) hasJie = true;
+    if (rz && ZAISHA_OF[rz] === zhi) hasZai = true;
+  });
+  if (hasJie) result.push('劫煞');
+  if (hasZai) result.push('災煞');
+  return result;
 }
 
-function onXipanClickZhi(zhi, wx, colIdx) {
-  var CANG_GAN = BaziEngine._constants.ZHI_CANG_GAN;
-  var cg = CANG_GAN[zhi] || [];
-  var GAN_WX = BaziEngine._constants.GAN_WU_XING;
-  var cangGanStr = cg.map(function(g) { return g + '(' + GAN_WX[g] + ')'; }).join('、');
-
-  // 柱位映射
+// ========== 细盘交互 ==========
+// 六柱点击弹窗
+function showPillarPopup(colIdx) {
+  if (!currentResult) return;
+  var fp = currentResult.fourPillars;
   var posNames = ['年柱', '月柱', '日柱', '時柱', '大運', '流年'];
-  var posShort = ['年', '月', '日', '時'];
+  var posShort = ['年', '月', '日', '时'];
+  var posKeys = ['year', 'month', 'day', 'hour'];
   var colName = posNames[colIdx] || '';
 
-  // 筛选该柱相关神煞
-  var shenSha = currentResult.shenSha || [];
-  var posPrefix = colIdx < 4 ? posShort[colIdx] : '';
-  var related = [];
-  if (posPrefix) {
-    related = shenSha.filter(function(s) {
-      return s.position.indexOf(posPrefix) === 0 && s.position.indexOf(posPrefix + '支') >= 0;
-    });
+  // 该柱干支
+  var ganzhi = '';
+  if (colIdx < 4) {
+    ganzhi = fp[posKeys[colIdx]].ganZhi;
+  } else if (colIdx === 4) {
+    var dy = currentResult.daYun;
+    if (_selectedDaYunIdx >= 0 && dy.daYunList[_selectedDaYunIdx]) {
+      ganzhi = dy.daYunList[_selectedDaYunIdx].ganZhi;
+    }
+  } else if (colIdx === 5) {
+    var lnYear = _selectedLiuNianYear || new Date().getFullYear();
+    var tg = BaziEngine._constants.TIAN_GAN;
+    var dz = BaziEngine._constants.DI_ZHI;
+    ganzhi = tg[(lnYear - 4) % 10] + dz[(lnYear - 4) % 12];
   }
+  if (!ganzhi) ganzhi = '—';
 
-  var lines = [];
-  lines.push(zhi + '（' + wx + '）— ' + colName + '地支');
-  lines.push('藏干：' + (cangGanStr || '无'));
-  if (related.length > 0) {
-    lines.push('神煞：');
-    related.forEach(function(s) {
-      lines.push('  · ' + s.name + '：' + s.description);
+  // 筛选该柱神煞
+  var shenSha = currentResult.shenSha || [];
+  var relatedNames = [];
+  if (colIdx < 4) {
+    // 年月日时：天干+地支神煞
+    var posPrefix = posShort[colIdx];
+    shenSha.forEach(function(s) {
+      if (s.position === posPrefix + '干' || s.position === posPrefix + '支') {
+        if (relatedNames.indexOf(s.name) < 0) relatedNames.push(s.name);
+      }
     });
   } else {
-    lines.push('神煞：无');
+    // 大运/流年：天干+地支神煞
+    var colGan = ganzhi.charAt(0);
+    var colZhi = ganzhi.charAt(1);
+    if (colGan && colZhi) {
+      relatedNames = getGanZhiShenSha(colGan, colZhi);
+    }
   }
 
-  alert(lines.join('\n'));
+  var html = '<div class="pillar-popup-overlay" onclick="closePillarPopup()">' +
+    '<div class="pillar-popup-card" data-col-idx="' + colIdx + '" onclick="event.stopPropagation()">' +
+    '<div class="pillar-popup-title">' + colName + '【' + ganzhi + '】提示</div>';
+  if (relatedNames.length > 0) {
+    html += '<div class="pillar-popup-shensha">' + relatedNames.join('、') + '</div>';
+  } else {
+    html += '<div class="pillar-popup-shensha" style="color:#a09888">暫無神煞</div>';
+  }
+
+  html += '<button class="pillar-popup-close" onclick="closePillarPopup()">確定</button>' +
+    '</div></div>';
+
+  var old = document.querySelector('.pillar-popup-overlay');
+  if (old) old.remove();
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closePillarPopup() {
+  var el = document.querySelector('.pillar-popup-overlay');
+  if (el) el.remove();
 }
 
 function onXipanSelectLiuNian(year) {
@@ -2269,7 +2380,7 @@ function renderDaYunLiuNian(opts) {
   h += '</tr></thead><tbody>';
 
   // 干支行（干上支下，整体点击）
-  h += '<tr><td class="xipan-dy-row-label">大<br>運</td>';
+  h += '<tr><td class="xipan-dy-row-label">大運</td>';
   h += '<td class="xipan-dy-row-label' + (isXiaoYunMode ? ' xipan-dy-sel' : '') + '" onclick="selectXiaoYun(0)">小<br>運</td>';
   for (i = 0; i < DY.length; i++) {
     d = DY[i];
@@ -2309,7 +2420,7 @@ function renderDaYunLiuNian(opts) {
     h += '</tr></thead><tbody>';
 
     // 流年（干上支下，整体点击）
-    h += '<tr><td class="xipan-dy-row-label">流<br>年</td>';
+    h += '<tr><td class="xipan-dy-row-label">流年</td>';
     for (li = 0; li < MAX_LN; li++) {
       if (li < lnList.length) {
         var ln = lnList[li];
@@ -2327,20 +2438,19 @@ function renderDaYunLiuNian(opts) {
     h += '</tbody></table></div>';
   }
 
-  // 五行旺相休囚死
+  // 五行旺相休囚死（固定顺序：旺→相→休→囚→死，只变五行）
   var wangXiang = calcWangXiang(opts.monthZhiWx);
-  var wxData = [
-    { name: '火', color: '#d32f2f' },
-    { name: '土', color: '#b87333' },
-    { name: '木', color: '#388E3C' },
-    { name: '水', color: '#1976D2' },
-    { name: '金', color: '#E65100' }
-  ];
+  var WX_COLORS = { '木':'#388E3C','火':'#d32f2f','土':'#b87333','金':'#E65100','水':'#1976D2' };
+  // 反向查找：每个状态对应哪个五行
+  var stateWx = {};
+  for (var wx in wangXiang) { stateWx[wangXiang[wx]] = wx; }
+  var states = ['旺','相','休','囚','死'];
   h += '<div class="xipan-wx-text">';
-  wxData.forEach(function(w, idx) {
+  states.forEach(function(st, idx) {
     if (idx > 0) h += ' ';
-    var st = wangXiang[w.name] || '';
-    h += '<span class="xipan-wx-badge" style="color:' + w.color + ';border-color:' + w.color + '">' + w.name + st + '</span>';
+    var wx = stateWx[st] || '—';
+    var color = WX_COLORS[wx] || '#999';
+    h += '<span class="xipan-wx-badge" style="color:' + color + ';border-color:' + color + '">' + wx + st + '</span>';
   });
   h += '</div>';
 
@@ -2427,6 +2537,13 @@ function selectDaYun(idx) {
   _selectedXiaoYunIdx = undefined;
   _selectedLiuNianYear = null;
   renderTabDetail(currentResult);
+  // 如果大运/流年弹窗已打开，实时刷新
+  var popup = document.querySelector('.pillar-popup-overlay');
+  if (popup) {
+    var card = popup.querySelector('.pillar-popup-card');
+    var colIdx = parseInt(card ? card.dataset.colIdx : '') || 0;
+    if (colIdx >= 4) showPillarPopup(colIdx);
+  }
 }
 
 function selectXiaoYun(idx) {
@@ -2434,11 +2551,21 @@ function selectXiaoYun(idx) {
   _selectedXiaoYunIdx = idx;
   _selectedLiuNianYear = null;
   renderTabDetail(currentResult);
+  var popup = document.querySelector('.pillar-popup-overlay');
+  if (popup) { closePillarPopup(); }
 }
 
 function selectLiuNian(year) {
   _selectedLiuNianYear = year;
   renderTabDetail(currentResult);
+  // 如果流年弹窗已打开，实时刷新内容
+  var popup = document.querySelector('.pillar-popup-overlay');
+  if (popup) {
+    var card = popup.querySelector('.pillar-popup-card');
+    if (card && card.dataset.colIdx === '5') {
+      showPillarPopup(5);
+    }
+  }
 }
 
 
